@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | CuroJobs</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
+</head>
+<body>
+    <div class="main-page-wrapper">
+        <header class="theme-main-menu menu-style-one sticky-menu" style="background-color: #244034;">
+            <div class="inner-content position-relative">
+                <div class="top-header">
+                    <div class="d-flex align-items-center">
+                        <div class="logo order-lg-0"><a href="index.html" class="d-flex align-items-center"><img src="images/logo/logo_01.png" alt="" class="curo"></a></div>
+                        <div class="right-widget ms-auto order-lg-3">
+                            <ul class="d-flex align-items-center style-none">
+                                <li><a href="login.html" class="login-btn-one">Login | SignUp</a></li>
+                                <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Hire Top Talents</a></li>
+                            </ul>
+                        </div>
+                        <nav class="navbar navbar-expand-lg p0 ms-lg-5 ms-3 order-lg-2">
+                            <div class="collapse navbar-collapse" id="navbarNav">
+                                <ul class="navbar-nav align-items-lg-center">
+                                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="index.html#candidates-employees">For Candidates</a></li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="registration-section position-relative" style="padding-top: 150px; padding-bottom: 150px;">
+            <div class="container">
+                <div class="user-data-form">
+                    <div class="text-center">
+                        <h2>Hi, Welcome Back!</h2>
+                        <p>Still don't have an account? <a href="signup.html">Sign up</a></p>
+                    </div>
+                    <div class="form-wrapper m-auto">
+                        <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+                        <form id="login-form" class="mt-10">
+                            <div class="row">
+                                <div class="col-12"><div class="input-group-meta position-relative mb-25"><label>Email Address*</label><input type="email" name="username" placeholder="Enter your email address" required></div></div>
+                                <div class="col-12"><div class="input-group-meta position-relative mb-20"><label>Password*</label><input type="password" name="password" placeholder="Enter Password" required></div></div>
+                                <div class="col-12"><button type="submit" class="btn-eleven fw-500 tran3s d-block mt-20">Login</button></div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <div class="footer-one"><div class="bottom-footer"><div class="container"><div class="row"><div class="col-md-12 mt-10"><p class="text-center mb-15">Copyright @2025 Curo Jobs Inc.</p></div></div></div></div></div>
+    </div>
+
+    <script src="vendor/jwt-decode.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginForm = document.getElementById('login-form');
+            const errorMessageDiv = document.getElementById('error-message');
+
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const formData = new FormData(loginForm);
+                const data = Object.fromEntries(formData.entries());
+                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/token/';
+                errorMessageDiv.style.display = 'none';
+
+                try {
+                    const response = await fetch(apiURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data),
+                    });
+                    const result = await response.json();
+                    if (!response.ok) {
+                        errorMessageDiv.textContent = result.detail || 'Invalid credentials.';
+                        errorMessageDiv.style.display = 'block';
+                    } else {
+                        localStorage.setItem('accessToken', result.access);
+                        localStorage.setItem('refreshToken', result.refresh);
+                        const decodedToken = jwt_decode(result.access);
+                        if (decodedToken.user_type === 'applicant') {
+                            window.location.href = 'dashboard/applicant/candidate-dashboard-index.html';
+                        } else if (decodedToken.user_type === 'company') {
+                            window.location.href = 'dashboard/employer/employer-dashboard-index.html';
+                        } else {
+                            window.location.href = 'index.html';
+                        }
+                    }
+                } catch (error) {
+                    errorMessageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                    errorMessageDiv.style.display = 'block';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

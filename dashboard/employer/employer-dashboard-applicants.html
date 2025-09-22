@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CuroJobs - Employer Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+</head>
+
+<body>
+    <div class="main-page-wrapper">
+        <aside class="dash-aside-navbar">
+            <div class="position-relative">
+                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt=""></a></div>
+                <div class="user-data">
+                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
+                    <div class="user-name-data"><button class="user-name dropdown-toggle" id="profile-dropdown">Loading...</button></div>
+                </div>
+                <nav class="dasboard-main-nav">
+                    <ul class="style-none">
+                        <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center active"><span>Dashboard</span></a></li>
+                        <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><span>My Profile</span></a></li>
+                        <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><span>My Jobs</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><span>Submit Job</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><span>Logout</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="dashboard-body">
+            <div class="position-relative">
+                <header class="dashboard-header"></header>
+                <h2 class="main-title">Dashboard</h2>
+                <div class="row">
+                    <div class="col-lg-3 col-6">
+                        <div class="dash-card-one bg-white border-30 position-relative mb-15">
+                            <div class="d-sm-flex align-items-center justify-content-between">
+                                <div class="order-sm-0">
+                                    <div class="value fw-500" id="posted-jobs-count">0</div>
+                                    <span>Posted Jobs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row d-flex pt-50 lg-pt-10">
+                    <div class="col-12">
+                        <div class="recent-job-tab bg-white border-20 mt-30 w-100">
+                            <h4 class="dash-title-two">My Posted Jobs</h4>
+                            <div id="posted-jobs-container" class="wrapper">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../js/api.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const decodedToken = jwt_decode(localStorage.getItem('accessToken'));
+                if (!decodedToken || decodedToken.user_type !== 'company') {
+                    window.location.href = '../../login.html';
+                    return;
+                }
+
+                const profileNameEl = document.getElementById('profile-dropdown');
+                const postedJobsContainer = document.getElementById('posted-jobs-container');
+                const postedJobsCountEl = document.getElementById('posted-jobs-count');
+                const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
+
+                const fetchProfile = async () => {
+                    try {
+                        const response = await apiFetch(`${baseApiURL}accounts/profile/company/`);
+                        if (!response || !response.ok) throw new Error('Failed to fetch profile');
+                        const profile = await response.json();
+                        const username = profile.name || 'Employer';
+                        profileNameEl.textContent = username;
+
+                        const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
+                        if (avatarPlaceholder) {
+                            const initial = username.charAt(0).toUpperCase();
+                            let hash = 0;
+                            for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
+                            const color = `hsl(${hash % 360}, 50%, 60%)`;
+                            avatarPlaceholder.style.backgroundColor = color;
+                            avatarPlaceholder.style.display = 'flex';
+                            avatarPlaceholder.style.alignItems = 'center';
+                            avatarPlaceholder.style.justifyContent = 'center';
+                            avatarPlaceholder.style.color = 'white';
+                            avatarPlaceholder.style.fontSize = '24px';
+                            avatarPlaceholder.style.fontWeight = '500';
+                            avatarPlaceholder.innerHTML = initial;
+                        }
+                    } catch (error) { console.error('Error fetching profile:', error); }
+                };
+                
+                const fetchPostedJobs = async () => {
+                    postedJobsContainer.innerHTML = '<p>Loading your jobs...</p>';
+                    try {
+                        const response = await apiFetch(`${baseApiURL}jobs/my/`);
+                        if (!response || !response.ok) throw new Error('Failed to fetch jobs');
+                        
+                        const jobs = await response.json();
+                        postedJobsCountEl.textContent = jobs.length;
+                        postedJobsContainer.innerHTML = '';
+                        
+                        if (jobs.length === 0) {
+                            postedJobsContainer.innerHTML = '<p class="text-center p-3">You have not posted any jobs yet.</p>';
+                            return;
+                        }
+                        
+                        jobs.forEach(job => {
+                            const jobItem = document.createElement('div');
+                            jobItem.className = 'job-item-list d-flex align-items-center';
+                            jobItem.innerHTML = `
+                                <div class="job-title flex-grow-1">
+                                    <h6 class="mb-5"><a href="../../job-details.html?id=${job.id}" target="_blank">${job.title}</a></h6>
+                                    <div class="meta"><span>${job.job_type || 'N/A'}</span> . <span>${job.location}</span></div>
+                                </div>
+                                <div class="job-action">
+                                    <a href="employer-dashboard-applicants.html?jobId=${job.id}" class="btn btn-sm btn-outline-primary">View Applicants</a>
+                                </div>
+                            `;
+                            postedJobsContainer.appendChild(jobItem);
+                        });
+                        
+                    } catch (error) {
+                        postedJobsContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load your jobs.</p>';
+                    }
+                };
+
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        localStorage.clear();
+                        window.location.href = '../../index.html';
+                    });
+                }
+                
+                fetchProfile();
+                fetchPostedJobs();
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CuroJobs - Messages</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+</head>
+<body>
+    <div class="main-page-wrapper">
+        <aside class="dash-aside-navbar">
+            <div class="position-relative">
+                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt=""></a></div>
+                <div class="user-data">
+                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
+                    <div class="user-name-data"><button class="user-name dropdown-toggle" id="profile-dropdown">Loading...</button></div>
+                </div>
+                <nav class="dasboard-main-nav">
+                    <ul class="style-none">
+                        <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
+                        <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
+                        <li><a href="candidate-dashboard-resume.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>Resume</span></a></li>
+                        <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+        <div class="dashboard-body">
+            <div class="position-relative">
+                <header class="dashboard-header"><h2 class="main-title m0">Messages</h2></header>
+                <div class="bg-white card-box border-20 p0 mt-30">
+                    <div class="message-wrapper">
+                        <div class="row gx-0">
+                            <div class="col-lg-4">
+                                <div class="message-sidebar pt-20">
+                                    <div class="ps-3 pe-3 ps-xxl-4 pe-xxl-4"><div class="page-title fw-500">Inbox</div></div>
+                                    <div id="message-list-container" class="email-read-panel">
+                                        <p class="text-center p-3">Loading messages...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div id="message-display-container" class="open-email-container pb-40">
+                                    <div class="text-center p-5">Please select a message to view.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../js/api.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const decodedToken = jwt_decode(localStorage.getItem('accessToken'));
+                if (!decodedToken || decodedToken.user_type !== 'applicant') {
+                    window.location.href = '../../login.html';
+                    return;
+                }
+                const profileNameEl = document.getElementById('profile-dropdown');
+                const messageListContainer = document.getElementById('message-list-container');
+                const messageDisplayContainer = document.getElementById('message-display-container');
+                const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
+                let allMessages = [];
+                const displayMessage = (messageId) => {
+                    const message = allMessages.find(m => m.id === messageId);
+                    if (!message) return;
+                    const sentDate = new Date(message.sent_at).toLocaleString();
+                    messageDisplayContainer.innerHTML = `
+                        <div class="email-header divider d-flex justify-content-between ps-4 pe-4"><div class="sender-info d-flex align-items-center"><div class="ps-3"><div class="sender-name">${message.sender_username}</div></div></div><div class="email-info"><div class="time">${sentDate}</div></div></div>
+                        <div class="email-body divider"><div class="ps-4 pe-4"><h2>${message.subject}</h2><p style="white-space: pre-wrap;">${message.body}</p></div></div>`;
+                };
+                const fetchMessages = async () => {
+                    try {
+                        const response = await apiFetch(`${baseApiURL}accounts/messages/`);
+                        if (!response || !response.ok) throw new Error('Failed to fetch messages');
+                        allMessages = await response.json();
+                        messageListContainer.innerHTML = '';
+                        if (allMessages.length === 0) {
+                            messageListContainer.innerHTML = '<p class="text-center p-3">You have no messages.</p>';
+                            messageDisplayContainer.innerHTML = '<div class="text-center p-5">Your inbox is empty.</div>';
+                            return;
+                        }
+                        allMessages.forEach((message, index) => {
+                            const messageItem = document.createElement('div');
+                            messageItem.className = 'email-list-item ps-3 pe-3 ps-xxl-4 pe-xxl-4';
+                            if (index === 0) { messageItem.classList.add('selected'); }
+                            messageItem.dataset.messageId = message.id;
+                            const sentDate = new Date(message.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                            messageItem.innerHTML = `<div class="email-short-preview position-relative"><div class="d-flex align-items-center justify-content-between"><div class="sender-name">${message.sender_username}</div><div class="date">${sentDate}</div></div><div class="mail-sub">${message.subject}</div></div>`;
+                            messageItem.addEventListener('click', () => {
+                                messageListContainer.querySelectorAll('.email-list-item').forEach(el => el.classList.remove('selected'));
+                                messageItem.classList.add('selected');
+                                displayMessage(message.id);
+                            });
+                            messageListContainer.appendChild(messageItem);
+                        });
+                        if (allMessages.length > 0) {
+                            displayMessage(allMessages[0].id);
+                        }
+                    } catch (error) {
+                        messageListContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load messages.</p>';
+                    }
+                };
+                const fetchProfile = async () => {
+                    try {
+                        const response = await apiFetch(`${baseApiURL}accounts/profile/applicant/`);
+                        if (!response || !response.ok) throw new Error('Failed to fetch profile');
+                        const profile = await response.json();
+                        const username = profile.username || 'Applicant';
+                        profileNameEl.textContent = username;
+                        const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
+                        if (avatarPlaceholder) {
+                            const initial = username.charAt(0).toUpperCase();
+                            let hash = 0;
+                            for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
+                            const color = `hsl(${hash % 360}, 50%, 60%)`;
+                            avatarPlaceholder.style.backgroundColor = color;
+                            avatarPlaceholder.style.display = 'flex';
+                            avatarPlaceholder.style.alignItems = 'center';
+                            avatarPlaceholder.style.justifyContent = 'center';
+                            avatarPlaceholder.style.color = 'white';
+                            avatarPlaceholder.style.fontSize = '24px';
+                            avatarPlaceholder.style.fontWeight = '500';
+                            avatarPlaceholder.innerHTML = initial;
+                        }
+                    } catch (error) { console.error('Error fetching profile:', error); }
+                };
+                const logoutBtn = document.getElementById('logout-btn');
+                if(logoutBtn){ logoutBtn.addEventListener('click', (e)=>{ e.preventDefault(); localStorage.clear(); window.location.href = '../../index.html'; }); }
+                fetchProfile();
+                fetchMessages();
+            });
+        </script>
+    </div>
+</body>
+</html>

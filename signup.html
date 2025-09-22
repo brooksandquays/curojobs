@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create an Account | CuroJobs</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
+</head>
+
+<body>
+    <div class="main-page-wrapper">
+        <header class="theme-main-menu menu-style-one sticky-menu" style="background-color: #244034;">
+            <div class="inner-content position-relative">
+                <div class="top-header">
+                    <div class="d-flex align-items-center">
+                        <div class="logo order-lg-0">
+                            <a href="index.html" class="d-flex align-items-center">
+                                <img src="images/logo/logo_01.png" alt="" class="curo">
+                            </a>
+                        </div>
+                        <div class="right-widget ms-auto order-lg-3">
+                            <ul id="auth-links" class="d-flex align-items-center style-none"></ul>
+                        </div>
+                        <nav class="navbar navbar-expand-lg p0 ms-lg-5 ms-3 order-lg-2">
+                            <button class="navbar-toggler d-block d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span></span></button>
+                            <div class="collapse navbar-collapse" id="navbarNav">
+                                <ul class="navbar-nav align-items-lg-center">
+                                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="index.html#candidates-employees">For Candidates</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="registration-section position-relative pt-100 lg-pt-80 pb-150 lg-pb-80" style="margin-top: 120px;">
+            <div class="container">
+                <div class="user-data-form">
+                    <div class="text-center">
+                        <h2>Create Account</h2>
+                    </div>
+                    <div class="form-wrapper m-auto">
+                        <div id="message-container" class="alert" style="display: none;"></div>
+                        <ul class="nav nav-tabs border-0 w-100 mt-30" role="tablist">
+                            <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#applicant-tab" role="tab">Applicant</button></li>
+                            <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#company-tab" role="tab">Company</button></li>
+                        </ul>
+                        <div class="tab-content mt-40">
+                            <div class="tab-pane fade show active" role="tabpanel" id="applicant-tab">
+                                <form id="applicant-signup-form">
+                                    <div class="row">
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-25"><label>Username*</label><input type="text" name="username" placeholder="Choose a username" required></div></div>
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-25"><label>Email*</label><input type="email" name="email" placeholder="youremail@example.com" required></div></div>
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-20"><label>Password*</label><input type="password" name="password" placeholder="Enter Password" required></div></div>
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-20"><label>Confirm Password*</label><input type="password" name="password2" placeholder="Confirm Password" required></div></div>
+                                        <div class="col-12"><button type="submit" class="btn-eleven fw-500 tran3s d-block mt-20">Register as Applicant</button></div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="tab-pane fade" role="tabpanel" id="company-tab">
+                                <form id="company-signup-form">
+                                    <div class="row">
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-25"><label>Company Username*</label><input type="text" name="username" placeholder="e.g., curohealth" required></div></div>
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-25"><label>Email*</label><input type="email" name="email" placeholder="hr@yourcompany.com" required></div></div>
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-20"><label>Password*</label><input type="password" name="password" placeholder="Enter Password" required></div></div>
+                                        <div class="col-12"><div class="input-group-meta position-relative mb-20"><label>Confirm Password*</label><input type="password" name="password2" placeholder="Confirm Password" required></div></div>
+                                        <div class="col-12"><button type="submit" class="btn-eleven fw-500 tran3s d-block mt-20">Register as Company</button></div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <p class="text-center mt-10">Have an account? <a href="login.html" class="fw-500">Sign In</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-one">
+             <div class="bottom-footer"><div class="container"><div class="row"><div class="col-md-12 mt-10"><p class="text-center mb-15">Copyright @2025 Curo Jobs Inc.</p></div></div></div></div>
+        </div>
+    </div>
+
+    <script src="vendor/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/jwt-decode.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const authLinksContainer = document.getElementById('auth-links');
+            const messageContainer = document.getElementById('message-container');
+            const applicantForm = document.getElementById('applicant-signup-form');
+            const companyForm = document.getElementById('company-signup-form');
+
+            const setupAuthHeader = () => {
+                const accessToken = localStorage.getItem('accessToken');
+                if (accessToken) {
+                    const decodedToken = jwt_decode(accessToken);
+                    let dashboardUrl = 'index.html';
+                    if (decodedToken.user_type === 'applicant') {
+                        dashboardUrl = 'dashboard/applicant/candidate-dashboard-index.html';
+                    } else if (decodedToken.user_type === 'company') {
+                        dashboardUrl = 'dashboard/employer/employer-dashboard-index.html';
+                    }
+                    authLinksContainer.innerHTML = `<li><a href="${dashboardUrl}" class="login-btn-one">Dashboard</a></li><li class="d-none d-md-block ms-4"><a href="#" id="logout-btn" class="btn-one">Logout</a></li>`;
+                    const logoutBtn = document.getElementById('logout-btn');
+                    if(logoutBtn) {
+                        logoutBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            localStorage.clear();
+                            window.location.reload();
+                        });
+                    }
+                } else {
+                    authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login | SignUp</a></li><li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Hire Top Talents</a></li>`;
+                }
+            };
+            
+            const handleRegistration = async (event, userType) => {
+                event.preventDefault();
+                const form = event.target;
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                data.user_type = userType;
+                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/register/';
+                messageContainer.style.display = 'none';
+
+                try {
+                    const response = await fetch(apiURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data),
+                    });
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        let errorMessage = 'Registration failed:<br>';
+                        for (const field in result) {
+                            errorMessage += `&bull; ${field}: ${result[field].join(', ')}<br>`;
+                        }
+                        messageContainer.innerHTML = errorMessage;
+                        messageContainer.className = 'alert alert-danger';
+                    } else {
+                        messageContainer.textContent = 'Success! Please check your email for a verification link. Redirecting...';
+                        messageContainer.className = 'alert alert-success';
+                        setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+                    }
+                } catch (error) {
+                    messageContainer.textContent = 'An unexpected error occurred.';
+                    messageContainer.className = 'alert alert-danger';
+                }
+                messageContainer.style.display = 'block';
+            };
+
+            applicantForm.addEventListener('submit', (e) => handleRegistration(e, 'applicant'));
+            companyForm.addEventListener('submit', (e) => handleRegistration(e, 'company'));
+
+            setupAuthHeader();
+        });
+    </script>
+</body>
+</html>

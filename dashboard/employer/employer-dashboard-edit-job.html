@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CuroJobs - Edit Job</title>
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+</head>
+<body>
+    <div class="main-page-wrapper">
+        <aside class="dash-aside-navbar">
+            </aside>
+        <div class="dashboard-body">
+            <div class="position-relative">
+                <header class="dashboard-header"></header>
+                <h2 class="main-title">Edit Job</h2>
+                <div id="message-container" style="display: none;"></div>
+                <div class="bg-white card-box border-20">
+                    <form id="edit-job-form">
+                        <div class="dash-input-wrapper mb-30">
+                            <label for="title">Job Title*</label>
+                            <input type="text" id="title" name="title" required>
+                        </div>
+                        <div class="dash-input-wrapper mb-30">
+                            <label for="description">Job Description*</label>
+                            <textarea id="description" name="description" class="size-lg" required></textarea>
+                        </div>
+                        <div class="button-group d-inline-flex align-items-center mt-30">
+                            <button type="submit" class="dash-btn-two tran3s me-3">Save Changes</button>
+                            <a href="employer-dashboard-jobs.html" class="dash-cancel-btn tran3s">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../js/api.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const decodedToken = jwt_decode(localStorage.getItem('accessToken'));
+                if (!decodedToken || decodedToken.user_type !== 'company') {
+                    window.location.href = '../../login.html';
+                    return;
+                }
+
+                const params = new URLSearchParams(window.location.search);
+                const jobId = params.get('id');
+                const editJobForm = document.getElementById('edit-job-form');
+                const messageContainer = document.getElementById('message-container');
+                const apiURL = `http://127.0.0.1:8000/api/v1/jobs/${jobId}/`;
+
+                if (!jobId) {
+                    document.querySelector('.dashboard-body').innerHTML = '<h2>Error: No Job ID provided.</h2>';
+                    return;
+                }
+
+                const loadJobData = async () => {
+                    try {
+                        const response = await apiFetch(apiURL);
+                        if (!response || !response.ok) throw new Error('Could not load job data.');
+                        const job = await response.json();
+                        
+                        // Populate the form with existing data
+                        document.getElementById('title').value = job.title;
+                        document.getElementById('description').value = job.description;
+                        // Populate other fields as well...
+
+                    } catch(error) { /* handle error */ }
+                };
+
+                editJobForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const formData = new FormData(editJobForm);
+                    const data = Object.fromEntries(formData.entries());
+
+                    try {
+                        const response = await apiFetch(apiURL, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+                        if (!response || !response.ok) throw new Error('Update failed.');
+                        
+                        alert('Job updated successfully! Redirecting...');
+                        window.location.href = 'employer-dashboard-jobs.html';
+
+                    } catch(error) { alert('Error updating job.'); }
+                });
+
+                loadJobData();
+            });
+        </script>
+    </div>
+</body>
+</html>
