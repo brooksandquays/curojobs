@@ -65,7 +65,7 @@
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 if (!localStorage.getItem('accessToken')) { window.location.href = '../../login.html'; return; }
-                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/profile/applicant/';
+                const apiURL = 'https://app.curojobs.com/api/v1/accounts/profile/applicant/';
                 const profileNameEl = document.getElementById('profile-dropdown');
                 const resumeForm = document.getElementById('resume-form');
                 const educationContainer = document.getElementById('education-container');

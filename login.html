@@ -67,7 +67,7 @@
                 event.preventDefault();
                 const formData = new FormData(loginForm);
                 const data = Object.fromEntries(formData.entries());
-                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/token/';
+                const apiURL = 'https://app.curojobs.com/api/v1/accounts/token/';
                 errorMessageDiv.style.display = 'none';
 
                 try {

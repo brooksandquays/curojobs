@@ -60,7 +60,7 @@
                 const profileForm = document.getElementById('profile-form');
                 const messageContainer = document.getElementById('message-container');
                 const profileNameEl = document.getElementById('profile-dropdown');
-                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/profile/applicant/';
+                const apiURL = 'https://app.curojobs.com/api/v1/accounts/profile/applicant/';
                 const showMessage = (message, isError = false) => {
                     messageContainer.innerHTML = message;
                     messageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
