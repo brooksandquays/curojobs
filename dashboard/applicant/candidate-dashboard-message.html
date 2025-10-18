@@ -1,49 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>CuroJobs - Messages</title>
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        /* REFINED: Chat Bubble Alignment & Styling */
+        .email-body { display: flex; flex-direction: column; padding: 20px; gap: 15px; }
+        .message-bubble { max-width: 75%; width: fit-content; padding: 10px 15px; border-radius: 18px; }
+        .message-author { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
+        .message-text { white-space: pre-wrap; word-wrap: break-word; font-size: 15px; margin: 0; }
+        .message-time { font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: right; }
+        
+        .message-bubble.sent { background-color: #244034; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+        .message-bubble.sent .message-author { color: #bde0cf; }
+
+        .message-bubble.received { background-color: #f1f0f0; color: #333; border-bottom-left-radius: 4px; align-self: flex-start; }
+        .message-bubble.received .message-author { color: #555; }
+        
+        /* REFINED: Reply Form & Send Button */
+        .reply-form-container { border-top: 1px solid #dee2e6; background-color: #f8f9fa; }
+        #reply-form textarea { border-radius: 20px; resize: none; overflow-y: hidden; max-height: 120px; }
+        #reply-form button { background-color: #244034; color: white; border-radius: 50%; width: 40px; height: 40px; border: none; flex-shrink: 0; }
+
+        /* NEW: Custom Right-Click Context Menu */
+        .context-menu { position: absolute; display: none; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 6px 0; z-index: 1000; min-width: 160px; }
+        .context-menu-item { display: flex; align-items: center; padding: 8px 15px; cursor: pointer; font-size: 14px; }
+        .context-menu-item:hover { background-color: #f5f5f5; }
+        .context-menu-item.delete { color: #dc3545; }
+        .context-menu-item i { margin-right: 10px; }
+
+        /* Other styles */
+        .date-separator { text-align: center; color: #999; font-size: 12px; padding: 15px 0; }
+        .email-list-item.selected { background-color: #f0f5f3; border-left: 3px solid #244034; }
+        .notification-badge { position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
+    </style>
 </head>
+
 <body>
     <div class="main-page-wrapper">
         <aside class="dash-aside-navbar">
             <div class="position-relative">
-                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt=""></a></div>
+                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt="" class="curo"></a></div>
                 <div class="user-data">
                     <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
-                    <div class="user-name-data"><button class="user-name dropdown-toggle" id="profile-dropdown">Loading...</button></div>
+                    <div class="user-name-data">
+                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
+                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
+                            <li><a class="dropdown-item" href="candidate-dashboard-profile.html">Profile</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="candidate-dashboard-resume.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>Resume</span></a></li>
-                        <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span></a></li>
+                        <li id="messages-nav-item" style="position: relative;">
+                            <a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center active">
+                                <img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span>
+                            </a>
+                            <span class="notification-badge"></span>
+                        </li>
+                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
         </aside>
+
         <div class="dashboard-body">
             <div class="position-relative">
                 <header class="dashboard-header"><h2 class="main-title m0">Messages</h2></header>
+                <div id="message-container-main" class="alert mt-3" style="display: none;"></div>
                 <div class="bg-white card-box border-20 p0 mt-30">
                     <div class="message-wrapper">
                         <div class="row gx-0">
                             <div class="col-lg-4">
                                 <div class="message-sidebar pt-20">
                                     <div class="ps-3 pe-3 ps-xxl-4 pe-xxl-4"><div class="page-title fw-500">Inbox</div></div>
-                                    <div id="message-list-container" class="email-read-panel">
-                                        <p class="text-center p-3">Loading messages...</p>
-                                    </div>
+                                    <div id="conversation-list-container" class="email-read-panel"></div>
                                 </div>
                             </div>
                             <div class="col-lg-8">
-                                <div id="message-display-container" class="open-email-container pb-40">
-                                    <div class="text-center p-5">Please select a message to view.</div>
+                                <div id="conversation-display-container" class="open-email-container d-flex flex-column" style="height: 75vh;">
+                                     <div class="text-center p-5 m-auto">Select a conversation to view.</div>
                                 </div>
                             </div>
                         </div>
@@ -51,90 +98,298 @@
                 </div>
             </div>
         </div>
+        
+        <div id="context-menu" class="context-menu">
+            <div id="context-menu-delete" class="context-menu-item delete">
+                <i class="bi bi-trash3"></i>
+                <span>Delete Conversation</span>
+            </div>
+        </div>
+
+        <script src="../../vendor/jquery.min.js"></script>
+        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
-        <script src="../../js/api.js"></script>
+        <script src="../../js/theme.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const decodedToken = jwt_decode(localStorage.getItem('accessToken'));
-                if (!decodedToken || decodedToken.user_type !== 'applicant') {
+                const accessToken = localStorage.getItem('accessToken');
+                if (!accessToken) { window.location.href = '../../login.html'; return; }
+                
+                let currentUser;
+                try {
+                    currentUser = jwt_decode(accessToken);
+                    if (currentUser.user_type !== 'applicant') { window.location.href = '../../index.html'; return; }
+                } catch (e) {
+                    localStorage.clear();
                     window.location.href = '../../login.html';
                     return;
                 }
+
+                const conversationListContainer = document.getElementById('conversation-list-container');
+                const conversationDisplayContainer = document.getElementById('conversation-display-container');
                 const profileNameEl = document.getElementById('profile-dropdown');
-                const messageListContainer = document.getElementById('message-list-container');
-                const messageDisplayContainer = document.getElementById('message-display-container');
-                const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
-                let allMessages = [];
-                const displayMessage = (messageId) => {
-                    const message = allMessages.find(m => m.id === messageId);
-                    if (!message) return;
-                    const sentDate = new Date(message.sent_at).toLocaleString();
-                    messageDisplayContainer.innerHTML = `
-                        <div class="email-header divider d-flex justify-content-between ps-4 pe-4"><div class="sender-info d-flex align-items-center"><div class="ps-3"><div class="sender-name">${message.sender_username}</div></div></div><div class="email-info"><div class="time">${sentDate}</div></div></div>
-                        <div class="email-body divider"><div class="ps-4 pe-4"><h2>${message.subject}</h2><p style="white-space: pre-wrap;">${message.body}</p></div></div>`;
+                const logoutBtn = document.getElementById('logout-btn');
+                const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
+                const mainMessageContainer = document.getElementById('message-container-main');
+                const contextMenu = document.getElementById('context-menu');
+                const contextMenuDeleteBtn = document.getElementById('context-menu-delete');
+                const baseApiURL = 'http://127.0.0.1:8000/api/v1/accounts/';
+                
+                let conversations = {};
+
+                const apiFetch = async (endpoint, options = {}) => {
+                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
+                    if (response.status === 401) {
+                        localStorage.clear();
+                        window.location.href = '../../login.html';
+                    }
+                    return response;
                 };
-                const fetchMessages = async () => {
+
+                const showMessage = (message, isError = false) => {
+                    mainMessageContainer.textContent = message;
+                    mainMessageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
+                    mainMessageContainer.style.display = 'block';
+                    setTimeout(() => { mainMessageContainer.style.display = 'none'; }, 3000);
+                };
+                
+                const getConversationId = (msg) => {
+                    const participantIds = [msg.sender, msg.recipient].sort();
+                    const baseSubject = msg.subject.replace(/^(Re: )+/i, '').trim();
+                    return `${participantIds[0]}-${participantIds[1]}-${baseSubject}`;
+                };
+
+                const checkUnreadMessages = async () => {
                     try {
-                        const response = await apiFetch(`${baseApiURL}accounts/messages/`);
-                        if (!response || !response.ok) throw new Error('Failed to fetch messages');
-                        allMessages = await response.json();
-                        messageListContainer.innerHTML = '';
-                        if (allMessages.length === 0) {
-                            messageListContainer.innerHTML = '<p class="text-center p-3">You have no messages.</p>';
-                            messageDisplayContainer.innerHTML = '<div class="text-center p-5">Your inbox is empty.</div>';
-                            return;
+                        const response = await apiFetch('messages/unread-count/');
+                        if (!response.ok) return;
+                        const data = await response.json();
+                        const badge = document.querySelector('#messages-nav-item .notification-badge');
+                        if (badge && data.unread_count > 0) {
+                            badge.style.display = 'block';
+                        } else if (badge) {
+                            badge.style.display = 'none';
                         }
-                        allMessages.forEach((message, index) => {
-                            const messageItem = document.createElement('div');
-                            messageItem.className = 'email-list-item ps-3 pe-3 ps-xxl-4 pe-xxl-4';
-                            if (index === 0) { messageItem.classList.add('selected'); }
-                            messageItem.dataset.messageId = message.id;
-                            const sentDate = new Date(message.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                            messageItem.innerHTML = `<div class="email-short-preview position-relative"><div class="d-flex align-items-center justify-content-between"><div class="sender-name">${message.sender_username}</div><div class="date">${sentDate}</div></div><div class="mail-sub">${message.subject}</div></div>`;
-                            messageItem.addEventListener('click', () => {
-                                messageListContainer.querySelectorAll('.email-list-item').forEach(el => el.classList.remove('selected'));
-                                messageItem.classList.add('selected');
-                                displayMessage(message.id);
-                            });
-                            messageListContainer.appendChild(messageItem);
+                    } catch (error) { console.error("Could not check for unread messages.", error); }
+                };
+
+                const deleteConversation = (conversationId) => {
+                    const conversation = conversations[conversationId];
+                    if (!conversation) return;
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "This will delete the entire conversation. This action cannot be undone!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then(async (result) => {
+                        if (result.isConfirmed) {
+                            try {
+                                const response = await apiFetch('messages/applicant-delete-thread/', {
+                                    method: 'DELETE',
+                                    body: JSON.stringify({ other_user_id: conversation.otherUserId, subject: conversation.baseSubject })
+                                });
+                                if (!response.ok) throw new Error('Failed to delete conversation.');
+                                Swal.fire('Deleted!', 'The conversation has been removed.', 'success');
+                                conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Select a conversation to view.</div>';
+                                await fetchMessages();
+                            } catch (error) {
+                                Swal.fire('Error!', 'Could not delete the conversation.', 'error');
+                            }
+                        }
+                    });
+                };
+                
+                const displayConversation = async (conversationId) => {
+                    const conversation = conversations[conversationId];
+                    if (!conversation) return;
+                    try {
+                        await apiFetch('messages/mark-as-read/', {
+                            method: 'POST',
+                            body: JSON.stringify({ sender_id: conversation.otherUserId })
                         });
-                        if (allMessages.length > 0) {
-                            displayMessage(allMessages[0].id);
+                        checkUnreadMessages(); 
+                    } catch (error) { console.error("Could not mark messages as read.", error); }
+                    
+                    const { otherUserName, messages } = conversation;
+                    let messagesHtml = '';
+                    let lastDate = null;
+                    messages.forEach(msg => {
+                        const msgDate = new Date(msg.sent_at).toLocaleDateString();
+                        if (lastDate !== msgDate) {
+                            messagesHtml += `<div class="date-separator">--- ${new Date(msg.sent_at).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'})} ---</div>`;
+                            lastDate = msgDate;
+                        }
+                        const isSentByMe = msg.sender === currentUser.user_id;
+                        const time = new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+                        const authorName = isSentByMe ? 'You' : otherUserName;
+                        messagesHtml += `<div class="message-bubble ${isSentByMe ? 'sent' : 'received'}"><div class="message-author">${authorName}</div><p class="message-text">${msg.body.replace(/\n/g, '<br>')}</p><div class="message-time">${time}</div></div>`;
+                    });
+                    conversationDisplayContainer.innerHTML = `<div class="email-header divider d-flex justify-content-between ps-4 pe-4"><div class="sender-info d-flex align-items-center"><div class="ps-3"><div class="sender-name fw-500">${otherUserName}</div></div></div></div><div class="email-body flex-grow-1" style="overflow-y: auto;">${messagesHtml}</div><div class="reply-form-container p-3"><form id="reply-form" class="d-flex w-100 align-items-end gap-2"><textarea class="form-control" name="body" placeholder="Type a message..." required rows="1"></textarea><button type="submit" class="tran3s d-flex align-items-center justify-content-center" title="Send Message"><i class="bi bi-send-fill"></i></button></form></div>`;
+                    
+                    const emailBody = conversationDisplayContainer.querySelector('.email-body');
+                    emailBody.scrollTop = emailBody.scrollHeight;
+                    const replyForm = document.getElementById('reply-form');
+                    const replyTextarea = replyForm.querySelector('textarea');
+                    replyTextarea.addEventListener('input', () => {
+                        replyTextarea.style.height = 'auto';
+                        replyTextarea.style.height = `${replyTextarea.scrollHeight}px`;
+                    });
+                    replyTextarea.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                            e.preventDefault();
+                            replyForm.querySelector('button').click();
+                        }
+                    });
+                    replyForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const body = replyTextarea.value;
+                        if (!body.trim()) return;
+                        const subject = `Re: ${conversation.baseSubject}`;
+                        try {
+                            const response = await apiFetch('messages/applicant-send/', {
+                                method: 'POST',
+                                body: JSON.stringify({ recipient: conversation.otherUserId, subject: subject, body: body })
+                            });
+                            if (!response.ok) throw new Error('Failed to send reply.');
+                            fetchMessages(conversationId);
+                        } catch (error) { showMessage('Failed to send reply.', true); }
+                    });
+                };
+                
+                const renderConversationList = (activeConversationId) => {
+                    conversationListContainer.innerHTML = '';
+                    const sortedConversations = Object.values(conversations).sort((a, b) => new Date(b.lastMessage.sent_at) - new Date(a.lastMessage.sent_at));
+                    if (sortedConversations.length === 0) { 
+                        conversationListContainer.innerHTML = '<p class="text-center p-3">You have no messages.</p>';
+                        return;
+                    }
+                    sortedConversations.forEach((conv) => {
+                        const convItem = document.createElement('div');
+                        convItem.className = 'email-list-item ps-3 pe-3 ps-xxl-4 pe-xxl-4';
+                        if (conv.id === activeConversationId) { convItem.classList.add('selected'); }
+                        convItem.dataset.conversationId = conv.id;
+                        const sentDate = new Date(conv.lastMessage.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        convItem.innerHTML = `<div class="email-short-preview position-relative"><div class="d-flex align-items-center justify-content-between"><div class="sender-name fw-500">${conv.otherUserName}</div><div class="date">${sentDate}</div></div><div class="mail-sub">${conv.lastMessage.subject}</div><div class="mail-text">${conv.lastMessage.body.substring(0, 40)}...</div></div>`;
+                        convItem.addEventListener('click', () => {
+                            document.querySelectorAll('.email-list-item.selected').forEach(el => el.classList.remove('selected'));
+                            convItem.classList.add('selected');
+                            displayConversation(conv.id);
+                        });
+                        convItem.addEventListener('contextmenu', (e) => {
+                            e.preventDefault();
+                            contextMenu.style.top = `${e.pageY}px`;
+                            contextMenu.style.left = `${e.pageX}px`;
+                            contextMenu.style.display = 'block';
+                            contextMenu.dataset.conversationId = conv.id;
+                        });
+                        conversationListContainer.appendChild(convItem);
+                    });
+                };
+
+                const fetchMessages = async (conversationToDisplay) => {
+                    try {
+                        const response = await apiFetch('messages/');
+                        if (!response.ok) throw new Error('Failed to fetch messages');
+                        const allMessages = await response.json();
+                        
+                        conversations = {};
+                        const tempConversations = {};
+
+                        // Step 1: Group all messages by their conversation ID
+                        allMessages.forEach(msg => {
+                            if (msg.sender === msg.recipient) return;
+                            const conversationId = getConversationId(msg);
+                            if (!tempConversations[conversationId]) {
+                                tempConversations[conversationId] = { messages: [] };
+                            }
+                            tempConversations[conversationId].messages.push(msg);
+                        });
+
+                        // Step 2: Process each conversation to reliably find the other user's info
+                        for (const id in tempConversations) {
+                            const tempConv = tempConversations[id];
+                            let otherUserId = null;
+                            let otherUserName = 'Unknown User';
+
+                            // Find the first message NOT sent by the current user to get their info.
+                            const firstMessageFromOther = tempConv.messages.find(m => m.sender !== currentUser.user_id);
+                            if (firstMessageFromOther) {
+                                otherUserId = firstMessageFromOther.sender;
+                                otherUserName = firstMessageFromOther.sender_username;
+                            } else {
+                                // If all messages are from the current user, get recipient from the first message.
+                                const firstMessageSent = tempConv.messages[0];
+                                if(firstMessageSent){
+                                    otherUserId = firstMessageSent.recipient;
+                                    otherUserName = firstMessageSent.recipient_username;
+                                } else {
+                                    continue; // Skip empty/invalid conversation
+                                }
+                            }
+
+                            const baseSubject = getConversationId(tempConv.messages[0]).split('-').slice(2).join('-');
+                            tempConv.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+                            const lastMessage = tempConv.messages[tempConv.messages.length - 1];
+
+                            conversations[id] = { id, otherUserId, otherUserName, baseSubject, messages: tempConv.messages, lastMessage };
+                        }
+                        
+                        const sortedConversations = Object.values(conversations).sort((a, b) => new Date(b.lastMessage.sent_at) - new Date(a.lastMessage.sent_at));
+                        if (conversationToDisplay && conversations[conversationToDisplay]) {
+                            renderConversationList(conversationToDisplay);
+                        } else if (sortedConversations.length > 0) {
+                            const firstConvId = sortedConversations[0].id;
+                            renderConversationList(firstConvId);
+                            displayConversation(firstConvId);
+                        } else {
+                            renderConversationList();
+                            conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Your inbox is empty.</div>';
                         }
                     } catch (error) {
-                        messageListContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load messages.</p>';
+                        console.error(error);
+                        conversationListContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load messages.</p>';
                     }
                 };
+                
                 const fetchProfile = async () => {
                     try {
-                        const response = await apiFetch(`${baseApiURL}accounts/profile/applicant/`);
-                        if (!response || !response.ok) throw new Error('Failed to fetch profile');
+                        const response = await apiFetch('profile/applicant/');
+                        if (!response.ok) throw new Error('Failed to fetch profile');
                         const profile = await response.json();
-                        const username = profile.username || 'Applicant';
+                        const username = profile.full_name || profile.username || 'Applicant';
                         profileNameEl.textContent = username;
-                        const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
                         if (avatarPlaceholder) {
                             const initial = username.charAt(0).toUpperCase();
-                            let hash = 0;
-                            for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
+                            let hash = 0; for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
                             const color = `hsl(${hash % 360}, 50%, 60%)`;
-                            avatarPlaceholder.style.backgroundColor = color;
-                            avatarPlaceholder.style.display = 'flex';
-                            avatarPlaceholder.style.alignItems = 'center';
-                            avatarPlaceholder.style.justifyContent = 'center';
-                            avatarPlaceholder.style.color = 'white';
-                            avatarPlaceholder.style.fontSize = '24px';
-                            avatarPlaceholder.style.fontWeight = '500';
+                            avatarPlaceholder.style.cssText = `background-color:${color}; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:500;`;
                             avatarPlaceholder.innerHTML = initial;
                         }
-                    } catch (error) { console.error('Error fetching profile:', error); }
+                    } catch (error) { console.error(error); }
                 };
-                const logoutBtn = document.getElementById('logout-btn');
-                if(logoutBtn){ logoutBtn.addEventListener('click', (e)=>{ e.preventDefault(); localStorage.clear(); window.location.href = '../../index.html'; }); }
+                
+                window.addEventListener('click', () => { contextMenu.style.display = 'none'; });
+                contextMenuDeleteBtn.addEventListener('click', () => {
+                    const conversationId = contextMenu.dataset.conversationId;
+                    if (conversationId) { deleteConversation(conversationId); }
+                });
+
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.clear();
+                    window.location.href = '../../index.html';
+                });
+
                 fetchProfile();
                 fetchMessages();
+                checkUnreadMessages();
             });
         </script>
     </div>
 </body>
+
 </html>

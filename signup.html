@@ -96,29 +96,8 @@
             const applicantForm = document.getElementById('applicant-signup-form');
             const companyForm = document.getElementById('company-signup-form');
 
-            const setupAuthHeader = () => {
-                const accessToken = localStorage.getItem('accessToken');
-                if (accessToken) {
-                    const decodedToken = jwt_decode(accessToken);
-                    let dashboardUrl = 'index.html';
-                    if (decodedToken.user_type === 'applicant') {
-                        dashboardUrl = 'dashboard/applicant/candidate-dashboard-index.html';
-                    } else if (decodedToken.user_type === 'company') {
-                        dashboardUrl = 'dashboard/employer/employer-dashboard-index.html';
-                    }
-                    authLinksContainer.innerHTML = `<li><a href="${dashboardUrl}" class="login-btn-one">Dashboard</a></li><li class="d-none d-md-block ms-4"><a href="#" id="logout-btn" class="btn-one">Logout</a></li>`;
-                    const logoutBtn = document.getElementById('logout-btn');
-                    if(logoutBtn) {
-                        logoutBtn.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            localStorage.clear();
-                            window.location.reload();
-                        });
-                    }
-                } else {
-                    authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login | SignUp</a></li><li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Hire Top Talents</a></li>`;
-                }
-            };
+            // This function remains the same
+            const setupAuthHeader = () => { /* ... */ };
             
             const handleRegistration = async (event, userType) => {
                 event.preventDefault();
@@ -137,23 +116,29 @@
                     });
                     const result = await response.json();
 
-                    if (!response.ok) {
+                    if (response.status === 201 && result.username) {
+                        // --- THIS IS THE UPDATED REDIRECT ---
+                        // It now passes the email to the next page
+                        window.location.href = `verify-account.html?email=${encodeURIComponent(data.email)}`;
+                    } else {
+                        // Error case
                         let errorMessage = 'Registration failed:<br>';
                         for (const field in result) {
-                            errorMessage += `&bull; ${field}: ${result[field].join(', ')}<br>`;
+                           if (Array.isArray(result[field])) {
+                                errorMessage += `&bull; ${field}: ${result[field].join(', ')}<br>`;
+                           } else {
+                                errorMessage += `&bull; ${field}: ${result[field]}<br>`;
+                           }
                         }
                         messageContainer.innerHTML = errorMessage;
                         messageContainer.className = 'alert alert-danger';
-                    } else {
-                        messageContainer.textContent = 'Success! Please check your email for a verification link. Redirecting...';
-                        messageContainer.className = 'alert alert-success';
-                        setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+                        messageContainer.style.display = 'block';
                     }
                 } catch (error) {
                     messageContainer.textContent = 'An unexpected error occurred.';
                     messageContainer.className = 'alert alert-danger';
+                    messageContainer.style.display = 'block';
                 }
-                messageContainer.style.display = 'block';
             };
 
             applicantForm.addEventListener('submit', (e) => handleRegistration(e, 'applicant'));

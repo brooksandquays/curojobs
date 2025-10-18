@@ -2,27 +2,58 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CuroJobs - Employer Dashboard</title>
+    <title>CuroJobs - Job Applicants</title>
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .notification-badge { 
+            position: absolute; 
+            top: 15px; 
+            right: 25px; 
+            height: 10px; 
+            width: 10px; 
+            background-color: #dc3545; 
+            border-radius: 50%; 
+            border: 2px solid white; 
+            display: none; 
+        }
+    </style>
 </head>
 
 <body>
     <div class="main-page-wrapper">
         <aside class="dash-aside-navbar">
             <div class="position-relative">
-                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt=""></a></div>
+                <div class="logo text-md-center d-flex align-items-center justify-content-center">
+                    <a href="../../index.html">
+                        <img src="../../images/logo/logo_01.png" alt="" class="curo">
+                    </a>
+                </div>
                 <div class="user-data">
-                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
-                    <div class="user-name-data"><button class="user-name dropdown-toggle" id="profile-dropdown">Loading...</button></div>
+                    <div class="user-avatar online position-relative rounded-circle"><img src="../../images/avatar_01.jpg" alt="" class="lazy-img"></div>
+                    <div class="user-name-data">
+                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
+                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
+                            <li><a class="dropdown-item d-flex align-items-center" href="employer-dashboard-profile.html"><img src="../../images/icon/icon_23.svg" alt="" class="lazy-img me-2"><span>Profile</span></a></li>
+                        </ul>
+                    </div>
                 </div>
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
-                        <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center active"><span>Dashboard</span></a></li>
-                        <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><span>My Profile</span></a></li>
-                        <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><span>My Jobs</span></a></li>
-                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><span>Submit Job</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><span>Logout</span></a></li>
+                        <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
+                        <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
+                        <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_3_active.svg" alt=""><span>My Jobs</span></a></li>
+                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt=""><span>Submit Job</span></a></li>
+                        <li id="messages-nav-item" style="position: relative;">
+                            <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center">
+                                <img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span>
+                            </a>
+                            <span class="notification-badge"></span>
+                        </li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -31,119 +62,183 @@
         <div class="dashboard-body">
             <div class="position-relative">
                 <header class="dashboard-header"></header>
-                <h2 class="main-title">Dashboard</h2>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="dash-card-one bg-white border-30 position-relative mb-15">
-                            <div class="d-sm-flex align-items-center justify-content-between">
-                                <div class="order-sm-0">
-                                    <div class="value fw-500" id="posted-jobs-count">0</div>
-                                    <span>Posted Jobs</span>
-                                </div>
-                            </div>
-                        </div>
+                <h2 class="main-title">Applicants for <span id="job-title-placeholder">...</span></h2>
+                
+                <div class="bg-white card-box border-20">
+                    <div class="table-responsive">
+                        <table class="table job-alert-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Applicant Name</th>
+                                    <th scope="col">Applied Date</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="applicants-container">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-
-                <div class="row d-flex pt-50 lg-pt-10">
-                    <div class="col-12">
-                        <div class="recent-job-tab bg-white border-20 mt-30 w-100">
-                            <h4 class="dash-title-two">My Posted Jobs</h4>
-                            <div id="posted-jobs-container" class="wrapper">
-                                </div>
-                        </div>
-                    </div>
-                </div>
+                <div id="message-container" class="alert mt-3" style="display: none;"></div>
             </div>
         </div>
         
+        <script src="../../vendor/jquery.min.js"></script>
+        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
-        <script src="../../js/api.js"></script>
+        <script src="../../js/theme.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const decodedToken = jwt_decode(localStorage.getItem('accessToken'));
-                if (!decodedToken || decodedToken.user_type !== 'company') {
+                const accessToken = localStorage.getItem('accessToken');
+                if (!accessToken) { window.location.href = '../../login.html'; return; }
+                try {
+                    const decodedToken = jwt_decode(accessToken);
+                    if (decodedToken.user_type !== 'company') { window.location.href = '../../index.html'; return; }
+                } catch (e) {
+                    localStorage.clear();
                     window.location.href = '../../login.html';
                     return;
                 }
 
+                const params = new URLSearchParams(window.location.search);
+                const jobId = params.get('jobId');
+
+                const applicantsContainer = document.getElementById('applicants-container');
+                const jobTitlePlaceholder = document.getElementById('job-title-placeholder');
                 const profileNameEl = document.getElementById('profile-dropdown');
-                const postedJobsContainer = document.getElementById('posted-jobs-container');
-                const postedJobsCountEl = document.getElementById('posted-jobs-count');
+                const messageContainer = document.getElementById('message-container');
+                const logoutBtn = document.getElementById('logout-btn');
                 const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
+
+                if (!jobId) {
+                    jobTitlePlaceholder.textContent = "an Unknown Job";
+                    applicantsContainer.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error: Job ID is missing from the URL.</td></tr>';
+                    return;
+                }
+
+                const apiFetch = async (endpoint, options = {}) => {
+                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
+                    if(response.status === 401) { 
+                        localStorage.clear();
+                        window.location.href = '../../login.html';
+                    }
+                    return response;
+                };
+
+                const showMessage = (message, isError = false) => {
+                    messageContainer.textContent = message;
+                    messageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
+                    messageContainer.style.display = 'block';
+                    setTimeout(() => { messageContainer.style.display = 'none'; }, 3000);
+                };
+
+                const checkUnreadMessages = async () => {
+                    try {
+                        const response = await apiFetch('accounts/messages/unread-count/');
+                        if (!response.ok) return;
+                        const data = await response.json();
+                        const badge = document.querySelector('#messages-nav-item .notification-badge');
+                        if (badge && data.unread_count > 0) { badge.style.display = 'block'; } else if (badge) { badge.style.display = 'none'; }
+                    } catch (error) { console.error("Could not check for unread messages.", error); }
+                };
 
                 const fetchProfile = async () => {
                     try {
-                        const response = await apiFetch(`${baseApiURL}accounts/profile/company/`);
-                        if (!response || !response.ok) throw new Error('Failed to fetch profile');
+                        const response = await apiFetch('accounts/profile/company/');
+                        if (!response.ok) return;
                         const profile = await response.json();
-                        const username = profile.name || 'Employer';
-                        profileNameEl.textContent = username;
-
-                        const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
-                        if (avatarPlaceholder) {
-                            const initial = username.charAt(0).toUpperCase();
-                            let hash = 0;
-                            for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
-                            const color = `hsl(${hash % 360}, 50%, 60%)`;
-                            avatarPlaceholder.style.backgroundColor = color;
-                            avatarPlaceholder.style.display = 'flex';
-                            avatarPlaceholder.style.alignItems = 'center';
-                            avatarPlaceholder.style.justifyContent = 'center';
-                            avatarPlaceholder.style.color = 'white';
-                            avatarPlaceholder.style.fontSize = '24px';
-                            avatarPlaceholder.style.fontWeight = '500';
-                            avatarPlaceholder.innerHTML = initial;
-                        }
-                    } catch (error) { console.error('Error fetching profile:', error); }
+                        profileNameEl.textContent = profile.name || 'Employer';
+                    } catch (error) { console.error(error); }
                 };
-                
-                const fetchPostedJobs = async () => {
-                    postedJobsContainer.innerHTML = '<p>Loading your jobs...</p>';
+
+                const fetchApplicants = async () => {
+                    applicantsContainer.innerHTML = '<tr><td colspan="4" class="text-center">Loading applicants...</td></tr>';
                     try {
-                        const response = await apiFetch(`${baseApiURL}jobs/my/`);
-                        if (!response || !response.ok) throw new Error('Failed to fetch jobs');
+                        const response = await apiFetch(`jobs/${jobId}/applicants/`);
+                        if (!response.ok) throw new Error('Failed to fetch applicants.');
                         
-                        const jobs = await response.json();
-                        postedJobsCountEl.textContent = jobs.length;
-                        postedJobsContainer.innerHTML = '';
+                        const applications = await response.json();
                         
-                        if (jobs.length === 0) {
-                            postedJobsContainer.innerHTML = '<p class="text-center p-3">You have not posted any jobs yet.</p>';
+                        if (applications.length > 0 && applications[0].job) {
+                            jobTitlePlaceholder.textContent = `"${applications[0].job.title}"`;
+                        } else {
+                            const jobResponse = await apiFetch(`jobs/${jobId}/`);
+                            if(jobResponse.ok) {
+                                const job = await jobResponse.json();
+                                jobTitlePlaceholder.textContent = `"${job.title}"`;
+                            }
+                        }
+                        
+                        applicantsContainer.innerHTML = '';
+                        if (applications.length === 0) {
+                            applicantsContainer.innerHTML = '<tr><td colspan="4" class="text-center">No applicants for this job yet.</td></tr>';
                             return;
                         }
-                        
-                        jobs.forEach(job => {
-                            const jobItem = document.createElement('div');
-                            jobItem.className = 'job-item-list d-flex align-items-center';
-                            jobItem.innerHTML = `
-                                <div class="job-title flex-grow-1">
-                                    <h6 class="mb-5"><a href="../../job-details.html?id=${job.id}" target="_blank">${job.title}</a></h6>
-                                    <div class="meta"><span>${job.job_type || 'N/A'}</span> . <span>${job.location}</span></div>
-                                </div>
-                                <div class="job-action">
-                                    <a href="employer-dashboard-applicants.html?jobId=${job.id}" class="btn btn-sm btn-outline-primary">View Applicants</a>
-                                </div>
+
+                        applications.forEach(app => {
+                            const applicantRow = document.createElement('tr');
+                            const appliedDate = new Date(app.applied_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                            
+                            applicantRow.innerHTML = `
+                                <td><div class="candidate-name fw-500">${app.applicant.full_name || app.applicant.user.username}</div></td>
+                                <td>${appliedDate}</td>
+                                <td><div class="job-status text-capitalize">${app.status}</div></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Actions</button>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a class="dropdown-item" href="employer-dashboard-applicant-profile.html?applicantId=${app.applicant.user.id}">View Profile</a></li>
+                                            
+                                            <li><a class="dropdown-item" href="employer-dashboard-message.html?recipientId=${app.applicant.user.id}&recipientName=${encodeURIComponent(app.applicant.full_name || app.applicant.user.username)}">Send Message</a></li>
+                                            <li class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${app.id}" data-status="progress">Mark as In Progress</a></li>
+                                            <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${app.id}" data-status="selected">Mark as Selected</a></li>
+                                            <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${app.id}" data-status="rejected">Reject</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
                             `;
-                            postedJobsContainer.appendChild(jobItem);
+                            applicantsContainer.appendChild(applicantRow);
                         });
-                        
+
                     } catch (error) {
-                        postedJobsContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load your jobs.</p>';
+                        applicantsContainer.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+                    }
+                };
+                
+                const handleStatusUpdate = async (e) => {
+                    if (!e.target.classList.contains('update-status-btn')) return;
+                    e.preventDefault();
+                    const appId = e.target.dataset.appId;
+                    const newStatus = e.target.dataset.status;
+                    try {
+                        const response = await apiFetch(`jobs/applications/${appId}/update-status/`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ status: newStatus })
+                        });
+                        if(!response.ok) {
+                            const result = await response.json();
+                            throw new Error(result.detail || 'Failed to update status.');
+                        }
+                        showMessage(`Application status updated successfully.`, false);
+                        fetchApplicants(); 
+                    } catch (error) {
+                        showMessage(error.message, true);
                     }
                 };
 
-                const logoutBtn = document.getElementById('logout-btn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        localStorage.clear();
-                        window.location.href = '../../index.html';
-                    });
-                }
-                
+                applicantsContainer.addEventListener('click', handleStatusUpdate);
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    localStorage.clear();
+                    window.location.href = '../../index.html';
+                });
+
                 fetchProfile();
-                fetchPostedJobs();
+                fetchApplicants();
+                checkUnreadMessages();
             });
         </script>
     </div>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CuroJobs - Company Details</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
+</head>
+<body>
+    <div class="main-page-wrapper">
+        <header class="theme-main-menu menu-style-one sticky-menu" style="background-color: #244034;">
+            <div class="inner-content position-relative">
+                <div class="top-header">
+                    <div class="d-flex align-items-center">
+                        <div class="logo order-lg-0"><a href="index.html" class="d-flex align-items-center"><img src="images/logo/logo_01.png" alt="" class="curo"></a></div>
+                        <div class="right-widget ms-auto order-lg-3"><ul id="auth-links" class="d-flex align-items-center style-none"></ul></div>
+                        <nav class="navbar navbar-expand-lg p0 ms-lg-5 ms-3 order-lg-2">
+                            <ul class="navbar-nav align-items-lg-center">
+                                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <section class="company-details-section pt-150 lg-pt-120 pb-100 lg-pb-80">
+            <div class="container">
+                <div id="company-profile-container">
+                    <div class="text-center p-5"><h4>Loading company profile...</h4></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-one">
+             <div class="bottom-footer"><div class="container"><p class="text-center mb-15">Copyright @2025 Curo Jobs Inc.</p></div></div>
+        </div>
+    </div>
+
+    <script src="vendor/jwt-decode.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const companyId = params.get('id');
+            const container = document.getElementById('company-profile-container');
+            const authLinksContainer = document.getElementById('auth-links');
+            
+            // --- THIS IS THE CORRECTED URL ---
+            const baseApiURL = 'http://127.0.0.1:8000/api/v1/accounts/companies/'; 
+
+            if (!companyId) {
+                container.innerHTML = '<h2 class="text-center p-5 text-danger">Error: Company ID is missing.</h2>';
+                return;
+            }
+
+            const setupAuthHeader = () => {
+                const accessToken = localStorage.getItem('accessToken');
+                if (accessToken) {
+                    try {
+                        const decodedToken = jwt_decode(accessToken);
+                        let dashboardUrl = 'index.html';
+                        if (decodedToken.user_type === 'applicant') {
+                            dashboardUrl = 'dashboard/applicant/candidate-dashboard-index.html';
+                        } else if (decodedToken.user_type === 'company') {
+                            dashboardUrl = 'dashboard/employer/employer-dashboard-index.html';
+                        }
+                        authLinksContainer.innerHTML = `<li><a href="${dashboardUrl}" class="login-btn-one">Dashboard</a></li><li class="d-none d-md-block ms-4"><a href="#" id="logout-btn" class="btn-one">Logout</a></li>`;
+                        document.getElementById('logout-btn')?.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            localStorage.clear();
+                            window.location.href = 'index.html';
+                        });
+                    } catch(e) {
+                         localStorage.clear();
+                         authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login</a></li> <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Sign Up</a></li>`;
+                    }
+                } else {
+                    authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login</a></li> <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Sign Up</a></li>`;
+                }
+            };
+
+            const fetchCompanyDetails = async () => {
+                try {
+                    const response = await fetch(`${baseApiURL}${companyId}/`); 
+                    if (!response.ok) throw new Error('Company not found.');
+
+                    const company = await response.json();
+                    
+                    document.title = `${company.name} | CuroJobs`;
+
+                    const companyInitial = company.name ? company.name.charAt(0).toUpperCase() : '?';
+
+                    container.innerHTML = `
+                        <div class="top-box card-box bg-white p-4 p-sm-5">
+                            <div class="d-sm-flex align-items-start">
+                                <div class="logo d-flex align-items-center justify-content-center" style="background-color: #f0f5ff; width: 80px; height: 80px; border-radius: 8px; font-size: 40px; font-weight: 500; color: #4866a6;">
+                                    ${companyInitial}
+                                </div>
+                                <div class="ps-sm-4">
+                                    <h3 class="company-title">${company.name}</h3>
+                                    <div class="pt-1"><a href="${company.website}" class="website" target="_blank">${company.website}</a></div>
+                                    <ul class="job-meta-data d-flex style-none mt-2">
+                                        <li><i class="bi bi-geo-alt"></i> ${company.location || 'Not specified'}</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-content bg-white card-box mt-30 p-4 p-sm-5">
+                            <h4 class="mb-20">About Company</h4>
+                            <p>${company.description || 'No description available.'}</p>
+                        </div>
+                    `;
+                    
+                } catch (error) {
+                    container.innerHTML = '<h2 class="text-center p-5 text-danger">Company Not Found</h2><p class="text-center">The company you are looking for does not exist.</p>';
+                }
+            };
+            
+            setupAuthHeader();
+            fetchCompanyDetails();
+        });
+    </script>
+</body>
+</html>

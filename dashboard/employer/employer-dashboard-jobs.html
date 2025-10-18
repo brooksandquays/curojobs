@@ -6,6 +6,11 @@
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        .notification-badge { position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
+        .job-listing-one .btn i { pointer-events: none; }
+    </style>
 </head>
 
 <body>
@@ -15,7 +20,12 @@
                 <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt=""></a></div>
                 <div class="user-data">
                     <div class="user-avatar online position-relative rounded-circle"><img src="../../images/avatar_01.jpg" alt=""></div>
-                    <div class="user-name-data"><button class="user-name dropdown-toggle" id="profile-dropdown">Loading...</button></div>
+                    <div class="user-name-data">
+                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
+                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
+                            <li><a class="dropdown-item" href="employer-dashboard-profile.html">Profile</a></li>
+                        </ul>
+                    </div>
                 </div>
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
@@ -23,7 +33,13 @@
                         <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_3_active.svg" alt=""><span>My Jobs</span></a></li>
                         <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt=""><span>Submit Job</span></a></li>
-                       <li><a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span></a></li>
+                        <li id="messages-nav-item" style="position: relative;">
+                            <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center">
+                                <img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span>
+                            </a>
+                            <span class="notification-badge"></span>
+                        </li>
+                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
@@ -33,17 +49,15 @@
         <div class="dashboard-body">
             <div class="position-relative">
                 <header class="dashboard-header">
-                    <div class="d-flex align-items-center justify-content-end">
-                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
-                        <div><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h2 class="main-title m0">My Jobs</h2>
+                        <a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a>
                     </div>
                 </header>
+                
+                <div id="message-container" class="alert mt-3" style="display: none;"></div>
 
-                <div class="d-sm-flex align-items-center justify-content-between mb-40 lg-mb-30">
-                    <h2 class="main-title m0">My Jobs</h2>
-                </div>
-
-                <div id="jobs-container" class="row">
+                <div id="jobs-container" class="row pt-40">
                     </div>
             </div>
         </div>
@@ -55,9 +69,7 @@
                         <h5 class="modal-title">Confirm Deletion</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="modal-body">
-                        <p>Are you sure you want to delete this job? This action cannot be undone.</p>
-                    </div>
+                    <div class="modal-body"><p>Are you sure you want to delete this job? This action cannot be undone.</p></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" id="confirm-delete-btn" class="btn btn-danger">Delete</button>
@@ -69,23 +81,59 @@
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
-        <script src="../../js/api.js"></script>
         <script src="../../js/theme.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                const decodedToken = jwt_decode(localStorage.getItem('accessToken'));
-                if (!decodedToken || decodedToken.user_type !== 'company') {
+                const accessToken = localStorage.getItem('accessToken');
+                
+                let currentUser;
+                try {
+                    currentUser = jwt_decode(accessToken);
+                    if (currentUser.user_type !== 'company') {
+                        window.location.href = '../../login.html';
+                        return;
+                    }
+                } catch (e) {
+                    localStorage.clear();
                     window.location.href = '../../login.html';
                     return;
                 }
 
                 const profileNameEl = document.getElementById('profile-dropdown');
                 const jobsContainer = document.getElementById('jobs-container');
+                const messageContainer = document.getElementById('message-container');
                 const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
+
+                const apiFetch = async (endpoint, options = {}) => {
+                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
+                    if (response.status === 401) {
+                        localStorage.clear();
+                        window.location.href = '../../login.html';
+                    }
+                    return response;
+                };
+                
+                const showMessage = (message, isError = false) => {
+                    messageContainer.textContent = message;
+                    messageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
+                    messageContainer.style.display = 'block';
+                    setTimeout(() => { messageContainer.style.display = 'none'; }, 3000);
+                };
+
+                const checkUnreadMessages = async () => {
+                    try {
+                        const response = await apiFetch('accounts/messages/unread-count/');
+                        if (!response.ok) return;
+                        const data = await response.json();
+                        const badge = document.querySelector('#messages-nav-item .notification-badge');
+                        if (badge && data.unread_count > 0) { badge.style.display = 'block'; } else if (badge) { badge.style.display = 'none'; }
+                    } catch (error) { console.error("Could not check for unread messages.", error); }
+                };
 
                 const fetchProfile = async () => {
                     try {
-                        const response = await apiFetch(`${baseApiURL}accounts/profile/company/`);
+                        const response = await apiFetch(`accounts/profile/company/`);
                         if (response && response.ok) {
                             const profile = await response.json();
                             profileNameEl.textContent = profile.name || 'Employer';
@@ -94,28 +142,29 @@
                 };
                 
                 const fetchPostedJobs = async () => {
-                    jobsContainer.innerHTML = '<p>Loading your jobs...</p>';
+                    jobsContainer.innerHTML = '<div class="col-12"><p class="text-center">Loading your jobs...</p></div>';
                     try {
-                        const response = await apiFetch(`${baseApiURL}jobs/my/`);
+                        const response = await apiFetch(`jobs/my/`);
                         if (!response || !response.ok) throw new Error('Failed to fetch jobs');
-                        
                         const jobs = await response.json();
                         jobsContainer.innerHTML = '';
                         
                         if (jobs.length === 0) {
-                             jobsContainer.innerHTML = `<div class="col-12"><div class="text-center bg-white p-5 rounded-3 border"><img src="../../images/icon/icon_12.svg" alt="icon" class="mb-3"><h4 class="mb-3">You Haven't Posted Any Jobs Yet</h4><p class="mb-4">Get started and find the perfect candidate for your team.</p><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div></div>`;
+                            jobsContainer.innerHTML = `<div class="col-12"><div class="text-center bg-white p-5 rounded-3 border"><img src="../../images/icon/icon_12.svg" alt="icon" class="mb-3"><h4 class="mb-3">You Haven't Posted Any Jobs Yet</h4><p class="mb-4">Get started and find the perfect candidate for your team.</p><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div></div>`;
                             return;
                         }
                         
                         jobs.forEach(job => {
                             const card = document.createElement('div');
                             card.className = 'col-lg-6 mb-40';
+                            
+                            // THIS SECTION CONTAINS THE CORRECTED LINKS (ROUTING)
                             card.innerHTML = `
                                 <div class="job-listing-one style-two position-relative h-100 d-flex flex-column">
                                     <div class="row">
                                         <div class="col-12">
                                             <a href="../../job-details.html?id=${job.id}" target="_blank" class="title fw-500 tran3s h4">${job.title}</a>
-                                            <div class="job-location">${job.location}</div>
+                                            <div class="job-location">${job.location || 'Not specified'}</div>
                                         </div>
                                     </div>
                                     <div class="job-meta-data d-flex justify-content-between align-items-center mt-auto">
@@ -123,9 +172,9 @@
                                             <span class="fw-500 text-dark">${job.applicant_count} Applicants</span>
                                         </div>
                                         <div class="job-action">
-                                            <a href="employer-dashboard-applicants.html?jobId=${job.id}" class="btn-sm btn-outline-primary tran3s me-2" title="View Applicants"><i class="bi bi-person-lines-fill"></i> View</a>
-                                            <a href="employer-dashboard-edit-job.html?id=${job.id}" class="btn btn-sm btn-outline-secondary tran3s me-2" title="Edit Job"><i class="bi bi-pencil-square"></i></a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger tran3s delete-btn" data-job-id="${job.id}" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Job"><i class="bi bi-trash"></i></button>
+                                            <a href="employer-dashboard-applicants.html?jobId=${job.id}" class="btn btn-sm btn-outline-primary tran3s me-2" title="View Applicants"><i class="bi bi-people"></i> View</a>
+                                            <a href="employer-dashboard-submit-job.html?edit=true&jobId=${job.id}" class="btn btn-sm btn-outline-secondary tran3s me-2" title="Edit Job"><i class="bi bi-pencil-square"></i></a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger tran3s delete-btn" data-job-id="${job.id}" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Job"><i class="bi bi-trash3"></i></button>
                                         </div>
                                     </div>
                                 </div>`;
@@ -137,7 +186,6 @@
                     }
                 };
 
-                // --- DELETE LOGIC ---
                 const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
                 const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
                 let jobIdToDelete = null;
@@ -152,13 +200,15 @@
                 confirmDeleteBtn.addEventListener('click', async () => {
                     if (!jobIdToDelete) return;
                     try {
-                        const response = await apiFetch(`${baseApiURL}jobs/${jobIdToDelete}/`, { method: 'DELETE' });
+                        const response = await apiFetch(`jobs/${jobIdToDelete}/`, { method: 'DELETE' });
                         if (!response || !response.ok) throw new Error('Deletion failed.');
-                        
-                        document.querySelector(`[data-job-id="${jobIdToDelete}"]`).closest('.col-lg-6').remove();
-                        deleteModal.hide();
+                        showMessage('Job deleted successfully.');
+                        fetchPostedJobs();
                     } catch(error) {
-                        alert('Error deleting job.');
+                        showMessage('Error deleting job.', true);
+                    } finally {
+                        deleteModal.hide();
+                        jobIdToDelete = null;
                     }
                 });
                 
@@ -173,6 +223,7 @@
                 
                 fetchProfile();
                 fetchPostedJobs();
+                checkUnreadMessages();
             });
         </script>
     </div>
