@@ -59,7 +59,6 @@
                             <div class="collapse navbar-collapse" id="navbarNav">
                                 <ul class="navbar-nav align-items-lg-center">
                                     <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-                                    <li class="nav-item active"><a class="nav-link" href="job-list-v1.html">Find Jobs</a></li>
                                     <li class="nav-item"><a class="nav-link" href="about-us.html">About Us</a></li>
                                     <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                                 </ul>
@@ -81,6 +80,35 @@
                             </div>
                             <p class="text-lg text-white mt-30 lg-mt-20 mb-35 lg-mb-20">Find your next career opportunity with CuroJobs.</p>
                         </div>
+                    </div>
+                    <!-- Search Form -->
+                    <div class="job-search-one position-relative me-xl-5">
+                        <form id="job-page-search-form">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="input-box">
+                                        <div class="label">What are you looking for?</div>
+                                        <input type="text" placeholder="Job title, keyword, company" class="keyword" id="banner-search-input">
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="input-box border-left">
+                                        <div class="label">Category</div>
+                                        <select class="nice-select lg" id="banner-category-select">
+                                            <option value="Hospitals/Clinics">Hospitals/Clinics</option>
+                                            <option value="Home Health/Hospice">Home Health/Hospice</option>
+                                            <option value="Behavioral/Mental Health Services">Behavioral/Mental Health Services</option>
+                                            <option value="Assisted Living/Long-Term Care">Assisted Living/Long-Term Care</option>
+                                            <option value="Social Work/Human Services">Social Work/Human Services</option>
+                                            <option value="Telehealth/Virtual Care">Telehealth/Virtual Care</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <button class="fw-500 text-uppercase h-100 tran3s search-btn">Search</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -356,6 +384,17 @@
 
 				const init = async () => {
 					setupAuthLinks();
+
+                    // --- NEW: Handle banner search form ---
+                    const bannerSearchForm = document.getElementById('job-page-search-form');
+                    if (bannerSearchForm) {
+                        bannerSearchForm.addEventListener('submit', (e) => {
+                            e.preventDefault();
+                            const bannerKeyword = document.getElementById('banner-search-input').value;
+                            document.getElementById('filter-keyword').value = bannerKeyword;
+                            filterAndSortJobs();
+                        });
+                    }
 					
 					try {
 						const response = await fetch(BASE_API_URL);
