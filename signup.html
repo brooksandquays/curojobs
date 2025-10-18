@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create an Account | CuroJobs</title>
+    <link rel="icon" type="image/png" sizes="56x56" href="images/fav-icon/icon.png">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
@@ -11,6 +12,23 @@
 
 <body>
     <div class="main-page-wrapper">
+        <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="animation-preloader">
+                    <div class="spinner"></div>
+                    <div class="txt-loading">
+                        <span data-text-preloader="C" class="letters-loading">C</span>
+                        <span data-text-preloader="U" class="letters-loading">U</span>
+                        <span data-text-preloader="R" class="letters-loading">R</span>
+                        <span data-text-preloader="O" class="letters-loading">O</span>
+                        <span data-text-preloader="J" class="letters-loading">J</span>
+                        <span data-text-preloader="O" class="letters-loading">O</span>
+                        <span data-text-preloader="B" class="letters-loading">B</span>
+                        <span data-text-preloader="S" class="letters-loading">S</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <header class="theme-main-menu menu-style-one sticky-menu" style="background-color: #244034;">
             <div class="inner-content position-relative">
                 <div class="top-header">
@@ -21,7 +39,8 @@
                             </a>
                         </div>
                         <div class="right-widget ms-auto order-lg-3">
-                            <ul id="auth-links" class="d-flex align-items-center style-none"></ul>
+                            <ul id="auth-links" class="d-flex align-items-center style-none">
+                                </ul>
                         </div>
                         <nav class="navbar navbar-expand-lg p0 ms-lg-5 ms-3 order-lg-2">
                             <button class="navbar-toggler d-block d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span></span></button>
@@ -83,13 +102,16 @@
         <div class="footer-one">
              <div class="bottom-footer"><div class="container"><div class="row"><div class="col-md-12 mt-10"><p class="text-center mb-15">Copyright @2025 Curo Jobs Inc.</p></div></div></div></div>
         </div>
-    </div>
 
-    <script src="vendor/jquery.min.js"></script>
+        <button class="scroll-top"><i class="bi bi-arrow-up-short"></i></button>
+
+    </div> <script src="vendor/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="vendor/jwt-decode.js"></script>
     <script src="vendor/wow/wow.min.js"></script>
+    <script src="vendor/jquery.lazy.min.js"></script>
+    <script src="vendor/nice-select/jquery.nice-select.min.js"></script>
     <script src="js/theme.js"></script>
+    <script src="vendor/jwt-decode.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const authLinksContainer = document.getElementById('auth-links');
@@ -97,8 +119,35 @@
             const applicantForm = document.getElementById('applicant-signup-form');
             const companyForm = document.getElementById('company-signup-form');
 
-            // This function remains the same
-            const setupAuthHeader = () => { /* ... */ };
+            // This function populates the header links (Login or Dashboard/Logout)
+            const setupAuthHeader = () => {
+                const accessToken = localStorage.getItem('accessToken');
+                if (!authLinksContainer) return;
+
+                if (accessToken) {
+                    try {
+                        const decoded = jwt_decode(accessToken);
+                        const dashboardUrl = decoded.user_type === 'applicant' ? 'dashboard/applicant/candidate-dashboard-index.html' : 'dashboard/employer/employer-dashboard-index.html';
+                        authLinksContainer.innerHTML = `
+                            <li><a href="${dashboardUrl}" class="login-btn-one">Dashboard</a></li>
+                            <li class="d-none d-md-block ms-4"><a href="#" id="logout-btn" class="btn-one">Logout</a></li>`;
+                        
+                        const logoutBtn = document.getElementById('logout-btn');
+                        if(logoutBtn) {
+                            logoutBtn.addEventListener('click', e => {
+                                e.preventDefault();
+                                localStorage.clear();
+                                window.location.reload();
+                            });
+                        }
+                    } catch (e) {
+                        localStorage.clear();
+                        authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login</a></li>`;
+                    }
+                } else {
+                    authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login</a></li>`;
+                }
+            };
             
             const handleRegistration = async (event, userType) => {
                 event.preventDefault();
@@ -118,11 +167,10 @@
                     const result = await response.json();
 
                     if (response.status === 201 && result.username) {
-                        // --- THIS IS THE UPDATED REDIRECT ---
-                        // It now passes the email to the next page
+                        // Redirect to verification page
                         window.location.href = `verify-account.html?email=${encodeURIComponent(data.email)}`;
                     } else {
-                        // Error case
+                        // Handle errors
                         let errorMessage = 'Registration failed:<br>';
                         for (const field in result) {
                            if (Array.isArray(result[field])) {
@@ -145,6 +193,7 @@
             applicantForm.addEventListener('submit', (e) => handleRegistration(e, 'applicant'));
             companyForm.addEventListener('submit', (e) => handleRegistration(e, 'company'));
 
+            // Run setup function on page load
             setupAuthHeader();
         });
     </script>

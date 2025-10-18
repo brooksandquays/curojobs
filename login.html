@@ -2,13 +2,33 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | CuroJobs</title>
+    <link rel="icon" type="image/png" sizes="56x56" href="images/fav-icon/icon.png">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
 </head>
 <body>
     <div class="main-page-wrapper">
+
+        <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="animation-preloader">
+                    <div class="spinner"></div>
+                    <div class="txt-loading">
+                        <span data-text-preloader="C" class="letters-loading">C</span>
+                        <span data-text-preloader="U" class="letters-loading">U</span>
+                        <span data-text-preloader="R" class="letters-loading">R</span>
+                        <span data-text-preloader="O" class="letters-loading">O</span>
+                        <span data-text-preloader="J" class="letters-loading">J</span>
+                        <span data-text-preloader="O" class="letters-loading">O</span>
+                        <span data-text-preloader="B" class="letters-loading">B</span>
+                        <span data-text-preloader="S" class="letters-loading">S</span>
+                    </div>
+                </div>
+            </div>
+        </div>
         <header class="theme-main-menu menu-style-one sticky-menu" style="background-color: #244034;">
             <div class="inner-content position-relative">
                 <div class="top-header">
@@ -17,13 +37,18 @@
                         <div class="right-widget ms-auto order-lg-3">
                             <ul class="d-flex align-items-center style-none">
                                 <li><a href="login.html" class="login-btn-one">Login | SignUp</a></li>
-                                <!-- <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Hire Top Talents</a></li> -->
-                            </ul>
+                                </ul>
                         </div>
                         <nav class="navbar navbar-expand-lg p0 ms-lg-5 ms-3 order-lg-2">
+                            <button class="navbar-toggler d-block d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                                <span></span>
+                            </button>
                             <div class="collapse navbar-collapse" id="navbarNav">
                                 <ul class="navbar-nav align-items-lg-center">
+                                    <li class="d-block d-lg-none"><div class="logo"><a href="index.html" class="d-block"><img src="images/logo/logo_01.png" alt="" class="curo"></a></div></li>
                                     <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                                    <li class="d-md-none"><a href="login.html" class="job-post-btn tran3s">Post Job</a></li>
+                                    <li class="d-md-none"><a href="login.html" class="btn-one w-100">Hire Top Talents</a></li>
                                 </ul>
                             </div>
                         </nav>
@@ -54,8 +79,15 @@
         </section>
         
         <div class="footer-one"><div class="bottom-footer"><div class="container"><div class="row"><div class="col-md-12 mt-10"><p class="text-center mb-15">Copyright @2025 Curo Jobs Inc.</p></div></div></div></div></div>
-    </div>
+    
+        <button class="scroll-top"><i class="bi bi-arrow-up-short"></i></button>
 
+    </div> <script src="vendor/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="vendor/wow/wow.min.js"></script>
+    <script src="vendor/jquery.lazy.min.js"></script>
+    <script src="vendor/nice-select/jquery.nice-select.min.js"></script>
+    <script src="js/theme.js"></script> 
     <script src="vendor/jwt-decode.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -66,7 +98,7 @@
                 event.preventDefault();
                 const formData = new FormData(loginForm);
                 const data = Object.fromEntries(formData.entries());
-                const apiURL = 'https://app.curojobs.com/api/v1/accounts/token/';
+                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/token/';
                 errorMessageDiv.style.display = 'none';
 
                 try {
