@@ -634,38 +634,94 @@
         <script src="js/theme.js"></script>
 
         <script>
-            // Break up the email into parts so bots can't scrape it
-            const user = "info";
-            const domain = "curojobs.com";
-            const email = user + "@" + domain;
-            const emailElement = document.getElementById("c-email");
+            document.addEventListener('DOMContentLoaded', () => {
+                const jobContainer = document.getElementById('job-listing-container');
+                const searchForm = document.getElementById('job-search-form');
+                const authLinksContainer = document.getElementById('auth-links');
+                const baseApiURL = 'http://127.0.0.1:8000/api/v1/jobs/';
 
-            if (emailElement) {
-                emailElement.innerHTML = 
-                    `<a href="mailto:${email}">${email}</a>`;
-            }
-
-            // Search form redirection
-            const searchForm = document.querySelector('.job-search-one form');
-            if (searchForm) {
-                searchForm.addEventListener('submit', function(event) {
-                    event.preventDefault(); // Prevent the default form submission
-
-                    const keyword = this.querySelector('.keyword').value;
-                    const categorySelect = this.querySelector('.nice-select');
-                    const category = categorySelect.options[categorySelect.selectedIndex].text;
-
-                    const params = new URLSearchParams();
-                    if (keyword) {
-                        params.append('keyword', keyword);
+                const setupAuthHeader = () => {
+                    const accessToken = localStorage.getItem('accessToken');
+                    if (accessToken) {
+                        try {
+                            const decodedToken = jwt_decode(accessToken);
+                            let dashboardUrl = 'index.html'; // Fallback
+                            if (decodedToken.user_type === 'applicant') {
+                                dashboardUrl = 'dashboard/applicant/candidate-dashboard-index.html';
+                            } else if (decodedToken.user_type === 'company') {
+                                dashboardUrl = 'dashboard/employer/employer-dashboard-index.html';
+                            }
+                            authLinksContainer.innerHTML = `
+                                <li><a href="${dashboardUrl}" class="login-btn-one">Dashboard</a></li>
+                                <li class="d-none d-md-block ms-4"><a href="#" id="logout-btn" class="btn-one">Logout</a></li>`;
+                            const logoutBtn = document.getElementById('logout-btn');
+                            if(logoutBtn) {
+                                logoutBtn.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    localStorage.removeItem('accessToken');
+                                    localStorage.removeItem('refreshToken');
+                                    window.location.reload();
+                                });
+                            }
+                        } catch(e) {
+                            localStorage.clear();
+                             authLinksContainer.innerHTML = `
+                                <li><a href="login.html" class="login-btn-one">Login | SignUp</a></li>
+                                <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Hire Top Talents</a></li>`;
+                        }
+                    } else {
+                        authLinksContainer.innerHTML = `
+                            <li><a href="login.html" class="login-btn-one">Login | SignUp</a></li>
+                            <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Hire Top Talents</a></li>`;
                     }
-                    if (category && category !== 'Hospitals/Clinics') { // Assuming default is not needed
-                        params.append('category', category);
+                };
+            
+                const fetchJobs = async (url) => {
+                    jobContainer.innerHTML = '<p class="text-center">Loading jobs...</p>';
+                    try {
+                        const response = await fetch(url);
+                        if (!response.ok) throw new Error('Failed to load jobs');
+                        const jobs = await response.json();
+                        jobContainer.innerHTML = '';
+                        if (jobs.length === 0) {
+                            jobContainer.innerHTML = '<div class="text-center"><h4>No jobs found.</h4></div>';
+                            return;
+                        }
+                        jobs.forEach(job => {
+                            const jobElement = document.createElement('div');
+                            jobElement.className = 'job-list-one style-two position-relative mb-20';
+                            const companyInitial = job.company.name.charAt(0).toUpperCase();
+                            const logoHtml = `<div class="logo d-flex align-items-center justify-content-center" style="background-color: #e8f7ff; width: 45px; height: 45px; border-radius: 5px; font-size: 20px; font-weight: 500; color: #007bff;">${companyInitial}</div>`;
+                            jobElement.innerHTML = `
+                                <div class="row justify-content-between align-items-center">
+                                    <div class="col-xxl-5 col-lg-4"><div class="job-title d-flex align-items-center">${logoHtml}<a href="job-details.html?id=${job.id}" class="title fw-500 tran3s" target="_blank">${job.title}</a></div></div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6 ms-auto"><div class="job-duration fw-500 tran3s">${job.company_name}</div></div>
+                                    <div class="col-xxl-2 col-lg-3 col-md-4 col-sm-6 xs-mt-10"><div class="job-location">${job.location}</div></div>
+                                    <div class="col-lg-2 col-md-4"><a href="job-details.html?id=${job.id}" class="btn-four tran3s" target="_blank">View Job</a></div>
+                                </div>`;
+                            jobContainer.appendChild(jobElement);
+                        });
+                    } catch (error) {
+                        jobContainer.innerHTML = '<div class="text-center text-danger"><h4>Failed to load jobs.</h4><p>Ensure backend is running.</p></div>';
                     }
-
-                    window.location.href = `job-list-v1.html?${params.toString()}`;
-                });
-            }
+                };
+            
+                if(searchForm) {
+                    searchForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const title = document.getElementById('search-title').value;
+                        const category = document.getElementById('search-category').value;
+                        const params = new URLSearchParams();
+                        if (title) params.append('title', title);
+                        if (category) params.append('category', category);
+                        const searchURL = `${baseApiURL}?${params.toString()}`;
+                        fetchJobs(searchURL);
+                    });
+                }
+            
+                setupAuthHeader();
+                fetchJobs(baseApiURL);
+            });
         </script>
     </div> <!-- /.main-page-wrapper -->
 </body>

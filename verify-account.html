@@ -68,15 +68,32 @@
                 return;
             }
             
-            // --- Case 2: Arriving from the signup page ---
-            if (email) {
-                localStorage.setItem('verificationEmail', email); // Store email for later use
-                titleEl.textContent = 'Check Your Email';
-                bodyEl.textContent = 'We have sent a verification link to your email address. Please click the link to activate your account.';
-                resendContainer.style.display = 'block';
-            } else {
-                 titleEl.textContent = 'Invalid Page';
-                 bodyEl.textContent = 'No verification details found.';
+            const apiURL = 'https://app.curojobs.com/api/v1/accounts/verify-email/';
+
+            try {
+                const response = await fetch(apiURL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ uid: uid, token: token }),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    titleEl.textContent = 'Account Verified! ✅';
+                    // --- THIS IS THE UPDATED MESSAGE ---
+                    bodyEl.textContent = 'Your account is now verified. You may now login.';
+                    loginBtn.style.display = 'block'; 
+                } else {
+                    titleEl.textContent = 'Verification Failed';
+                    bodyEl.textContent = result.detail || 'The verification link is invalid or has expired.';
+                }
+            } catch (error) {
+                titleEl.textContent = 'An Error Occurred';
+                bodyEl.textContent = 'Could not connect to the server. Please try again later.';
+                console.error('Verification error:', error);
             }
 
             // --- Resend Logic ---

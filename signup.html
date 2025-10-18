@@ -88,6 +88,7 @@
     <script src="vendor/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="vendor/jwt-decode.js"></script>
+    <script src="vendor/wow/wow.min.js"></script>
     <script src="js/theme.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -105,7 +106,7 @@
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 data.user_type = userType;
-                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/register/';
+                const apiURL = 'https://app.curojobs.com/api/v1/accounts/register/';
                 messageContainer.style.display = 'none';
 
                 try {

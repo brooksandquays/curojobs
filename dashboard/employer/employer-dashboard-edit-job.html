@@ -48,7 +48,7 @@
                 const jobId = params.get('id');
                 const editJobForm = document.getElementById('edit-job-form');
                 const messageContainer = document.getElementById('message-container');
-                const apiURL = `http://127.0.0.1:8000/api/v1/jobs/${jobId}/`;
+                const apiURL = `https://app.curojobs.com/api/v1/jobs/${jobId}/`;
 
                 if (!jobId) {
                     document.querySelector('.dashboard-body').innerHTML = '<h2>Error: No Job ID provided.</h2>';

@@ -1,6 +1,6 @@
 // js/api.js
 
-const BASE_URL = 'http://127.0.0.1:8000/api/v1/';
+const BASE_URL = 'https://app.curojobs.com/api/v1/';
 
 // This function specifically handles getting a new access token
 const getNewAccessToken = async () => {
