@@ -17,22 +17,19 @@
                 <div class="logo text-md-center d-flex align-items-center justify-content-center">
                     <a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a>
                 </div>
-                <div class="user-data">
-                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
-                    <div class="user-name-data">
-                        <button class="user-name dropdown-toggle" type="button" id="profile-dropdown" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                <div class="user-data d-flex flex-column align-items-center">
+                      <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
+                    <div class="user-name-data mt-2">
+                        <div class="user-name" id="profile-dropdown">
                             Loading...
-                        </button>
-                         <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
-                            <li><a class="dropdown-item d-flex align-items-center" href="candidate-dashboard-profile.html"><img src="../../images/icon/icon_23.svg" alt="" class="lazy-img"><span class="ms-2 ps-1">Profile</span></a></li>
-                        </ul>
+                        </div>
                     </div>
                 </div>
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_1_active.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
-                        <li><a href="candidate-dashboard-resume.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>Resume</span></a></li>
+                        <!-- <li><a href="candidate-dashboard-resume.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>Resume</span></a></li> -->
                         <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span></a></li>
                         <li><a href="../../index.html" class="d-flex w-100 align-items-center border-top mt-10 pt-10"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
@@ -51,7 +48,7 @@
 
                 <h2 class="main-title">Dashboard</h2>
                 <div class="row">
-                    <div class="col-lg-3 col-6">
+                    <div class="col-lg-4 col-md-6">
                         <div class="dash-card-one bg-white border-30 position-relative mb-15">
                            <div class="d-sm-flex align-items-center justify-content-between">
                                 <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1"><img src="../../images/icon/icon_15.svg" alt="" class="lazy-img"></div>
@@ -62,27 +59,56 @@
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div class="row d-flex pt-50 lg-pt-10">
-                    <div class="col-xl-7 col-lg-6 d-flex flex-column">
-                        <div class="user-activity-chart bg-white border-20 mt-30 h-100">
-                            <h4 class="dash-title-two">Profile Views (Last 7 Days)</h4>
-                            <div class="chart-container" style="position: relative; height:250px; width:100%">
-                                <canvas id="profileViewsChart"></canvas>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="dash-card-one bg-white border-30 position-relative mb-15">
+                           <div class="d-sm-flex align-items-center justify-content-between">
+                                <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1"><img src="../../images/icon/icon_16.svg" alt="" class="lazy-img"></div>
+                                <div class="order-sm-0">
+                                    <div class="value fw-500" id="shortlisted-jobs-count">0</div>
+                                    <span>Shortlisted</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-xl-5 col-lg-6 d-flex">
-                        <div class="recent-job-tab bg-white border-20 mt-30 w-100">
-                            <h4 class="dash-title-two">Recently Applied Jobs</h4>
-                            <div id="applied-jobs-container" class="wrapper">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="dash-card-one bg-white border-30 position-relative mb-15">
+                           <div class="d-sm-flex align-items-center justify-content-between">
+                                <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1"><img src="../../images/icon/icon_17.svg" alt="" class="lazy-img"></div>
+                                <div class="order-sm-0">
+                                    <div class="value fw-500" id="saved-jobs-count">0</div>
+                                    <span>Saved Jobs</span>
                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+
+                <div class="row d-flex pt-50 lg-pt-10">
+                    <div class="col-12">
+                        <div class="recent-job-tab bg-white border-20 mt-40">
+                            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link active" id="applied-tab" data-bs-toggle="tab" data-bs-target="#applied-jobs-pane" type="button" role="tab" aria-controls="applied-jobs-pane" aria-selected="true">Recently Applied</button>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <button class="nav-link" id="saved-tab" data-bs-toggle="tab" data-bs-target="#saved-jobs-pane" type="button" role="tab" aria-controls="saved-jobs-pane" aria-selected="false">Saved Jobs</button>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="applied-jobs-pane" role="tabpanel" aria-labelledby="applied-tab">
+                                    <div id="applied-jobs-container" class="wrapper">
+                                        <!-- Applied jobs will be loaded here -->
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="saved-jobs-pane" role="tabpanel" aria-labelledby="saved-tab">
+                                    <div id="saved-jobs-container" class="wrapper">
+                                        <!-- Saved jobs will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                 </div>
         
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -104,6 +130,8 @@
                 const profileNameEl = document.getElementById('profile-dropdown');
                 const appliedJobsContainer = document.getElementById('applied-jobs-container');
                 const appliedJobsCountEl = document.getElementById('applied-jobs-count');
+                const savedJobsContainer = document.getElementById('saved-jobs-container');
+                const savedJobsCountEl = document.getElementById('saved-jobs-count');
                 const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
                 const logoutBtn = document.getElementById('logout-btn');
                 const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
@@ -127,7 +155,6 @@
                         profileNameEl.textContent = username;
 
                         if (avatarPlaceholder) {
-                            // RESTORED: Original styling for the avatar placeholder
                             const initial = username.charAt(0).toUpperCase();
                             let hash = 0;
                             for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
@@ -147,7 +174,6 @@
                     }
                 };
                 
-                // CONFIRMED: Using your original design for the applied jobs list
                 const fetchAppliedJobs = async () => {
                     appliedJobsContainer.innerHTML = '<div class="text-center p-3">Loading applications...</div>';
                     try {
@@ -186,34 +212,46 @@
                     }
                 };
                 
-                const fetchAndRenderChart = async () => {
+                // --- NEW FUNCTION TO FETCH SAVED JOBS ---
+                    const fetchSavedJobs = async () => {
+                    savedJobsContainer.innerHTML = '<div class="text-center p-3">Loading saved jobs...</div>';
                     try {
-                        const response = await apiFetch('accounts/profile/views-chart/');
-                        if (!response.ok) throw new Error('Failed to fetch chart data');
-                        const chartData = await response.json();
-
-                        const ctx = document.getElementById('profileViewsChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: chartData.labels,
-                                datasets: [{
-                                    label: 'Profile Views',
-                                    data: chartData.data,
-                                    backgroundColor: 'rgba(36, 64, 52, 0.1)',
-                                    borderColor: '#244034',
-                                    borderWidth: 2,
-                                    tension: 0.3,
-                                    pointBackgroundColor: '#244034',
-                                    pointRadius: 5,
-                                    fill: true,
-                                }]
-                            },
-                            options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                        // Note: Assuming 'jobs/saved/' is your API endpoint for saved jobs.
+                        const response = await apiFetch('jobs/saved/'); 
+                        if (!response.ok) throw new Error('Failed to fetch saved jobs');
+                        
+                        const savedJobs = await response.json();
+                        
+                        // Update the dashboard count
+                        savedJobsCountEl.textContent = savedJobs.length;
+                        savedJobsContainer.innerHTML = ''; // Clear loading message
+                        
+                        // --- THIS IS THE EMPTY STATE YOU REQUESTED ---
+                        if (savedJobs.length === 0) {
+                            savedJobsContainer.innerHTML = '<div class="text-center p-3"><p>You have not saved any jobs yet.</p><a href="../../job-list-v1.html" class="btn-nine">Browse Jobs</a></div>';
+                            return;
+                        }
+                        
+                        // If jobs exist, display them (similar to applied jobs)
+                        // --- THIS IS THE MODIFIED LINE ---
+                        savedJobs.slice(0, 5).forEach(savedJob => { // Show latest 5
+                            const jobItem = document.createElement('div');
+                            jobItem.className = 'job-item-list d-flex align-items-center';
+                            
+                            jobItem.innerHTML = `
+                                <div class="job-title flex-grow-1">
+                                    <h6 class="mb-5"><a href="../../job-details.html?id=${savedJob.job.id}" target="_blank">${savedJob.job.title}</a></h6>
+                                    <div class="meta"><span>${savedJob.job.company_name}</span> . <span>${savedJob.job.location}</span></div>
+                                </div>
+                                <div class="job-status">
+                                    <a href="../../job-details.html?id=${savedJob.job.id}" class="btn-nine" style="padding: 5px 15px; font-size: 14px;" target="_blank">View Job</a>
+                                </div>`;
+                            savedJobsContainer.appendChild(jobItem);
                         });
+
                     } catch (error) {
-                        console.error("Error fetching chart data:", error);
-                        document.querySelector('.user-activity-chart').innerHTML = '<p class="text-center text-danger p-5">Could not load chart data.</p>';
+                        console.error('Error fetching saved jobs:', error);
+                        savedJobsContainer.innerHTML = '<p class="text-center text-danger">Could not load your saved jobs.</p>';
                     }
                 };
 
@@ -223,9 +261,10 @@
                     window.location.href = '../../index.html';
                 });
                 
+                // --- CALL ALL THE FUNCTIONS ON PAGE LOAD ---
                 fetchProfile();
                 fetchAppliedJobs();
-                fetchAndRenderChart();
+                fetchSavedJobs(); // <-- ADDED THIS CALL
             });
         </script>
     </div>
