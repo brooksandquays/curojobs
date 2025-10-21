@@ -155,7 +155,7 @@
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 data.user_type = userType;
-                const apiURL = 'https://app.curojobs.com/api/v1/accounts/register/';
+                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/register/';
                 messageContainer.style.display = 'none';
 
                 try {

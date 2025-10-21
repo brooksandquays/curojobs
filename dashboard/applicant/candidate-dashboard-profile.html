@@ -27,7 +27,6 @@
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_2_active.svg" alt=""><span>My Profile</span></a></li>
-                        <!-- <li><a href="candidate-dashboard-resume.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>Resume</span></a></li> -->
                         <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span></a></li>
                         <li><a href="../../index.html" class="d-flex w-100 align-items-center border-top mt-10 pt-10"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
@@ -38,7 +37,14 @@
 
         <div class="dashboard-body">
             <div class="position-relative">
-                <header class="dashboard-header"></header>
+                <header class="dashboard-header">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto">
+                            <span></span>
+                        </button>
+                    </div>
+                </header>
+
                 <h2 class="main-title">My Profile</h2>
                 <div id="message-container" class="alert" style="display: none;"></div>
                 <form id="profile-form">
@@ -50,29 +56,51 @@
                     </div>
 
                     <div class="bg-white card-box border-20 mt-40">
-                        <h4 class="dash-title-three">Social Media</h4>
-                        <div class="dash-input-wrapper mb-20"><label for="facebook_url">Facebook</label><input type="url" id="facebook_url" name="facebook_url" placeholder="https://www.facebook.com/username"></div>
-                        <div class="dash-input-wrapper"><label for="twitter_url">Twitter (X)</label><input type="url" id="twitter_url" name="twitter_url" placeholder="https://www.twitter.com/username"></div>
-                    </div>
-                    
-                    <div class="bg-white card-box border-20 mt-40">
-                        <h4 class="dash-title-three">Address & Location</h4>
+                        <h4 class="dash-title-three">Contact Information</h4>
                         <div class="row">
-                            <div class="col-12"><div class="dash-input-wrapper mb-25"><label for="address">Address*</label><input type="text" id="address" name="address"></div></div>
-                            <div class="col-lg-4"><div class="dash-input-wrapper mb-25"><label for="country">Country*</label><input type="text" id="country" name="country"></div></div>
-                            <div class="col-lg-4"><div class="dash-input-wrapper mb-25"><label for="city">City*</label><input type="text" id="city" name="city"></div></div>
-                            <div class="col-lg-4"><div class="dash-input-wrapper mb-25"><label for="zip_code">Zip Code*</label><input type="text" id="zip_code" name="zip_code"></div></div>
+                            <div class="col-md-6">
+                                <div class="dash-input-wrapper mb-25">
+                                    <label for="email">Email*</label>
+                                    <input type="email" id="email" name="email" readonly disabled>
+                                    <div class="form-text">Your email is tied to your account and cannot be changed here.</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="dash-input-wrapper mb-25">
+                                    <label for="phone_number">Phone Number*</label>
+                                    <input type="tel" id="phone_number" name="phone_number" required>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <div class="bg-white card-box border-20 mt-40">
-                        <h4 class="dash-title-three">Upload Resume/CV</h4>
-                        <div class="dash-input-wrapper">
-                            <label for="cv">Upload CV</label>
-                            <div id="cv-filename" class="text-muted mb-2 small"></div>
-                            <input type="file" id="cv" name="cv" class="form-control" accept=".pdf,.doc,.docx">
-                            <div class="form-text">Upload a new file to replace the current one. Accepted formats: PDF, DOC, DOCX.</div>
+                        <h4 class="dash-title-three">Address & Location</h4>
+                        <div class="row">
+                            <div class="col-12"><div class="dash-input-wrapper mb-25"><label for="address_1">Address 1*</label><input type="text" id="address_1" name="address_1" required></div></div>
+                            <div class="col-12"><div class="dash-input-wrapper mb-25"><label for="address_2">Address 2 (Optional)</label><input type="text" id="address_2" name="address_2"></div></div>
+                            <div class="col-lg-3"><div class="dash-input-wrapper mb-25"><label for="country">Country*</label><input type="text" id="country" name="country" value="USA" required></div></div>
+                            <div class="col-lg-3"><div class="dash-input-wrapper mb-25"><label for="state">State*</label><input type="text" id="state" name="state" required></div></div>
+                            <div class="col-lg-3"><div class="dash-input-wrapper mb-25"><label for="city">City*</label><input type="text" id="city" name="city" required></div></div>
+                            <div class="col-lg-3"><div class="dash-input-wrapper mb-25"><label for="zip_code">Zip Code*</label><input type="text" id="zip_code" name="zip_code" required></div></div>
                         </div>
+                    </div>
+
+                    <div class="bg-white card-box border-20 mt-40">
+                        <h4 class="dash-title-three">Resume Attachment</h4>
+                        <div class="dash-input-wrapper mb-20">
+                            <label for="cv">CV Attachment*</label>
+                            
+                            <div id="cv-filename-container">
+                                </div>
+                        </div>
+                        
+                        <div class="dash-btn-one d-inline-block position-relative me-3">
+                            <i class="bi bi-plus"></i>
+                            Upload CV
+                            <input type="file" id="cv" name="cv" accept=".pdf,.doc,.docx">
+                        </div>
+                        <small>Upload file .pdf, .doc, .docx</small>
                     </div>
                     <div class="button-group d-inline-flex align-items-center mt-30"><button type="submit" class="dash-btn-two tran3s me-3">Save Changes</button></div>
                 </form>
@@ -83,6 +111,7 @@
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
         <script src="../../js/theme.js"></script>
+        
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const accessToken = localStorage.getItem('accessToken');
@@ -103,7 +132,6 @@
                 const logoutBtn = document.getElementById('logout-btn');
                 const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/profile/applicant/';
 
-                // FIXED: This function now correctly handles both JSON and FormData
                 const apiFetch = async (endpoint, options = {}) => {
                     const headers = options.body instanceof FormData 
                         ? { 'Authorization': `Bearer ${accessToken}` } 
@@ -143,7 +171,6 @@
                             avatarPlaceholder.innerHTML = initial;
                         }
                         
-                        // Populate all form fields
                         for (const key in profile) {
                             const input = document.getElementById(key);
                             if (input && key !== 'cv') {
@@ -151,12 +178,24 @@
                             }
                         }
                         
-                        const cvFilenameDiv = document.getElementById('cv-filename');
+                        // --- JAVASCRIPT UPDATE HERE ---
+                        // This now targets the new container and builds the styled "attached-file" div
+                        const cvContainer = document.getElementById('cv-filename-container');
                         if (profile.cv) {
-                            cvFilenameDiv.innerHTML = `Current file: <a href="${profile.cv}" target="_blank">${profile.cv.split('/').pop()}</a>`;
+                            const filename = profile.cv.split('/').pop();
+                            cvContainer.innerHTML = `
+                                <div class="attached-file d-flex align-items-center justify-content-between mb-15">
+                                    <span>${filename}</span>
+                                    <a href="${profile.cv}" target="_blank" class="remove-btn" title="View File" style="text-decoration: none;">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </div>
+                            `;
                         } else {
-                            cvFilenameDiv.textContent = 'No CV/Resume uploaded.';
+                            cvContainer.innerHTML = '<div class="text-muted small mb-2">No CV/Resume uploaded.</div>';
                         }
+                        // --- END JAVASCRIPT UPDATE ---
+
                     } catch (error) { showMessage('Could not load profile data. Please refresh the page.', true); }
                 };
 
@@ -168,10 +207,12 @@
 
                     const formData = new FormData(profileForm);
                     
-                    // If no new file is selected, do not include the 'cv' field in the submission
+                    // This logic remains the same and works with the new hidden input
                     if (!document.getElementById('cv').files[0]) {
                         formData.delete('cv');
                     }
+                    
+                    formData.append('email', document.getElementById('email').value);
 
                     try {
                         const response = await apiFetch(apiURL, { 
@@ -187,7 +228,7 @@
                         }
                         
                         showMessage('Profile saved successfully!');
-                        loadProfileData(); // Reload data to show changes and get new CV link
+                        loadProfileData(); // Reload data to show changes
                     } catch (error) { 
                         showMessage(error.message, true); 
                     } finally {
