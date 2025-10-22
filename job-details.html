@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>CuroJobs - Job Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
@@ -14,38 +15,39 @@
     <div class="main-page-wrapper">
         <header class="theme-main-menu menu-style-one sticky-menu" style="background-color: #244034;">
             <div class="inner-content position-relative">
-                <div class="collapse navbar-collapse" id="navbarNav">
-                                                <ul class="navbar-nav align-items-lg-center">
-                                                    <li class="d-block d-lg-none">
-                                                        <div class="logo">
-                                                            <a href="index.html" class="d-block">
-                                                                <img src="images/logo/logo_01.png" alt="" class="curo">
-                                                            </a>
-                                   git pull origin main --rebase=false                     </div>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="nav-link" href="#" role="button" aria-expanded="false">
-                                                            Home
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item"><a class="nav-link" href="job-list-v1.html">Find Jobs</a></li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="nav-link" href="index.html#candidates-employees" role="button" aria-expanded="false">
-                                                            For Candidates & Employees
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item dropdown">
-                                                        <a class="nav-link" href="index.html#recruiters-employers" role="button" aria-expanded="false">
-                                                            For Employers & Recruiters
-                                                        </a>
-                                                    </li>
-                                                    <li class="nav-item">
-                                                        <a class="nav-link" href="index.html#contact" role="button">Contact</a>
-                                                    </li>
-                                                    <li class="d-md-none"><a href="#" class="job-post-btn tran3s">Post Job</a></li>
-                                                    <li class="d-md-none"><a href="#" class="btn-one w-100">Hire Top Talents</a></li>
-                                                </ul>
-                                            </div>
+                <div class="top-header">
+                    <div class="d-flex align-items-center">
+                        <div class="logo order-lg-0">
+                            <a href="index.html" class="d-flex align-items-center">
+                                <img src="images/logo/logo_01.png" alt="CuroJobs Logo" class="curo">
+                            </a>
+                        </div>
+                        <div class="right-widget ms-auto order-lg-3">
+                            <ul id="auth-links" class="d-flex align-items-center style-none">
+                                </ul>
+                        </div>
+                        <nav class="navbar navbar-expand-lg p0 ms-lg-5 ms-3 order-lg-2">
+                            <button class="navbar-toggler d-block d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                                <span></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="navbarNav">
+                                <ul class="navbar-nav align-items-lg-center">
+                                    <li class="d-block d-lg-none">
+                                        <div class="logo">
+                                            <a href="index.html" class="d-block">
+                                                <img src="images/logo/logo_01.png" alt="" class="curo">
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="job-list-v1.html">Find Jobs</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="about-us.html">About Us</a></li>
+                                    <li class="nav-item"><a class="nav-link" href="index.html#contact">Contact</a></li>
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -83,9 +85,146 @@
         </div>
     </div>
 
+    <div class="modal fade" id="applicationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="applicationModalLabel">Job Application: <span id="modal-job-title-header"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="application-message-container" class="alert" style="display: none;"></div>
+                    
+                    <form id="application-form">
+                        <input type="hidden" id="apply-job-id" name="job">
+                        <input type="hidden" id="vsiq-type-indicator" value=""> 
+
+                        <div id="core-application-section">
+                            <h4 class="dash-title-three">1. Basic Information</h4>
+                            <div class="dash-input-wrapper mb-25">
+                                <label for="apply-job-title">Job Title / Headline*</label>
+                                <input type="text" id="apply-job-title" name="job_title_at_application" required>
+                                <div class="form-text">This will be shown to the employer.</div>
+                            </div>
+
+                            <div class="dash-input-wrapper mb-25">
+                                <label>Current Profile CV</label>
+                                <div id="current-cv-info" class="text-muted small">Loading...</div>
+                            </div>
+                            
+                            <div class="dash-input-wrapper mb-25">
+                                <label for="apply-new-cv">Upload a Different CV (Optional)</label>
+                                <input type="file" id="apply-new-cv" name="cv_at_application" class="form-control" accept=".pdf,.doc,.docx">
+                                <div class="form-text">If you don't upload a new one, your profile CV will be used.</div>
+                            </div>
+                        </div>
+                        
+                        <div id="vsiq-section" class="mt-40" style="display: none;">
+                            <h4 class="dash-title-three">2. Voluntary Self-Identification</h4>
+                            <p class="form-text">Your answers are **confidential**, won’t appear in your application review, and won’t be used by our platform. Answering is completely optional.</p>
+                            
+                            <div class="dash-input-wrapper mb-25" id="vsiq-gender">
+                                <label for="voluntary_gender">Gender</label>
+                                <select id="voluntary_gender" name="voluntary_gender" class="form-control">
+                                    <option value="">Select...</option>
+                                    <option value="PND">I choose not to self-identify</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Others</option>
+                                </select>
+                            </div>
+                            
+                            <div class="dash-input-wrapper mb-25" id="vsiq-race">
+                                <label for="voluntary_race">Race / Ethnicity</label>
+                                <select id="voluntary_race" name="voluntary_race" class="form-control">
+                                    <option value="">Select...</option>
+                                    <option value="PND">I choose not to self-identify</option>
+                                    <option value="AI">American Indian or Alaska Native</option>
+                                    <option value="AS">Asian</option>
+                                    <option value="BA">Black or African American</option>
+                                    <option value="HL">Hispanic or Latino</option>
+                                    <option value="NHPI">Native Hawaiian or Other Pacific Islander</option>
+                                    <option value="WH">White</option>
+                                    <option value="TMR">Two or More Races</option>
+                                </select>
+                            </div>
+
+                            <div id="vsiq-veteran" class="mb-25" style="display: none;">
+                                <h5 class="mt-4">Veteran Status</h5>
+                                <p class="form-text small">Providing this information is voluntary and used only for government reporting (VEVRAA).</p>
+                                <div class="dash-input-wrapper">
+                                    <select id="voluntary_veteran" name="voluntary_veteran" class="form-control">
+                                        <option value="">Select...</option>
+                                        <option value="PND">I choose not to self-identify</option>
+                                        <option value="NAV">Not a Veteran</option>
+                                        <option value="DV">Disabled Veteran</option>
+                                        <option value="RSV">Recently separated Veteran</option>
+                                        <option value="PVR">Protected Veteran (General)</option>
+                                        <option value="AFSMV">Armed Forces service medal Veteran</option>
+                                        <option value="ADWCBV">Active duty wartime or campaign badge veteran</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div id="vsiq-disability" class="mb-25" style="display: none;">
+                                <h5 class="mt-4">Disability Self-Identification</h5>
+                                <p class="form-text small">Your answer won’t affect your job application or employment. Sharing is voluntary.</p>
+                                <div class="dash-input-wrapper">
+                                    <select id="voluntary_disability" name="voluntary_disability" class="form-control">
+                                        <option value="">Select...</option>
+                                        <option value="PND">I don't wish to answer</option>
+                                        <option value="Yes">Yes, I have a disability (or previously had a disability)</option>
+                                        <option value="No">No, I don't have a disability</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="vsiq-accommodation" class="mb-25" style="display: none;">
+                                <h5 class="mt-4">Reasonable Accommodation</h5>
+                                <div class="dash-input-wrapper">
+                                    <textarea id="reasonable_accommodation" name="reasonable_accommodation" class="form-control" rows="3" placeholder="Describe any accommodation you may require during the hiring process..."></textarea>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="modal-footer justify-content-between">
+                    <button type="button" id="back-to-core-btn" class="btn-nine" style="display: none;">&larr; Back</button>
+                    <button type="button" id="next-to-vsiq-btn" class="btn-one">Continue &rarr;</button> 
+                    <button type="button" id="submit-application-btn" class="btn-one" style="display: none;">Submit Application</button>
+                    <button type="button" id="close-review-btn" class="btn-nine" data-bs-dismiss="modal" style="display: none;">Close Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="reviewModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Application Review (Submitted)</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="review-modal-body">
+                    <div class="text-center p-5">Loading submitted data...</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-nine" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="vendor/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="vendor/jwt-decode.js"></script>
+    <script src="js/theme.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- SETUP ---
             const params = new URLSearchParams(window.location.search);
             const jobId = params.get('id');
             const jobTitleEl = document.getElementById('job-main-title');
@@ -104,8 +243,362 @@
                 return;
             }
 
+            // MODAL ELEMENTS
+            const applicationModalEl = document.getElementById('applicationModal');
+            const applicationModal = new bootstrap.Modal(applicationModalEl);
+            const submitApplicationBtn = document.getElementById('submit-application-btn');
+            const applicationForm = document.getElementById('application-form');
+            const appMessageContainer = document.getElementById('application-message-container');
+            const nextToVsiqBtn = document.getElementById('next-to-vsiq-btn');
+            const backToCoreBtn = document.getElementById('back-to-core-btn');
+            const coreSection = document.getElementById('core-application-section');
+            const vsiqSection = document.getElementById('vsiq-section');
+            const modalJobTitleHeader = document.getElementById('modal-job-title-header');
+            
+            // VSIQ elements
+            const vsiqTypeIndicator = document.getElementById('vsiq-type-indicator');
+            const vsiqVeteran = document.getElementById('vsiq-veteran');
+            const vsiqDisability = document.getElementById('vsiq-disability');
+            const vsiqAccommodation = document.getElementById('vsiq-accommodation');
+
+            let currentApplicantProfile = null;
+            let currentJobVsiqType = 'None'; 
+
+
+            // --- HELPER FUNCTIONS ---
+            const showMessage = (message, isError = false) => {
+                appMessageContainer.innerHTML = message;
+                appMessageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
+                appMessageContainer.style.display = 'block';
+                setTimeout(() => appMessageContainer.style.display = 'none', 4000);
+            };
+
+            const apiFetch = async (endpoint, options = {}) => {
+                const accessToken = localStorage.getItem('accessToken');
+                const headers = options.body instanceof FormData 
+                    ? { 'Authorization': `Bearer ${accessToken}` } 
+                    : { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                
+                const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
+                if (response.status === 401) {
+                    localStorage.clear();
+                    window.location.href = 'login.html';
+                }
+                return response;
+            };
+
+            const fetchApplicantProfile = async () => {
+                try {
+                    const response = await apiFetch(`${accountsApiURL}profile/applicant/`);
+                    if (!response.ok) throw new Error('Not logged in');
+                    currentApplicantProfile = await response.json();
+                    return currentApplicantProfile;
+                } catch (error) {
+                    return null;
+                }
+            };
+
+            const fetchJobDataForDisplay = async (jobId) => {
+                try {
+                    const accessToken = localStorage.getItem('accessToken');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (accessToken) { headers['Authorization'] = `Bearer ${accessToken}`; }
+                    
+                    const response = await fetch(`${jobsApiURL}${jobId}/`, { headers });
+                    if (!response.ok) throw new Error('Job not found.');
+                    const job = await response.json();
+                    
+                    // Set VSIQ type globally
+                    currentJobVsiqType = job.vsiq_required || 'None';
+                    
+                    document.title = `${job.title} | CuroJobs`;
+                    jobTitleEl.textContent = job.title;
+
+                    jobMetaContainer.innerHTML = `<li class="border-end pe-3 me-3"><i class="bi bi-briefcase"></i> ${job.job_type || 'N/A'}</li><li class="border-end pe-3 me-3"><i class="bi bi-geo-alt"></i> ${job.location || 'N/A'}</li><li><i class="bi bi-currency-dollar"></i> ${job.salary || 'N/A'}</li>`;
+                    jobDetailsContainer.innerHTML = `<div class="post-block"><h4>Overview</h4><p>${job.description ? job.description.replace(/\n/g, '<br>') : 'No description available.'}</p></div>`;
+
+                    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
+                    companyInfoContainer.innerHTML = `<a href="company-details.html?id=${job.company}" class="logo d-flex align-items-center justify-content-center" style="background-color: #f0f5ff; width: 60px; height: 60px; border-radius: 8px; font-size: 30px; font-weight: 500; color: #4866a6; margin: 0 auto; text-decoration: none;">${companyInitial}</a><div class="text-center mt-20"><a href="company-details.html?id=${job.company}" class="company-name fw-500 text-dark tran3s">${job.company_name}</a></div><a href="${job.company_website_url || '#'}" class="website-btn-one tran3s d-flex align-items-center justify-content-center mt-20" target="_blank"><span>Visit website</span><i class="bi bi-arrow-right"></i></a><div id="apply-button-sidebar-container" class="mt-25"></div>`;
+
+                    const applyButtonContainers = [applyBtnHeaderContainer, document.getElementById('apply-button-sidebar-container')];
+                    const decodedToken = accessToken ? jwt_decode(accessToken) : null;
+
+                    if (decodedToken && decodedToken.user_type === 'applicant') {
+                        if (job.application_status) {
+                            applyButtonContainers.forEach(c => { 
+                                if(c) c.innerHTML = `<button class="btn-soft-success w-100 view-application-btn" data-job-id="${job.id}">View Application (Status: ${job.application_status.charAt(0).toUpperCase() + job.application_status.slice(1)})</button>`; 
+                            });
+                        } else {
+                            applyButtonContainers.forEach(c => { 
+                                if(c) c.innerHTML = `<button class="btn-one w-100 tran3s apply-btn" data-job-id="${job.id}">Apply Now</button>`; 
+                            });
+                        }
+                    } else if (!decodedToken) {
+                         applyButtonContainers.forEach(c => { if(c) c.innerHTML = `<a href="login.html" class="btn-one w-100 tran3s">Apply Now</a>`; });
+                    } else {
+                        applyButtonContainers.forEach(c => { if(c) c.innerHTML = ''; });
+                    }
+
+                    // Re-attach handlers for new buttons
+                    document.querySelectorAll('.apply-btn').forEach(btn => btn.addEventListener('click', applicationHandler));
+                    document.querySelectorAll('.view-application-btn').forEach(btn => btn.addEventListener('click', (e) => openReviewModalForSubmitted(e.target.dataset.jobId)));
+                    
+                    return job;
+
+                } catch (error) {
+                    jobTitleEl.textContent = "Job Not Found";
+                    jobDetailsContainer.innerHTML = '<h3 class="text-center p-5 text-danger">Job Not Found</h3><p class="text-center">The job you are looking for does not exist or has been removed.</p>';
+                    companyInfoContainer.innerHTML = '';
+                    applyBtnHeaderContainer.innerHTML = '';
+                    return null;
+                }
+            };
+            
+            // --- VSIQ LOGIC ---
+            const setupVsiqModal = (vsiqType) => {
+                vsiqTypeIndicator.value = vsiqType;
+                const isAll = vsiqType === 'All';
+                
+                // Reset to default
+                vsiqSection.style.display = 'none';
+                vsiqVeteran.style.display = 'none';
+                vsiqDisability.style.display = 'none';
+                vsiqAccommodation.style.display = 'none';
+                
+                nextToVsiqBtn.style.display = 'none';
+                backToCoreBtn.style.display = 'none';
+                submitApplicationBtn.style.display = 'block'; // Default to show submit
+
+                if (vsiqType !== 'None') {
+                    vsiqSection.style.display = 'block';
+                    nextToVsiqBtn.style.display = 'block'; 
+                    submitApplicationBtn.style.display = 'none'; // Hide submit, show continue
+                }
+
+                if (isAll) {
+                    vsiqVeteran.style.display = 'block';
+                    vsiqDisability.style.display = 'block';
+                    vsiqAccommodation.style.display = 'block';
+                }
+            };
+
+            // --- APPLICATION LOGIC ---
+            const openApplicationModal = async (jobId) => {
+                const profile = await fetchApplicantProfile();
+                const job = await fetchJobDataForDisplay(jobId);
+
+                if (!profile) { window.location.href = 'login.html'; return; }
+                
+                // 1. Reset and Pre-fill Core
+                coreSection.style.display = 'block';
+                vsiqSection.style.display = 'none';
+                document.getElementById('apply-job-id').value = jobId;
+                document.getElementById('apply-job-title').value = profile.job_title || '';
+                document.getElementById('apply-new-cv').value = ''; // Clear file input
+                
+                const cvInfo = document.getElementById('current-cv-info');
+                if (profile.cv) {
+                    cvInfo.innerHTML = `Using: <a href="${profile.cv}" target="_blank">${profile.cv.split('/').pop()}</a>`;
+                } else {
+                    cvInfo.innerHTML = "You have no CV on your profile. **You must upload one.**";
+                }
+                
+                // 2. Reset VSIQ fields (Important for fresh application)
+                document.getElementById('voluntary_gender').value = '';
+                document.getElementById('voluntary_race').value = '';
+                document.getElementById('voluntary_veteran').value = '';
+                document.getElementById('voluntary_disability').value = '';
+                document.getElementById('reasonable_accommodation').value = '';
+
+                // 3. Configure VSIQ visibility
+                setupVsiqModal(job.vsiq_required); 
+
+                // 4. Ensure all inputs are ENABLED for editing/submission
+                document.querySelectorAll('#application-form input, #application-form select, #application-form textarea')
+                        .forEach(input => input.disabled = false);
+
+                applicationModal.show();
+            };
+            
+            const applicationHandler = async (e) => {
+                e.preventDefault();
+                const jobId = e.target.dataset.jobId; 
+                if (!jobId) { showMessage("Job ID missing.", true); return; }
+                
+                // Basic Profile Check (Full Name and CV are the bare minimum)
+                const profile = await fetchApplicantProfile();
+                if (!profile.full_name || !profile.cv) {
+                    Swal.fire({
+                        title: 'Incomplete Profile!',
+                        html: 'To apply, please complete your **Full Name** and upload a **CV** on your profile.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#244034',
+                        confirmButtonText: 'Go to My Profile',
+                        cancelButtonText: 'Not Now'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = 'dashboard/applicant/candidate-dashboard-profile.html';
+                        }
+                    });
+                    return; 
+                }
+                
+                openApplicationModal(jobId);
+            };
+
+            // --- Post-Submission Review Logic ---
+            const openReviewModalForSubmitted = async (jobId) => {
+                const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+                const reviewBody = document.getElementById('review-modal-body');
+                
+                reviewBody.innerHTML = '<div class="text-center p-5">Loading submitted application...</div>';
+
+                try {
+                    // You need an endpoint to fetch ONE application by Job ID: /api/v1/jobs/my-application-for-job/<jobId>/
+                    // Assuming you will create a view that filters Application by user and job ID.
+                    const response = await apiFetch(`jobs/my-application-for-job/${jobId}/`);
+                    if (!response.ok) throw new Error('Could not find application record.');
+                    
+                    const applicationData = await response.json();
+                    
+                    const CHOICES = {
+                        GENDER: [["PND", "I choose not to self-identify"], ["Male", "Male"], ["Female", "Female"], ["Other", "Others"]],
+                        RACE: [["PND", "I choose not to self-identify"], ["AI", "American Indian or Alaska Native"], ["AS", "Asian"], ["BA", "Black or African American"], ["HL", "Hispanic or Latino"], ["NHPI", "Native Hawaiian or Other Pacific Islander"], ["WH", "White"], ["TMR", "Two or More Races"]],
+                        VETERAN: [["PND", "I choose not to self-identify"], ["NAV", "Not a Veteran"], ["DV", "Disabled Veteran"], ["RSV", "Recently separated Veteran"], ["PVR", "Protected Veteran (General)"], ["AFSMV", "Armed Forces service medal Veteran"], ["ADWCBV", "Active duty wartime or campaign badge veteran"]],
+                        DISABILITY: [["PND", "I don't wish to answer"], ["Yes", "Yes, I have a disability (or previously had a disability)"], ["No", "No, I don't have a disability"]],
+                    };
+
+                    const formatAnswer = (value, choices) => {
+                        if (!value) return 'N/A / Not Answered';
+                        const choice = choices.find(c => c[0] === value);
+                        return choice ? choice[1] : value;
+                    };
+
+                    const displayData = [
+                        { label: 'Job Title Used', value: applicationData.job_title_at_application || 'N/A' },
+                        { label: 'Application Status', value: applicationData.status.toUpperCase() },
+                        { label: 'CV Submitted', value: applicationData.cv_at_application ? `<a href="${applicationData.cv_at_application}" target="_blank">View Submitted CV</a>` : 'Used Profile CV' },
+                        { label: 'Gender', value: formatAnswer(applicationData.voluntary_gender, CHOICES.GENDER) },
+                        { label: 'Ethnicity', value: formatAnswer(applicationData.voluntary_race, CHOICES.RACE) },
+                        { label: 'Veteran Status', value: formatAnswer(applicationData.voluntary_veteran, CHOICES.VETERAN) },
+                        { label: 'Disability Status', value: formatAnswer(applicationData.voluntary_disability, CHOICES.DISABILITY) },
+                        { label: 'Accommodation Request', value: applicationData.reasonable_accommodation || 'None Specified' },
+                    ];
+                    
+                    reviewBody.innerHTML = `
+                        <div class="row">
+                            ${displayData.map(item => `
+                                <div class="col-md-6 mb-3">
+                                    <p class="fw-bold mb-0">${item.label}:</p>
+                                    <p class="text-muted">${item.value}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            This application is **submitted and uneditable**. You are reviewing the data sent to the employer.
+                        </div>
+                    `;
+
+                } catch (error) {
+                    reviewBody.innerHTML = `<div class="alert alert-danger p-3">Error: ${error.message}</div>`;
+                }
+                reviewModal.show();
+            };
+            
+
+            // --- Multi-Step Buttons ---
+            nextToVsiqBtn.addEventListener('click', () => {
+                if (!document.getElementById('apply-job-title').value) {
+                    showMessage("Please enter a Job Title/Headline.", true);
+                    return;
+                }
+                coreSection.style.display = 'none';
+                vsiqSection.style.display = 'block';
+                nextToVsiqBtn.style.display = 'none';
+                submitApplicationBtn.style.display = 'block';
+                backToCoreBtn.style.display = 'block';
+            });
+
+            backToCoreBtn.addEventListener('click', () => {
+                coreSection.style.display = 'block';
+                vsiqSection.style.display = 'none';
+                nextToVsiqBtn.style.display = 'block';
+                submitApplicationBtn.style.display = 'none';
+                backToCoreBtn.style.display = 'none';
+            });
+
+            // 4. Submit Application
+            submitApplicationBtn.addEventListener('click', async () => {
+                if (!applicationForm.checkValidity()) {
+                     applicationForm.reportValidity();
+                     return;
+                }
+
+                // Ensure all VSIQ selects are included (disabled fields are skipped by FormData, so re-enable temporarily)
+                document.querySelectorAll('#application-form select, #application-form textarea')
+                        .forEach(input => input.disabled = false);
+
+                const formData = new FormData(applicationForm);
+                
+                // Final CV Validation
+                const newCvFile = document.getElementById('apply-new-cv').files[0];
+                if (!newCvFile && (!currentApplicantProfile || !currentApplicantProfile.cv)) {
+                    showMessage('You must upload a CV to apply.', true);
+                     document.querySelectorAll('#application-form select, #application-form textarea')
+                        .forEach(input => input.disabled = true);
+                    return;
+                }
+
+                // Remove empty CV field if no file was selected (to trigger backend copy logic)
+                if (!newCvFile) {
+                    formData.delete('cv_at_application');
+                }
+
+                submitApplicationBtn.disabled = true;
+                submitApplicationBtn.textContent = 'Submitting...';
+
+                try {
+                    const response = await apiFetch(`jobs/apply/`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        let errorMsg = result.detail || 'Application failed due to validation errors.';
+                        if (result.non_field_errors) errorMsg = result.non_field_errors[0];
+                        throw new Error(errorMsg);
+                    }
+
+                    showMessage('Application submitted successfully!', false);
+                    applicationModal.hide();
+                    
+                    // Update button to 'View Application'
+                    fetchJobDataForDisplay(jobId);
+                    
+                    // Show the submitted data in the review modal
+                    setTimeout(() => {
+                         openReviewModalForSubmitted(result.job); 
+                    }, 500);
+
+                } catch (error) {
+                    showMessage(error.message, true);
+                } finally {
+                    submitApplicationBtn.disabled = false;
+                    submitApplicationBtn.textContent = 'Submit Application';
+                     document.querySelectorAll('#application-form select, #application-form textarea')
+                        .forEach(input => input.disabled = true);
+                }
+            });
+
+
+            // --- Core Initial Load ---
             const setupAuthHeader = () => {
                 const accessToken = localStorage.getItem('accessToken');
+                if (!authLinksContainer) return;
+
                 if (accessToken) {
                     try {
                         const decodedToken = jwt_decode(accessToken);
@@ -126,132 +619,9 @@
                     authLinksContainer.innerHTML = `<li><a href="login.html" class="login-btn-one">Login</a></li> <li class="d-none d-md-block ms-4"><a href="signup.html" class="btn-one">Sign Up</a></li>`;
                 }
             };
-
-            const fetchJobDetails = async () => {
-                try {
-                    const accessToken = localStorage.getItem('accessToken');
-                    const headers = { 'Content-Type': 'application/json' };
-                    if (accessToken) { headers['Authorization'] = `Bearer ${accessToken}`; }
-                    
-                    const response = await fetch(`${jobsApiURL}${jobId}/`, { headers });
-                    if (!response.ok) throw new Error('Job not found.');
-                    const job = await response.json();
-                    
-                    document.title = `${job.title} | CuroJobs`;
-                    jobTitleEl.textContent = job.title;
-
-                    jobMetaContainer.innerHTML = `<li class="border-end pe-3 me-3"><i class="bi bi-briefcase"></i> ${job.job_type || 'N/A'}</li><li class="border-end pe-3 me-3"><i class="bi bi-geo-alt"></i> ${job.location || 'N/A'}</li><li><i class="bi bi-currency-dollar"></i> ${job.salary || 'N/A'}</li>`;
-                    jobDetailsContainer.innerHTML = `<div class="post-block"><h4>Overview</h4><p>${job.description ? job.description.replace(/\n/g, '<br>') : 'No description available.'}</p></div>`;
-
-                    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
-                    companyInfoContainer.innerHTML = `<a href="company-details.html?id=${job.company_id}" class="logo d-flex align-items-center justify-content-center" style="background-color: #f0f5ff; width: 60px; height: 60px; border-radius: 8px; font-size: 30px; font-weight: 500; color: #4866a6; margin: 0 auto; text-decoration: none;">${companyInitial}</a><div class="text-center mt-20"><a href="company-details.html?id=${job.company_id}" class="company-name fw-500 text-dark tran3s">${job.company_name}</a></div><a href="${job.company_website_url || '#'}" class="website-btn-one tran3s d-flex align-items-center justify-content-center mt-20" target="_blank"><span>Visit website</span><i class="bi bi-arrow-right"></i></a><div id="apply-button-sidebar-container" class="mt-25"></div>`;
-
-                    const applyButtonContainers = [applyBtnHeaderContainer, document.getElementById('apply-button-sidebar-container')];
-                    const decodedToken = accessToken ? jwt_decode(accessToken) : null;
-
-                    if (decodedToken && decodedToken.user_type === 'applicant') {
-                        if (job.application_status) {
-                            const statusText = job.application_status.charAt(0).toUpperCase() + job.application_status.slice(1);
-                            applyButtonContainers.forEach(c => { if(c) c.innerHTML = `<button class="btn-soft-success w-100" disabled>Status: ${statusText}</button>`; });
-                        } else {
-                            applyButtonContainers.forEach(c => { if(c) c.innerHTML = `<button class="btn-one w-100 tran3s apply-btn">Apply Now</button>`; });
-                        }
-                    } else if (!decodedToken) {
-                         applyButtonContainers.forEach(c => { if(c) c.innerHTML = `<a href="login.html" class="btn-one w-100 tran3s">Apply Now</a>`; });
-                    } else {
-                        applyButtonContainers.forEach(c => { if(c) c.innerHTML = ''; });
-                    }
-
-                    document.querySelectorAll('.apply-btn').forEach(btn => btn.addEventListener('click', handleApply));
-
-                } catch (error) {
-                    jobTitleEl.textContent = "Job Not Found";
-                    jobDetailsContainer.innerHTML = '<h3 class="text-center p-5 text-danger">Job Not Found</h3><p class="text-center">The job you are looking for does not exist or has been removed.</p>';
-                    companyInfoContainer.innerHTML = '';
-                    applyBtnHeaderContainer.innerHTML = '';
-                }
-            };
-            
-            // --- THIS IS THE NEW, SMARTER handleApply FUNCTION ---
-            const handleApply = async () => {
-                const accessToken = localStorage.getItem('accessToken');
-                
-                if (!accessToken) {
-                    Swal.fire('Login Required', 'Please log in as an applicant to apply for jobs.', 'info').then(() => window.location.href = 'login.html');
-                    return;
-                }
-                
-                try {
-                    const decodedToken = jwt_decode(accessToken);
-                    if (decodedToken.user_type !== 'applicant') {
-                        Swal.fire('Incorrect Account Type', 'Only applicants can apply for jobs. Please log in with an applicant account.', 'warning');
-                        return;
-                    }
-                } catch(e) {
-                    Swal.fire('Session Invalid', 'Your session is invalid. Please log in again.', 'error').then(() => { localStorage.clear(); window.location.href = 'login.html'; });
-                    return;
-                }
-
-                const applyButtons = document.querySelectorAll('.apply-btn');
-                applyButtons.forEach(btn => { if(btn) { btn.textContent = 'Checking Profile...'; btn.disabled = true; }});
-
-                try {
-                    // 1. Check if the applicant's profile is complete
-                    const profileResponse = await fetch(`${accountsApiURL}profile/applicant/`, {
-                        headers: { 'Authorization': `Bearer ${accessToken}` }
-                    });
-                    if (!profileResponse.ok) throw new Error('Could not verify your profile.');
-                    const profile = await profileResponse.json();
-
-                    // Define what makes a profile "incomplete" (e.g., no full name OR no CV)
-                    if (!profile.full_name || !profile.cv) {
-                        Swal.fire({
-                            title: 'Incomplete Profile!',
-                            html: 'To apply for jobs, you need to complete your profile and upload a CV.<br><br>Would you like to do that now?',
-                            icon: 'warning',
-                            showCancelButton: true,
-                            confirmButtonColor: '#244034',
-                            confirmButtonText: 'Go to My Profile',
-                            cancelButtonText: 'Not Now'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = 'dashboard/applicant/candidate-dashboard-profile.html';
-                            }
-                        });
-                        // Reset apply buttons since the application was cancelled
-                        applyButtons.forEach(btn => { if(btn) { btn.textContent = 'Apply Now'; btn.disabled = false; }});
-                        return; // Stop the application process
-                    }
-                    
-                    // 2. If profile is complete, proceed with the application
-                    applyButtons.forEach(btn => { if(btn) btn.textContent = 'Applying...'; });
-
-                    const applyResponse = await fetch(`${jobsApiURL}${jobId}/apply/`, { 
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' }
-                    });
-                    
-                    if (!applyResponse.ok) {
-                        const result = await applyResponse.json();
-                        throw new Error(result.detail || 'Application failed. You may have already applied for this job.');
-                    }
-                    
-                    Swal.fire('Success!', 'Your application was successful!', 'success');
-                    fetchJobDetails(); // Refresh the page to show the new "Status" button
-
-                } catch (error) {
-                    Swal.fire('Application Failed', error.message, 'error');
-                    // Reset apply buttons on failure
-                     const applyButtonContainers = [applyBtnHeaderContainer, document.getElementById('apply-button-sidebar-container')];
-                     applyButtonContainers.forEach(container => {
-                        if(container) container.innerHTML = `<button class="btn-one w-100 tran3s apply-btn">Apply Now</button>`;
-                     });
-                     document.querySelectorAll('.apply-btn').forEach(btn => btn.addEventListener('click', handleApply));
-                }
-            };
             
             setupAuthHeader();
-            fetchJobDetails();
+            fetchJobDataForDisplay(jobId);
         });
     </script>
 </body>

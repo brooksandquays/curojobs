@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
@@ -18,7 +19,7 @@
                     <a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a>
                 </div>
                 <div class="user-data d-flex flex-column align-items-center">
-                      <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
+                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
                     <div class="user-name-data mt-2">
                         <div class="user-name" id="profile-dropdown">
                             Loading...
@@ -29,7 +30,8 @@
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_1_active.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
-                        <!-- <li><a href="candidate-dashboard-resume.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>Resume</span></a></li> -->
+                        <li><a href="candidate-dashboard-saved-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_6_active.svg" alt=""><span>Saved Jobs</span></a></li>
+                        <li><a href="candidate-dashboard-job-alert.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_5_active.svg" alt=""><span>Job Alerts</span></a></li>
                         <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span></a></li>
                         <li><a href="../../index.html" class="d-flex w-100 align-items-center border-top mt-10 pt-10"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
@@ -97,18 +99,37 @@
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="applied-jobs-pane" role="tabpanel" aria-labelledby="applied-tab">
                                     <div id="applied-jobs-container" class="wrapper">
-                                        <!-- Applied jobs will be loaded here -->
-                                    </div>
+                                        </div>
                                 </div>
                                 <div class="tab-pane fade" id="saved-jobs-pane" role="tabpanel" aria-labelledby="saved-tab">
                                     <div id="saved-jobs-container" class="wrapper">
-                                        <!-- Saved jobs will be loaded here -->
-                                    </div>
+                                        </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                  </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="applicationReviewModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Application Review for: <span id="review-job-title"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="review-modal-body">
+                        <div class="text-center p-5">Loading application data...</div>
+                    </div>
+                    <div class="modal-footer">
+                        <a id="view-job-post-btn" href="#" target="_blank" class="btn-one me-auto">View Job Post</a>
+                        <button type="button" class="btn-nine" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -135,6 +156,13 @@
                 const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
                 const logoutBtn = document.getElementById('logout-btn');
                 const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
+
+                // NEW: Modal elements
+                const reviewModalEl = document.getElementById('applicationReviewModal');
+                const reviewModal = new bootstrap.Modal(reviewModalEl);
+                const reviewBody = document.getElementById('review-modal-body');
+                const reviewJobTitleEl = document.getElementById('review-job-title');
+                const viewJobPostBtn = document.getElementById('view-job-post-btn');
                 
                 const apiFetch = async (endpoint, options = {}) => {
                     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
@@ -174,6 +202,65 @@
                     }
                 };
                 
+                // Helper to format answers for display (matching your models.py)
+                const formatApplicationAnswer = (value, choices) => {
+                    if (!value) return 'N/A / Not Answered';
+                    const choice = choices.find(c => c[0] === value) || choices.find(c => c.value === value);
+                    return choice ? choice[1] || choice.label : value;
+                };
+
+                // --- NEW HANDLER ---
+                const handleReview = (application) => {
+                    // Static choice mapping (MUST match backend jobs/models.py)
+                    const CHOICES = {
+                        GENDER: [["PND", "I choose not to self-identify"], ["Male", "Male"], ["Female", "Female"], ["Other", "Others"]],
+                        RACE: [["PND", "I choose not to self-identify"], ["AI", "American Indian or Alaska Native"], ["AS", "Asian"], ["BA", "Black or African American"], ["HL", "Hispanic or Latino"], ["NHPI", "Native Hawaiian or Other Pacific Islander"], ["WH", "White"], ["TMR", "Two or More Races"]],
+                        VETERAN: [["PND", "I choose not to self-identify"], ["NAV", "Not a Veteran"], ["DV", "Disabled Veteran"], ["RSV", "Recently separated Veteran"], ["PVR", "Protected Veteran (General)"], ["AFSMV", "Armed Forces service medal Veteran"], ["ADWCBV", "Active duty wartime or campaign badge veteran"]],
+                        DISABILITY: [["PND", "I don't wish to answer"], ["Yes", "Yes, I have a disability (or previously had a disability)"], ["No", "No, I don't have a disability"]],
+                    };
+
+                    reviewJobTitleEl.textContent = application.job.title;
+                    viewJobPostBtn.href = `../../job-details.html?id=${application.job.id}`;
+
+                    const displayData = [
+                        { section: 'Application Details', label: 'Status', value: application.status.toUpperCase() },
+                        { section: 'Application Details', label: 'Job Title Used', value: application.job_title_at_application || 'N/A' },
+                        { section: 'Application Details', label: 'CV Used', value: application.cv_at_application ? `<a href="${application.cv_at_application}" target="_blank">View Submitted CV</a>` : 'Used Profile CV' },
+                        
+                        { section: 'Voluntary Identification', label: 'Gender', value: formatApplicationAnswer(application.voluntary_gender, CHOICES.GENDER) },
+                        { section: 'Voluntary Identification', label: 'Ethnicity', value: formatApplicationAnswer(application.voluntary_race, CHOICES.RACE) },
+                        { section: 'Voluntary Identification', label: 'Veteran Status', value: formatApplicationAnswer(application.voluntary_veteran, CHOICES.VETERAN) },
+                        { section: 'Voluntary Identification', label: 'Disability Status', value: formatApplicationAnswer(application.voluntary_disability, CHOICES.DISABILITY) },
+                        { section: 'Voluntary Identification', label: 'Accommodation Request', value: application.reasonable_accommodation || 'None Specified' },
+                    ];
+
+                    let html = `<div class="row">`;
+                    let currentSection = '';
+
+                    displayData.forEach(item => {
+                        if (item.section !== currentSection) {
+                            if (currentSection !== '') html += '</div></div>'; // Close previous row/section
+                            html += `<div class="col-12 mt-4"><h4>${item.section}</h4><div class="row">`;
+                            currentSection = item.section;
+                        }
+                        
+                        // Only show VSIQ fields if an answer was provided/is not the default 'N/A' for clarity
+                        const isVsiq = item.section === 'Voluntary Identification';
+                        if (!isVsiq || item.value !== 'N/A / Not Answered') {
+                            html += `
+                                <div class="col-md-6 mb-3">
+                                    <p class="fw-bold mb-0">${item.label}:</p>
+                                    <p class="text-muted">${item.value}</p>
+                                </div>`;
+                        }
+                    });
+                    html += `</div></div>`; // Close final row/section
+
+                    reviewBody.innerHTML = html;
+                    reviewModal.show();
+                };
+
+                
                 const fetchAppliedJobs = async () => {
                     appliedJobsContainer.innerHTML = '<div class="text-center p-3">Loading applications...</div>';
                     try {
@@ -199,12 +286,20 @@
                                 case 'rejected': statusClass = 'status-rejected'; break;
                                 default: statusClass = 'status-pending';
                             }
+                            
                             jobItem.innerHTML = `
                                 <div class="job-title flex-grow-1">
                                     <h6 class="mb-5"><a href="../../job-details.html?id=${app.job.id}" target="_blank">${app.job.title}</a></h6>
                                     <div class="meta"><span>${app.job.company_name}</span> . <span>${app.job.location}</span></div>
                                 </div>
-                                <div class="job-status ${statusClass}">${statusText}</div>`;
+                                <div class="job-status ${statusClass} me-3">${statusText}</div>
+                                <button class="btn-one btn-sm review-application-btn" data-app-id="${app.id}" style="padding: 6px 12px; font-size: 13px;">Review</button>`;
+                            
+                            // Attach the review handler dynamically
+                            const reviewBtn = jobItem.querySelector('.review-application-btn');
+                            // Pass the application object directly to the handler
+                            reviewBtn.addEventListener('click', () => handleReview(app)); 
+
                             appliedJobsContainer.appendChild(jobItem);
                         });
                     } catch (error) {
@@ -216,25 +311,20 @@
                     const fetchSavedJobs = async () => {
                     savedJobsContainer.innerHTML = '<div class="text-center p-3">Loading saved jobs...</div>';
                     try {
-                        // Note: Assuming 'jobs/saved/' is your API endpoint for saved jobs.
                         const response = await apiFetch('jobs/saved/'); 
                         if (!response.ok) throw new Error('Failed to fetch saved jobs');
                         
                         const savedJobs = await response.json();
                         
-                        // Update the dashboard count
                         savedJobsCountEl.textContent = savedJobs.length;
-                        savedJobsContainer.innerHTML = ''; // Clear loading message
+                        savedJobsContainer.innerHTML = '';
                         
-                        // --- THIS IS THE EMPTY STATE YOU REQUESTED ---
                         if (savedJobs.length === 0) {
                             savedJobsContainer.innerHTML = '<div class="text-center p-3"><p>You have not saved any jobs yet.</p><a href="../../job-list-v1.html" class="btn-nine">Browse Jobs</a></div>';
                             return;
                         }
                         
-                        // If jobs exist, display them (similar to applied jobs)
-                        // --- THIS IS THE MODIFIED LINE ---
-                        savedJobs.slice(0, 5).forEach(savedJob => { // Show latest 5
+                        savedJobs.slice(0, 5).forEach(savedJob => { 
                             const jobItem = document.createElement('div');
                             jobItem.className = 'job-item-list d-flex align-items-center';
                             
@@ -264,7 +354,7 @@
                 // --- CALL ALL THE FUNCTIONS ON PAGE LOAD ---
                 fetchProfile();
                 fetchAppliedJobs();
-                fetchSavedJobs(); // <-- ADDED THIS CALL
+                fetchSavedJobs();
             });
         </script>
     </div>
