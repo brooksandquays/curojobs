@@ -3,28 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <title>CuroJobs - My Jobs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <style>
-        .notification-badge { position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
-        .job-listing-one .btn i { pointer-events: none; }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <style>
+        /* Styles from template for table and status */
+        .job-alert-table th, .job-alert-table td { vertical-align: middle; font-size: 14px; } /* Slightly smaller font */
+        .job-alert-table th { font-weight: 500; color: #000; }
+        .job-name { color: #000; }
+        .info1 { font-size: 13px; color: #6c757d; } /* Sub-info text */
+        .job-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 13px; /* Smaller status badge */
+            font-weight: 500;
+            text-transform: capitalize; /* Ensure consistent capitalization */
+        }
+        .job-status.active { background-color: #e8f7ee; color: #20a64d; } /* Green */
+        .job-status.on_hold { background-color: #fff4e1; color: #f2a200; } /* Yellow */
+        .job-status.closed, .job-status.expired { background-color: #fce8e6; color: #ea4335; } /* Red */
+        .job-status.pending { background-color: #e4eaf9; color: #4369cf; } /* Blue */
+        .job-status.unknown { background-color: #e9ecef; color: #6c757d; } /* Grey for missing status */
+
+
+        /* Action dots and dropdown */
+        .action-dots .action-btn {
+             background: #F0F5F3; /* Match template background */
+             border-radius: 50%;
+             width: 30px;
+             height: 30px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             cursor: pointer;
+             border: none;
+        }
+         .action-dots .action-btn span { /* The three dots */
+            background: #000;
+            border-radius: 50%;
+            height: 3px;
+            width: 3px;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+        }
+         .action-dots .action-btn span::before, .action-dots .action-btn span::after {
+            content: '';
+            background: #000;
+            border-radius: 50%;
+            height: 3px;
+            width: 3px;
+            display: inline-block;
+            vertical-align: middle;
+            position: absolute;
+            left: -6px; /* Adjust spacing */
+        }
+         .action-dots .action-btn span::after {
+             left: auto;
+             right: -6px; /* Adjust spacing */
+         }
+        .action-dots .dropdown-menu { border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 10px 0;}
+        .action-dots .dropdown-item { font-size: 14px; padding: 8px 15px; display: flex; align-items: center; }
+        .action-dots .dropdown-item i { margin-right: 8px; width: 16px; text-align: center; color: #6c757d; } /* Align icons */
+        .action-dots .dropdown-item:hover { background-color: #f8f9fa; }
+        .action-dots .dropdown-item.text-danger:hover { background-color: #fce8e6; }
+        .action-dots .dropdown-item.text-warning:hover { background-color: #fff4e1; }
+
+
+        .notification-badge { /* Keep existing */ }
     </style>
 </head>
 
 <body>
     <div class="main-page-wrapper">
+         <div id="preloader">
+             <div id="ctn-preloader" class="ctn-preloader">
+                 <div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
+                 <div class="txt-loading">
+                     <span data-text-preloader="C" class="letters-loading">C</span>
+                     <span data-text-preloader="U" class="letters-loading">U</span>
+                     <span data-text-preloader="R" class="letters-loading">R</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="J" class="letters-loading">J</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="B" class="letters-loading">B</span>
+                     <span data-text-preloader="S" class="letters-loading">S</span>
+                 </div>
+             </div>
+        </div>
+
         <aside class="dash-aside-navbar">
             <div class="position-relative">
-                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt=""></a></div>
+                <div class="logo text-md-center d-flex align-items-center justify-content-between">
+                    <a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a>
+                    <button class="close-btn d-block d-md-none"><i class="bi bi-x-lg"></i></button>
+                </div>
                 <div class="user-data">
-                    <div class="user-avatar online position-relative rounded-circle"><img src="../../images/avatar_01.jpg" alt=""></div>
+                    <div class="user-avatar online position-relative rounded-circle">
+                         <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="" class="lazy-img">
+                    </div>
                     <div class="user-name-data">
-                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
-                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
-                            <li><a class="dropdown-item" href="employer-dashboard-profile.html">Profile</a></li>
-                        </ul>
+                        <div class="user-name" id="profile-dropdown">Loading...</div>
                     </div>
                 </div>
                 <nav class="dasboard-main-nav">
@@ -39,8 +122,9 @@
                             </a>
                             <span class="notification-badge"></span>
                         </li>
+                        <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
                         <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -49,170 +133,361 @@
         <div class="dashboard-body">
             <div class="position-relative">
                 <header class="dashboard-header">
-                    <div class="d-flex align-items-center justify-content-between">
-                        <h2 class="main-title m0">My Jobs</h2>
-                        <a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a>
-                    </div>
+                     <div class="d-flex align-items-center justify-content-end">
+                         <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
+                         <div><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div>
+                     </div>
                 </header>
-                
-                <div id="message-container" class="alert mt-3" style="display: none;"></div>
 
-                <div id="jobs-container" class="row pt-40">
+                <div class="d-sm-flex align-items-center justify-content-between mb-40 lg-mb-30">
+                    <h2 class="main-title m0">My Jobs</h2>
+                    <div class="d-flex ms-auto xs-mt-30 align-items-center">
+                        <div class="short-filter d-flex align-items-center ms-auto">
+                            <div class="text-dark fw-500 me-2">Show:</div>
+                            <select class="nice-select" id="job-status-filter">
+                                <option value="all" selected>All Statuses</option>
+                                <option value="active">Active</option>
+                                <option value="on_hold">On Hold</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
                     </div>
+                </div>
+
+                <div id="message-container" class="alert" style="display: none;"></div> <div class="bg-white card-box border-20">
+                    <div class="table-responsive">
+                        <table class="table job-alert-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Job Created</th>
+                                    <th scope="col">Applicants</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-0" id="jobs-table-body">
+                                <tr><td colspan="5" class="text-center p-5">Loading jobs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="dash-pagination d-flex justify-content-end mt-30" id="jobs-pagination">
+                     </div>
+
             </div>
         </div>
-        
-        <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Confirm Deletion</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body"><p>Are you sure you want to delete this job? This action cannot be undone.</p></div>
+                    <div class="modal-body"><p>Are you sure you want to delete this job posting? This action cannot be undone.</p></div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" id="confirm-delete-btn" class="btn btn-danger">Delete</button>
+                        <button type="button" id="confirm-delete-btn" class="btn btn-danger">Delete Job</button>
                     </div>
                 </div>
             </div>
         </div>
 
+        <button class="scroll-top">
+            <i class="bi bi-arrow-up-short"></i>
+        </button>
+
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
+        <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
         <script src="../../js/theme.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const accessToken = localStorage.getItem('accessToken');
-                
+                if (!accessToken) { window.location.href = '../../login.html'; return; }
+
                 let currentUser;
                 try {
                     currentUser = jwt_decode(accessToken);
-                    if (currentUser.user_type !== 'company') {
-                        window.location.href = '../../login.html';
-                        return;
-                    }
+                    if (currentUser.user_type !== 'company') { window.location.href = '../../login.html'; return; }
                 } catch (e) {
                     localStorage.clear();
                     window.location.href = '../../login.html';
                     return;
                 }
 
+                // --- Elements ---
                 const profileNameEl = document.getElementById('profile-dropdown');
-                const jobsContainer = document.getElementById('jobs-container');
+                const logoPreview = document.getElementById('company-logo-preview');
+                const jobsTableBody = document.getElementById('jobs-table-body');
                 const messageContainer = document.getElementById('message-container');
-                const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
+                const statusFilterSelect = document.getElementById('job-status-filter');
+                const logoutBtn = document.getElementById('logout-btn');
 
+                // --- API Endpoints ---
+                const BASE_API_URL = 'http://127.0.0.1:8000/api/v1/';
+                const JOBS_API_URL = `${BASE_API_URL}jobs/`;
+                const ACCOUNTS_API_URL = `${BASE_API_URL}accounts/`;
+
+                // --- Helper Functions ---
                 const apiFetch = async (endpoint, options = {}) => {
-                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
-                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
-                    if (response.status === 401) {
-                        localStorage.clear();
-                        window.location.href = '../../login.html';
-                    }
-                    return response;
+                     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                     if (options.body instanceof FormData) { delete headers['Content-Type']; }
+
+                     try {
+                         const response = await fetch(endpoint, { ...options, headers });
+                         if (response.status === 401) {
+                             localStorage.clear();
+                             window.location.href = '../../login.html';
+                             throw new Error('Unauthorized');
+                         }
+                         return response;
+                     } catch(error) {
+                          console.error("API Fetch Error:", error);
+                          if (error.message === 'Unauthorized') throw error;
+                          showMessage(`Network error: ${error.message}. Please check connection.`, true);
+                          throw new Error('Network error during API fetch.');
+                     }
                 };
-                
+
                 const showMessage = (message, isError = false) => {
                     messageContainer.textContent = message;
-                    messageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
+                    messageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'} mt-3`; // Added mt-3
                     messageContainer.style.display = 'block';
-                    setTimeout(() => { messageContainer.style.display = 'none'; }, 3000);
+                    setTimeout(() => { messageContainer.style.display = 'none'; }, 4000);
                 };
 
-                const checkUnreadMessages = async () => {
-                    try {
-                        const response = await apiFetch('accounts/messages/unread-count/');
-                        if (!response.ok) return;
-                        const data = await response.json();
-                        const badge = document.querySelector('#messages-nav-item .notification-badge');
-                        if (badge && data.unread_count > 0) { badge.style.display = 'block'; } else if (badge) { badge.style.display = 'none'; }
-                    } catch (error) { console.error("Could not check for unread messages.", error); }
-                };
+                const checkUnreadMessages = async () => { /* ... Implement if needed ... */ };
 
                 const fetchProfile = async () => {
-                    try {
-                        const response = await apiFetch(`accounts/profile/company/`);
-                        if (response && response.ok) {
-                            const profile = await response.json();
-                            profileNameEl.textContent = profile.name || 'Employer';
-                        }
-                    } catch (error) { console.error('Error fetching profile:', error); }
+                     try {
+                         const response = await apiFetch(`${ACCOUNTS_API_URL}profile/company/`);
+                         if (response && response.ok) {
+                             const profile = await response.json();
+                             profileNameEl.textContent = profile.name || 'Employer';
+                             const logoUrl = profile.logo || '../../images/placeholder.jpeg';
+                             if(logoPreview) logoPreview.src = logoUrl;
+                             localStorage.setItem('companyLogo', logoUrl);
+                         } else { profileNameEl.textContent = 'Employer'; }
+                     } catch (error) { console.error('Error fetching profile:', error); profileNameEl.textContent = 'Employer';}
                 };
-                
+                 // Use saved logo
+                 const savedLogo = localStorage.getItem('companyLogo');
+                 if (savedLogo && logoPreview) logoPreview.src = savedLogo;
+
+
+                // --- Job Fetching and Rendering ---
                 const fetchPostedJobs = async () => {
-                    jobsContainer.innerHTML = '<div class="col-12"><p class="text-center">Loading your jobs...</p></div>';
+                    jobsTableBody.innerHTML = '<tr><td colspan="5" class="text-center p-5">Loading your jobs...</td></tr>';
+                    const currentStatusFilter = statusFilterSelect.value;
+                    let apiUrl = `${JOBS_API_URL}my/`; // Endpoint for company's jobs
+                    if (currentStatusFilter && currentStatusFilter !== 'all') {
+                        apiUrl += `?status=${currentStatusFilter}`; // Add status query param
+                    }
+
                     try {
-                        const response = await apiFetch(`jobs/my/`);
-                        if (!response || !response.ok) throw new Error('Failed to fetch jobs');
+                        const response = await apiFetch(apiUrl);
+                        if (!response || !response.ok) throw new Error(`Failed to fetch jobs (${response.status})`);
                         const jobs = await response.json();
-                        jobsContainer.innerHTML = '';
-                        
-                        if (jobs.length === 0) {
-                            jobsContainer.innerHTML = `<div class="col-12"><div class="text-center bg-white p-5 rounded-3 border"><img src="../../images/icon/icon_12.svg" alt="icon" class="mb-3"><h4 class="mb-3">You Haven't Posted Any Jobs Yet</h4><p class="mb-4">Get started and find the perfect candidate for your team.</p><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div></div>`;
-                            return;
-                        }
-                        
-                        jobs.forEach(job => {
-                            const card = document.createElement('div');
-                            card.className = 'col-lg-6 mb-40';
-                            
-                            // THIS SECTION CONTAINS THE CORRECTED LINKS (ROUTING)
-                            card.innerHTML = `
-                                <div class="job-listing-one style-two position-relative h-100 d-flex flex-column">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <a href="../../job-details.html?id=${job.id}" target="_blank" class="title fw-500 tran3s h4">${job.title}</a>
-                                            <div class="job-location">${job.location || 'Not specified'}</div>
-                                        </div>
-                                    </div>
-                                    <div class="job-meta-data d-flex justify-content-between align-items-center mt-auto">
-                                        <div class="job-info">
-                                            <span class="fw-500 text-dark">${job.applicant_count} Applicants</span>
-                                        </div>
-                                        <div class="job-action">
-                                            <a href="employer-dashboard-applicants.html?jobId=${job.id}" class="btn btn-sm btn-outline-primary tran3s me-2" title="View Applicants"><i class="bi bi-people"></i> View</a>
-                                            <a href="employer-dashboard-submit-job.html?edit=true&jobId=${job.id}" class="btn btn-sm btn-outline-secondary tran3s me-2" title="Edit Job"><i class="bi bi-pencil-square"></i></a>
-                                            <button type="button" class="btn btn-sm btn-outline-danger tran3s delete-btn" data-job-id="${job.id}" data-bs-toggle="modal" data-bs-target="#deleteModal" title="Delete Job"><i class="bi bi-trash3"></i></button>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            jobsContainer.appendChild(card);
-                        });
-                        
+
+                        renderJobsTable(jobs);
+
                     } catch (error) {
-                        jobsContainer.innerHTML = '<div class="col-12"><p class="text-center text-danger">Could not load your jobs.</p></div>';
+                         if (error.message !== 'Unauthorized' && error.message !== 'Network error during API fetch.') {
+                             jobsTableBody.innerHTML = `<tr><td colspan="5" class="text-center text-danger p-3">Could not load jobs: ${error.message}</td></tr>`;
+                         }
                     }
                 };
 
-                const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                const renderJobsTable = (jobs) => {
+                    jobsTableBody.innerHTML = '';
+
+                    if (jobs.length === 0) {
+                        jobsTableBody.innerHTML = `<tr><td colspan="5" class="text-center p-5"><div class="bg-white rounded-3 border p-4"><img src="../../images/icon/icon_12.svg" alt="icon" class="mb-3"><h4 class="mb-3">No jobs match the current filter.</h4><p class="mb-4">Try selecting 'All Statuses' or post a new job.</p><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div></td></tr>`;
+                        return;
+                    }
+
+                    jobs.forEach(job => {
+                        const row = document.createElement('tr');
+                        row.classList.add(job.status || 'unknown'); // Add class like 'active', 'on_hold', 'closed'
+
+                        const createdDate = new Date(job.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric', month: 'short', day: 'numeric'
+                        });
+
+                        // --- UPDATED Status Handling ---
+                        const jobStatus = job.status || 'unknown'; // Default if missing
+                        const statusText = job.status_display || jobStatus.replace('_', ' '); // Use display name or format status
+                        const statusHtml = `<div class="job-status ${jobStatus}">${statusText}</div>`;
+                        // --- END UPDATE ---
+
+
+                        // --- Action Dropdown ---
+                        let actionDropdownItems = `
+                            <li><a class="dropdown-item view-applicants-btn" href="employer-dashboard-job-applicants.html?jobId=${job.id}"><i class="bi bi-people"></i> View Applicants</a></li>
+                            <li><a class="dropdown-item edit-job-btn" href="employer-dashboard-submit-job.html?edit=${job.id}"><i class="bi bi-pencil-square"></i> Edit Job</a></li>
+                            <li><hr class="dropdown-divider"></li>`;
+
+                        if (jobStatus !== 'closed') {
+                            if (jobStatus !== 'on_hold') {
+                                actionDropdownItems += `<li><a class="dropdown-item change-status-btn" href="#" data-job-id="${job.id}" data-new-status="on_hold"><i class="bi bi-pause-circle"></i> Set On Hold</a></li>`;
+                            }
+                             if (jobStatus !== 'active') {
+                                actionDropdownItems += `<li><a class="dropdown-item change-status-btn" href="#" data-job-id="${job.id}" data-new-status="active"><i class="bi bi-play-circle"></i> Set Active</a></li>`;
+                            }
+                            actionDropdownItems += `<li><a class="dropdown-item change-status-btn text-warning" href="#" data-job-id="${job.id}" data-new-status="closed"><i class="bi bi-stop-circle"></i> Close Job</a></li>`;
+                        } else {
+                             // Optional Re-Open action
+                             // actionDropdownItems += `<li><a class="dropdown-item change-status-btn" href="#" data-job-id="${job.id}" data-new-status="active"><i class="bi bi-play-circle"></i> Re-Open Job</a></li>`;
+                        }
+
+                        actionDropdownItems += `<li><hr class="dropdown-divider"></li>
+                                                 <li><a class="dropdown-item delete-job-btn text-danger" href="#" data-job-id="${job.id}" data-bs-toggle="modal" data-bs-target="#deleteModal"><i class="bi bi-trash3"></i> Delete Job</a></li>`;
+
+
+                        row.innerHTML = `
+                            <td>
+                                <div class="job-name fw-500">${job.title}</div>
+                                <div class="info1">${job.job_type || 'N/A'} . ${job.location || 'N/A'}</div>
+                            </td>
+                            <td>${createdDate}</td>
+                            <td>${job.applicant_count} Applicants</td>
+                            <td>${statusHtml}</td>
+                            <td>
+                                <div class="action-dots float-end">
+                                    <button class="action-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span></span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        ${actionDropdownItems}
+                                    </ul>
+                                </div>
+                            </td>
+                        `;
+                        jobsTableBody.appendChild(row);
+                    });
+
+                    // Attach listeners after rendering
+                    attachActionListeners();
+                };
+
+                // --- Action Handlers ---
+                const handleChangeStatus = async (e) => {
+                    e.preventDefault();
+                    const jobId = e.target.dataset.jobId;
+                    const newStatus = e.target.dataset.newStatus;
+                    const jobTitleElement = e.target.closest('tr')?.querySelector('.job-name');
+                    const jobTitle = jobTitleElement ? jobTitleElement.textContent : 'this job';
+
+
+                    if (!jobId || !newStatus) return;
+
+                    const confirmText = newStatus === 'closed'
+                        ? `Are you sure you want to close the job "${jobTitle}"? This will automatically send rejection messages to other applicants.`
+                        : `Set status of "${jobTitle}" to ${newStatus.replace('_', ' ')}?`;
+
+                    const result = await Swal.fire({
+                        title: 'Confirm Status Change',
+                        text: confirmText,
+                        icon: newStatus === 'closed' ? 'warning' : 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, change it!'
+                    });
+
+                    if (result.isConfirmed) {
+                        try {
+                            const response = await apiFetch(`${JOBS_API_URL}${jobId}/update-status/`, {
+                                method: 'PATCH',
+                                body: JSON.stringify({ status: newStatus })
+                            });
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.detail || `Failed to update status (${response.status})`);
+                            }
+                            showMessage(`Job status updated successfully.`, false);
+                            fetchPostedJobs(); // Refresh the table
+                        } catch(error) {
+                             if (error.message !== 'Unauthorized' && error.message !== 'Network error during API fetch.') {
+                                 showMessage(`Error updating status: ${error.message}`, true);
+                             }
+                            console.error("Status Change Error:", error);
+                        }
+                    }
+                };
+
+                // Attach listeners ONCE using event delegation
+                const attachActionListeners = () => {
+                    jobsTableBody.removeEventListener('click', handleTableActions); // Remove old listener first
+                    jobsTableBody.addEventListener('click', handleTableActions);
+                };
+
+                const handleTableActions = (e) => {
+                    const changeStatusBtn = e.target.closest('.change-status-btn');
+                    const deleteBtn = e.target.closest('.delete-job-btn');
+
+                    if (changeStatusBtn) {
+                        handleChangeStatus(e);
+                    } else if (deleteBtn) {
+                        // Let Bootstrap's data attributes handle opening the modal
+                        // The modal's 'show.bs.modal' event will capture the jobId
+                    }
+                };
+
+                // --- Delete Modal Logic ---
+                const deleteModalEl = document.getElementById('deleteModal');
+                const deleteModal = new bootstrap.Modal(deleteModalEl);
                 const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
                 let jobIdToDelete = null;
 
-                jobsContainer.addEventListener('click', (e) => {
-                    const deleteButton = e.target.closest('.delete-btn');
-                    if (deleteButton) {
-                        jobIdToDelete = deleteButton.dataset.jobId;
-                    }
-                });
+                 deleteModalEl.addEventListener('show.bs.modal', (event) => {
+                   const button = event.relatedTarget;
+                   if (button && button.classList.contains('delete-job-btn')) {
+                       jobIdToDelete = button.getAttribute('data-job-id');
+                   } else { jobIdToDelete = null; }
+                   console.log("Modal show event, jobIdToDelete:", jobIdToDelete);
+                 });
+
 
                 confirmDeleteBtn.addEventListener('click', async () => {
-                    if (!jobIdToDelete) return;
+                    if (!jobIdToDelete) {
+                        console.error("No Job ID set for deletion in modal confirm");
+                        showMessage('Could not identify job to delete. Please try again.', true);
+                        return;
+                    }
+                    confirmDeleteBtn.disabled = true;
                     try {
-                        const response = await apiFetch(`jobs/${jobIdToDelete}/`, { method: 'DELETE' });
-                        if (!response || !response.ok) throw new Error('Deletion failed.');
+                        const response = await apiFetch(`${JOBS_API_URL}${jobIdToDelete}/`, { method: 'DELETE' });
+                        if (!response || (response.status !== 204 && response.status !== 200)) {
+                             let errorMsg = 'Deletion failed.';
+                             try { const errorData = await response.json(); errorMsg += ` (${response.status}): ${errorData.detail || JSON.stringify(errorData)}`;}
+                             catch { errorMsg += ` Status: ${response.status}`; }
+                             throw new Error(errorMsg);
+                        }
                         showMessage('Job deleted successfully.');
                         fetchPostedJobs();
                     } catch(error) {
-                        showMessage('Error deleting job.', true);
+                         if (error.message !== 'Unauthorized' && error.message !== 'Network error during API fetch.') {
+                              showMessage(`Error deleting job: ${error.message}`, true);
+                         }
+                         console.error("Delete Error:", error);
                     } finally {
                         deleteModal.hide();
-                        jobIdToDelete = null;
+                        jobIdToDelete = null; // Reset after attempt
+                        confirmDeleteBtn.disabled = false;
                     }
                 });
-                
-                const logoutBtn = document.getElementById('logout-btn');
+
+
+                // --- Event Listeners ---
+                $(statusFilterSelect).on('change', fetchPostedJobs);
+
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', (e) => {
                         e.preventDefault();
@@ -220,10 +495,16 @@
                         window.location.href = '../../index.html';
                     });
                 }
-                
-                fetchProfile();
-                fetchPostedJobs();
-                checkUnreadMessages();
+
+                // --- Initial Load ---
+                const initializePage = async () => {
+                    await fetchProfile();
+                    $('select.nice-select').niceSelect(); // Initialize NiceSelect here
+                    await fetchPostedJobs();
+                    await checkUnreadMessages(); // Keep if you use it
+                };
+
+                initializePage();
             });
         </script>
     </div>

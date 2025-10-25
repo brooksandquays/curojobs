@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>CuroJobs - Messages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
@@ -20,8 +22,8 @@
         .message-bubble.received { background-color: #f1f0f0; color: #333; border-bottom-left-radius: 4px; align-self: flex-start; }
         .message-bubble.received .message-author { color: #555; }
         
-        /* Styling for the filter buttons from Jobi template */
-        .message_filter { /* gap: 10px; */ }
+        /* Filter Buttons */
+        .message_filter {}
         .message_filter .filter_btn {
             font-size: 14px;
             font-weight: 500;
@@ -53,7 +55,7 @@
             font-weight: 600;
             color: #000;
         }
-        .notification-badge { position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
+        .notification-badge { position: absolute; top: 10px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
     
         /* Pagination Styles */
         .message-pagination { padding: 10px 0; }
@@ -115,11 +117,49 @@
         .search-form button img {
             width: 18px;
         }
+        
+        /* --- NEW: Sender Avatar --- */
+        .email-list-item .sender-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #f0f5ff; /* Placeholder */
+            color: #4866a6;
+            font-weight: 500;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        .email-list-item .sender-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
     </style>
 </head>
 
 <body>
     <div class="main-page-wrapper">
+         <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
+                 <div class="txt-loading">
+                     <span data-text-preloader="C" class="letters-loading">C</span>
+                     <span data-text-preloader="U" class="letters-loading">U</span>
+                     <span data-text-preloader="R" class="letters-loading">R</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="J" class="letters-loading">J</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="B" class="letters-loading">B</span>
+                     <span data-text-preloader="S" class="letters-loading">S</span>
+                 </div>
+            </div>
+       </div>
+
         <aside class="dash-aside-navbar">
             <div class="position-relative">
                 <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a></div>
@@ -137,9 +177,17 @@
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="candidate-dashboard-saved-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_6.svg" alt=""><span>Saved Jobs</span></a></li>
                         <li><a href="candidate-dashboard-job-alert.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_5.svg" alt=""><span>Job Alerts</span></a></li>
-                        <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span></a></li>
-                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                        <li>
+                        <a id="messages-nav-item"
+                            href="candidate-dashboard-message.html"
+                            class="d-flex w-100 align-items-center active" style="position: relative;">
+                            <img src="../../images/icon/icon_4_active.svg" alt="">
+                            <span>Messages</span>
+                            <span class="notification-badge"></span> </a>
+                        </li>
+
+                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10 border-top"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -147,7 +195,11 @@
 
         <div class="dashboard-body">
             <div class="position-relative">
-                <header class="dashboard-header"></header>
+                <header class="dashboard-header">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
+                    </div>
+                </header>
                 
                 <div id="message-container-main" class="alert mt-3" style="display: none;"></div>
                 
@@ -166,7 +218,6 @@
                     </div>
                 </div>
 
-
                 <div class="bg-white card-box border-20 p0"> 
                     <div class="message-wrapper">
                         <div class="row gx-0">
@@ -176,15 +227,15 @@
                                         <div class="page-title fw-500">Inbox</div>
                                         
                                         <form action="#" class="search-form mt-20 mb-20" id="message-search-form">
-											<input type="text" id="message-search-input" placeholder="Search contacts or subject...">
-											<button type="submit"><img src="../../images/icon/icon_10.svg" alt="" class="m-auto"></button>
-										</form>
+                                            <input type="text" id="message-search-input" placeholder="Search contacts or subject...">
+                                            <button type="submit"><img src="../../images/icon/icon_10.svg" alt="" class="m-auto"></button>
+                                        </form>
                                         
                                         <div class="message_filter d-flex align-items-center justify-content-between flex-wrap my-20" id="module_btns">
-											<button class="filter_btn active" data-filter="all">All</button>
-											<button class="filter_btn" data-filter="unread"><span style="background:#3BDA84;"></span>Unread</button>
-											<button class="filter_btn" data-filter="read"><span style="background:#FF4545;"></span>Read</button>
-										</div>
+                                            <button class="filter_btn active" data-filter="all">All</button>
+                                            <button class="filter_btn" data-filter="unread"><span style="background:#3BDA84;"></span>Unread</button>
+                                            <button class="filter_btn" data-filter="read"><span style="background:#FF4545;"></span>Read</button>
+                                        </div>
                                     </div>
                                     
                                     <div id="conversation-list-container" class="email-read-panel">
@@ -205,8 +256,9 @@
         
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script> <script src="../../vendor/jquery.lazy.min.js"></script> <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script> <script src="../../vendor/jwt-decode.js"></script>
         <script src="../../js/theme.js"></script>
+        
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const accessToken = localStorage.getItem('accessToken');
@@ -227,7 +279,7 @@
                 let allMessages = []; 
                 let currentFilter = 'all'; 
                 let currentPage = 1;
-                let currentSearch = ''; // NEW: Search state
+                let currentSearch = '';
                 const MESSAGES_PER_PAGE = 25;
 
                 // --- Element Selectors ---
@@ -240,8 +292,8 @@
                 const paginationText = document.getElementById('pagination-text');
                 const prevPageBtn = document.getElementById('prev-page-btn');
                 const nextPageBtn = document.getElementById('next-page-btn');
-                const searchForm = document.getElementById('message-search-form'); // NEW
-                const searchInput = document.getElementById('message-search-input'); // NEW
+                const searchForm = document.getElementById('message-search-form');
+                const searchInput = document.getElementById('message-search-input');
                 
                 const baseApiURL = 'http://127.0.0.1:8000/api/v1/accounts/';
 
@@ -312,16 +364,18 @@
                         }
                         
                         const time = new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                        const authorName = (msg.sender === currentUser.user_id) ? 'You (via reply)' : otherUserName;
+                        // For candidate, "sent" messages are replies (which are disabled), "received" are from company
+                        const authorName = (msg.sender === currentUser.user_id) ? 'You' : otherUserName;
                         
                         messagesHtml += `
-                            <div class="message-bubble received">
+                            <div class="message-bubble ${msg.sender === currentUser.user_id ? 'sent' : 'received'}">
                                 <div class="message-author">${authorName}</div>
                                 <p class="message-text">${msg.body.replace(/\n/g, '<br>')}</p>
                                 <div class="message-time">${time}</div>
                             </div>`;
                     });
 
+                    // Read-only display (no reply form)
                     conversationDisplayContainer.innerHTML = `
                         <div class="email-header divider d-flex justify-content-between ps-4 pe-4">
                             <div class="sender-info d-flex align-items-center">
@@ -350,7 +404,7 @@
                         filteredConversations = filteredConversations.filter(c => !c.isUnread);
                     }
 
-                    // 2. NEW: Filter by Search
+                    // 2. Filter by Search
                     if (currentSearch) {
                         filteredConversations = filteredConversations.filter(conv => 
                             (conv.otherUserName && conv.otherUserName.toLowerCase().includes(currentSearch)) ||
@@ -396,14 +450,33 @@
                         convItem.dataset.conversationId = conv.id;
                         const sentDate = new Date(conv.lastMessage.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                         
+                        // --- UPDATED: Avatar Logic ---
+                        let avatarHtml = '';
+                        // 'sender_logo_url' is on the message object, so we check the last message
+                        // We check the *last message* sender, as that's the most recent info
+                        const logoUrl = conv.lastMessage.sender_logo_url; 
+                        const senderInitial = conv.otherUserName.charAt(0).toUpperCase();
+
+                        if (conv.lastMessage.sender !== currentUser.user_id && logoUrl) {
+                            // Only show company logo if the last message was from them
+                            avatarHtml = `<div class="sender-avatar"><img src="${logoUrl}" alt="${conv.otherUserName}"></div>`;
+                        } else {
+                            // Fallback to initial (for replies from candidate or if company has no logo)
+                            const initial = (conv.lastMessage.sender === currentUser.user_id ? 'You' : senderInitial).charAt(0);
+                            avatarHtml = `<div class="sender-avatar">${initial}</div>`;
+                        }
+                        // --- END: Avatar Logic ---
+                        
                         convItem.innerHTML = `
-                            <div class="email-short-preview position-relative">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="sender-name fw-500">${conv.otherUserName}</div>
-                                    <div class="date">${sentDate}</div>
+                            <div class="email-short-preview position-relative d-flex align-items-center">
+                                ${avatarHtml}
+                                <div class="flex-grow-1" style="min-width: 0;"> <div class="d-flex align-items-center justify-content-between">
+                                        <div class="sender-name fw-500">${conv.otherUserName}</div>
+                                        <div class="date">${sentDate}</div>
+                                    </div>
+                                    <div class="mail-sub text-truncate">${conv.lastMessage.subject}</div>
+                                    <div class="mail-text text-truncate">${conv.lastMessage.body}</div>
                                 </div>
-                                <div class="mail-sub">${conv.lastMessage.subject}</div>
-                                <div class="mail-text">${conv.lastMessage.body.substring(0, 40)}...</div>
                             </div>`;
                         
                         convItem.addEventListener('click', () => {
@@ -494,24 +567,16 @@
                 };
                 
                 // --- Event Listeners ---
-
-                // NEW: Search Listener
-                searchForm.addEventListener('submit', (e) => e.preventDefault()); // Prevent page reload on Enter
+                searchForm.addEventListener('submit', (e) => e.preventDefault());
                 searchInput.addEventListener('input', () => {
                     currentSearch = searchInput.value.toLowerCase();
                     currentPage = 1;
                     renderConversationList();
-                    
                     const firstConv = document.querySelector('.email-list-item');
-                    if (firstConv) {
-                        firstConv.click();
-                    } else {
-                        // Clear the display
-                        conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match your search.</div>';
-                    }
+                    if (firstConv) { firstConv.click(); } 
+                    else { conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match your search.</div>'; }
                 });
 
-                // Filter Buttons
                 document.querySelectorAll('.filter_btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.querySelector('.filter_btn.active').classList.remove('active');
@@ -519,29 +584,20 @@
                         currentFilter = btn.dataset.filter;
                         currentPage = 1;
                         renderConversationList();
-                        
                         const firstConv = document.querySelector('.email-list-item');
-                        if (firstConv) {
-                            firstConv.click();
-                        } else {
-                            conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match this filter.</div>';
-                        }
+                        if (firstConv) { firstConv.click(); } 
+                        else { conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match this filter.</div>'; }
                     });
                 });
 
-                // Pagination Buttons
                 prevPageBtn.addEventListener('click', () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        renderConversationList();
-                    }
+                    if (currentPage > 1) { currentPage--; renderConversationList(); }
                 });
 
                 nextPageBtn.addEventListener('click', () => {
                     const totalFiltered = Object.values(conversations).filter(c => 
-                        currentFilter === 'all' || 
-                        (currentFilter === 'read' && !c.isUnread) ||
-                        (currentFilter === 'unread' && c.isUnread)
+                        (currentFilter === 'all' || (currentFilter === 'read' && !c.isUnread) || (currentFilter === 'unread' && c.isUnread)) &&
+                        (!currentSearch || (c.otherUserName && c.otherUserName.toLowerCase().includes(currentSearch)) || (c.baseSubject && c.baseSubject.toLowerCase().includes(currentSearch)))
                     ).length;
                     
                     if (currentPage * MESSAGES_PER_PAGE < totalFiltered) {
@@ -564,5 +620,4 @@
         </script>
     </div>
 </body>
-
 </html>
