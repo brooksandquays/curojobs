@@ -9,72 +9,61 @@
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <style>
-        /* Styles from template for table and status */
-        .job-alert-table th, .job-alert-table td { vertical-align: middle; font-size: 14px; } /* Slightly smaller font */
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+    
+    <style>
+        /* Table and Status Styles (Kept as is) */
+        .job-alert-table th, .job-alert-table td { vertical-align: middle; font-size: 14px; }
         .job-alert-table th { font-weight: 500; color: #000; }
         .job-name { color: #000; }
-        .info1 { font-size: 13px; color: #6c757d; } /* Sub-info text */
+        .info1 { font-size: 13px; color: #6c757d; }
         .job-status {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 4px;
-            font-size: 13px; /* Smaller status badge */
+            font-size: 13px; 
             font-weight: 500;
-            text-transform: capitalize; /* Ensure consistent capitalization */
+            text-transform: capitalize; 
         }
-        .job-status.active { background-color: #e8f7ee; color: #20a64d; } /* Green */
-        .job-status.on_hold { background-color: #fff4e1; color: #f2a200; } /* Yellow */
-        .job-status.closed, .job-status.expired { background-color: #fce8e6; color: #ea4335; } /* Red */
-        .job-status.pending { background-color: #e4eaf9; color: #4369cf; } /* Blue */
-        .job-status.unknown { background-color: #e9ecef; color: #6c757d; } /* Grey for missing status */
+        .job-status.active { background-color: #e8f7ee; color: #20a64d; }
+        .job-status.on_hold { background-color: #fff4e1; color: #f2a200; }
+        .job-status.closed, .job-status.expired { background-color: #fce8e6; color: #ea4335; }
+        .job-status.pending { background-color: #e4eaf9; color: #4369cf; }
+        .job-status.unknown { background-color: #e9ecef; color: #6c757d; }
 
-
-        /* Action dots and dropdown */
-        .action-dots .action-btn {
-             background: #F0F5F3; /* Match template background */
-             border-radius: 50%;
-             width: 30px;
-             height: 30px;
-             display: flex;
-             align-items: center;
-             justify-content: center;
-             cursor: pointer;
-             border: none;
-        }
-         .action-dots .action-btn span { /* The three dots */
-            background: #000;
-            border-radius: 50%;
-            height: 3px;
-            width: 3px;
-            display: inline-block;
-            vertical-align: middle;
-            position: relative;
-        }
-         .action-dots .action-btn span::before, .action-dots .action-btn span::after {
-            content: '';
-            background: #000;
-            border-radius: 50%;
-            height: 3px;
-            width: 3px;
-            display: inline-block;
-            vertical-align: middle;
-            position: absolute;
-            left: -6px; /* Adjust spacing */
-        }
-         .action-dots .action-btn span::after {
-             left: auto;
-             right: -6px; /* Adjust spacing */
-         }
+        /* Action dots and dropdown (Kept as is) */
+        .action-dots .action-btn { background: #F0F5F3; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; }
+        .action-dots .action-btn span { background: #000; border-radius: 50%; height: 3px; width: 3px; display: inline-block; vertical-align: middle; position: relative; }
+        .action-dots .action-btn span::before, .action-dots .action-btn span::after { content: ''; background: #000; border-radius: 50%; height: 3px; width: 3px; display: inline-block; vertical-align: middle; position: absolute; left: -6px; }
+        .action-dots .action-btn span::after { left: auto; right: -6px; }
         .action-dots .dropdown-menu { border-radius: 8px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); padding: 10px 0;}
         .action-dots .dropdown-item { font-size: 14px; padding: 8px 15px; display: flex; align-items: center; }
-        .action-dots .dropdown-item i { margin-right: 8px; width: 16px; text-align: center; color: #6c757d; } /* Align icons */
+        .action-dots .dropdown-item i { margin-right: 8px; width: 16px; text-align: center; color: #6c757d; }
         .action-dots .dropdown-item:hover { background-color: #f8f9fa; }
         .action-dots .dropdown-item.text-danger:hover { background-color: #fce8e6; }
         .action-dots .dropdown-item.text-warning:hover { background-color: #fff4e1; }
+        
+        /* FIX: SIDEBAR ALIGNMENT CSS (from profile page) */
+        .dash-aside-navbar .user-data {
+            display: flex; flex-direction: column; align-items: center; text-align: center; 
+            margin-bottom: 20px; padding-top: 15px; 
+        }
 
+        .dash-aside-navbar .user-avatar {
+            width: 60px; height: 60px; margin-bottom: 10px; overflow: hidden; border-radius: 50%;
+        }
+        
+        .dash-aside-navbar .user-avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
 
-        .notification-badge { /* Keep existing */ }
+        .dash-aside-navbar .user-name-data {
+            margin-top: 0;
+        }
+
+        .dash-aside-navbar .user-name {
+            font-size: 16px; font-weight: 500; color: #333;
+        }
     </style>
 </head>
 
@@ -104,7 +93,7 @@
                 </div>
                 <div class="user-data">
                     <div class="user-avatar online position-relative rounded-circle">
-                         <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="" class="lazy-img">
+                         <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="Company Logo" class="lazy-img">
                     </div>
                     <div class="user-name-data">
                         <div class="user-name" id="profile-dropdown">Loading...</div>
@@ -115,7 +104,7 @@
                         <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_3_active.svg" alt=""><span>My Jobs</span></a></li>
-                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt=""><span>Submit Job</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39 copy.svg" alt=""><span>Submit Job</span></a></li>
                         <li id="messages-nav-item" style="position: relative;">
                             <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center">
                                 <img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span>
@@ -123,7 +112,7 @@
                             <span class="notification-badge"></span>
                         </li>
                         <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
-                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
+                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
@@ -154,7 +143,8 @@
                     </div>
                 </div>
 
-                <div id="message-container" class="alert" style="display: none;"></div> <div class="bg-white card-box border-20">
+                <div id="message-container" class="alert" style="display: none;"></div> 
+                <div class="bg-white card-box border-20">
                     <div class="table-responsive">
                         <table class="table job-alert-table">
                             <thead>
@@ -264,22 +254,25 @@
 
                 const checkUnreadMessages = async () => { /* ... Implement if needed ... */ };
 
+                // --- Load Profile Data (for sidebar) ---
                 const fetchProfile = async () => {
+                     // 1. Set logo from localStorage immediately
+                     const savedLogo = localStorage.getItem('companyLogo');
+                     if (savedLogo) { logoPreview.src = savedLogo; } else { logoPreview.src = '../../images/placeholder.jpeg'; }
+
                      try {
+                         // 2. Fetch name and update logo from API (as source of truth)
                          const response = await apiFetch(`${ACCOUNTS_API_URL}profile/company/`);
                          if (response && response.ok) {
                              const profile = await response.json();
                              profileNameEl.textContent = profile.name || 'Employer';
                              const logoUrl = profile.logo || '../../images/placeholder.jpeg';
-                             if(logoPreview) logoPreview.src = logoUrl;
-                             localStorage.setItem('companyLogo', logoUrl);
+                             if(logoPreview) logoPreview.src = logoUrl; // Update logo with API URL
+                             localStorage.setItem('companyLogo', logoUrl); // Sync localStorage
                          } else { profileNameEl.textContent = 'Employer'; }
                      } catch (error) { console.error('Error fetching profile:', error); profileNameEl.textContent = 'Employer';}
                 };
-                 // Use saved logo
-                 const savedLogo = localStorage.getItem('companyLogo');
-                 if (savedLogo && logoPreview) logoPreview.src = savedLogo;
-
+                 
 
                 // --- Job Fetching and Rendering ---
                 const fetchPostedJobs = async () => {

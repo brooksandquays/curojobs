@@ -19,6 +19,7 @@
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
+                        <li><a href="../../job-list-v1.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_03.svg" alt=""><span>Find Jobs</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="candidate-dashboard-saved-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_6.svg" alt=""><span>Saved Jobs</span></a></li>
                         <li><a href="candidate-dashboard-job-alert.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_5.svg" alt=""><span>Job Alerts</span></a></li>
@@ -83,7 +84,9 @@
                 const passwordForm = document.getElementById('password-change-form');
                 const messageContainer = document.getElementById('message-container');
                 const profileNameEl = document.getElementById('profile-dropdown');
-                const baseApiURL = 'https://app.curojobs.com/api/v1/accounts/';
+                // const baseApiURL = 'https://app.curojobs.com/api/v1/accounts/';
+                const baseApiURL = 'http://127.0.0.1:8000/api/v1/accounts/';
+
 
                 const showMessage = (message, isError = false) => {
                     messageContainer.innerHTML = message;

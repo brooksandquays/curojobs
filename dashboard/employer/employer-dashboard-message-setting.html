@@ -15,6 +15,47 @@
         .action-btns .btn { font-size: 14px; padding: 5px 10px;}
         .table th, .table td { vertical-align: middle; }
     </style>
+            <style>
+        /* --- Sidebar User Data Alignment --- */
+        .dash-aside-navbar .user-data {
+            display: flex;         /* Use flexbox for alignment */
+            flex-direction: column; /* Stack items vertically */
+            align-items: center;   /* Center items horizontally */
+            text-align: center;    /* Center the text within the name container */
+            margin-bottom: 20px;   /* Add some space below the name */
+            padding-top: 15px;      /* Add some top padding */
+        }
+
+        .dash-aside-navbar .user-avatar {
+            width: 60px;          /* Set a specific size for the logo container */
+            height: 60px;
+            margin-bottom: 10px;   /* Add space between logo and name */
+        }
+        
+        /* Ensure image fills the circle */
+        .dash-aside-navbar .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dash-aside-navbar .user-name-data {
+            margin-top: 0;         /* Remove default top margin if any */
+        }
+
+        .dash-aside-navbar .user-name {
+            font-size: 16px;       /* Adjust font size as needed */
+            font-weight: 500;
+            color: #333;          /* Adjust text color if needed */
+        }
+        
+        /* Ensure placeholder fits */
+         #company-logo-preview {
+             width: 100%; 
+             height: 100%; 
+             object-fit: cover;
+         }
+    </style>
 </head>
 
 <body>
@@ -159,16 +200,13 @@
         <i class="bi bi-arrow-up-short"></i>
     </button>
 
-    <script src="../../vendor/jquery.min.js"></script>
-
-    <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <script src="../../vendor/jquery.lazy.min.js"></script>
-
-    <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
-    <script src="../../vendor/jwt-decode.js"></script>
-
-    <script src="../../js/theme.js"></script>
+        <script src="../../vendor/jquery.min.js"></script>
+        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
+        <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
+        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../js/theme.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -194,6 +232,9 @@
             const saveTemplateBtn = document.getElementById('save-template-btn');
             const modalMessageContainer = document.getElementById('modal-message-container');
             const templateIdInput = document.getElementById('template-id');
+            
+            // This will store the profile data for other uses if needed
+            let companyProfileData = {}; 
 
             // --- API Endpoints ---
             const BASE_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/';
@@ -203,7 +244,8 @@
             const apiFetch = async (endpoint, options = {}) => {
                  const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
                  try {
-                     const response = await fetch(endpoint, { ...options, headers });
+                     // NOTE: We now use the BASE_API_URL in the fetch call, so the endpoint here should be relative.
+                     const response = await fetch(`${BASE_API_URL}${endpoint}`, { ...options, headers });
                      if (response.status === 401) { localStorage.clear(); window.location.href = '../../login.html'; throw new Error('Unauthorized'); }
                      return response;
                  } catch(error) { /* ... error handling ... */ throw error; }
@@ -217,7 +259,42 @@
             };
 
             // --- Profile Loading for Sidebar ---
-            const fetchProfile = async () => { /* ... Keep your existing logic ... */ };
+            const fetchProfile = async () => {
+                const profileNameEl = document.getElementById('profile-dropdown');
+                
+                try {
+                    // Corrected endpoint from previous step: 'profile/company/'
+                    const response = await apiFetch('profile/company/'); 
+                    if (!response.ok) {
+                        // Throwing an error here will lead to the 'Error' text
+                        throw new Error('Failed to fetch profile'); 
+                    }
+                    const profileData = await response.json();
+                    companyProfileData = profileData; // Store the data
+                    
+                    // Use 'name' from the profile data, or default to 'Employer'
+                    const companyName = profileData.name || profileData.company_name; // Use 'name' or 'company_name'
+                    
+                    if (companyName) {
+                        profileNameEl.textContent = companyName; // Display the actual name
+                    } else {
+                        // If companyName is null/empty, we default to 'Employer' instead of N/A
+                        profileNameEl.textContent = 'Employer'; 
+                    }
+                    
+                    // Update the logo preview, matching your message dashboard logic
+                    const logoUrl = profileData.logo || '../../images/placeholder.jpeg';
+                    if(logoPreview) logoPreview.src = logoUrl;
+                    localStorage.setItem('companyLogo', logoUrl);
+
+                } catch (error) {
+                    console.error('Error fetching company profile:', error);
+                    // On failure, default to a generic name
+                    profileNameEl.textContent = 'Employer'; 
+                }
+            };
+            
+            // Check localStorage for logo before API call
             const savedLogo = localStorage.getItem('companyLogo');
             if (savedLogo && logoPreview) logoPreview.src = savedLogo;
 
@@ -225,6 +302,7 @@
             // --- Template CRUD ---
 
             const renderTemplates = (templates) => {
+                // ... (rest of renderTemplates is unchanged)
                 templateTableBody.innerHTML = '';
                 if (!templates || templates.length === 0) {
                     templateTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">You have not created any message templates yet.</td></tr>';
@@ -253,9 +331,10 @@
             };
 
             const fetchTemplates = async () => {
+                // ... (rest of fetchTemplates is unchanged)
                 templateTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-5">Loading templates...</td></tr>';
                 try {
-                    const response = await apiFetch(TEMPLATES_API_URL);
+                    const response = await apiFetch('company-message-templates/');
                     if (!response.ok) throw new Error('Could not fetch templates');
                     const templates = await response.json();
                     renderTemplates(templates);
@@ -265,6 +344,7 @@
             };
 
             const openTemplateModal = (template = null) => {
+                // ... (rest of template functions are unchanged)
                 templateForm.reset(); // Clear previous data
                 modalMessageContainer.style.display = 'none'; // Hide old messages
                 if (template) {
@@ -286,7 +366,7 @@
             const handleEditClick = async (event) => {
                 const templateId = event.currentTarget.dataset.id;
                 try {
-                     const response = await apiFetch(`${TEMPLATES_API_URL}${templateId}/`);
+                     const response = await apiFetch(`company-message-templates/${templateId}/`);
                      if(!response.ok) throw new Error('Could not fetch template details');
                      const templateData = await response.json();
                      openTemplateModal(templateData);
@@ -311,7 +391,7 @@
 
                  if (result.isConfirmed) {
                     try {
-                        const response = await apiFetch(`${TEMPLATES_API_URL}${templateId}/`, { method: 'DELETE' });
+                        const response = await apiFetch(`company-message-templates/${templateId}/`, { method: 'DELETE' });
                         if (response.status !== 204) throw new Error(`Failed to delete template (${response.status})`);
                         showMessage('Template deleted successfully.', false);
                         fetchTemplates(); // Refresh list
@@ -337,7 +417,7 @@
                 delete data.templateId; // Remove ID from data payload
 
                 const method = templateId ? 'PUT' : 'POST'; // PUT for update, POST for create
-                const url = templateId ? `${TEMPLATES_API_URL}${templateId}/` : TEMPLATES_API_URL;
+                const url = templateId ? `company-message-templates/${templateId}/` : 'company-message-templates/';
 
                 try {
                     const response = await apiFetch(url, {

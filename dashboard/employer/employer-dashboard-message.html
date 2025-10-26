@@ -59,6 +59,47 @@
         }
 
     </style>
+        <style>
+        /* --- Sidebar User Data Alignment --- */
+        .dash-aside-navbar .user-data {
+            display: flex;         /* Use flexbox for alignment */
+            flex-direction: column; /* Stack items vertically */
+            align-items: center;   /* Center items horizontally */
+            text-align: center;    /* Center the text within the name container */
+            margin-bottom: 20px;   /* Add some space below the name */
+            padding-top: 15px;      /* Add some top padding */
+        }
+
+        .dash-aside-navbar .user-avatar {
+            width: 60px;          /* Set a specific size for the logo container */
+            height: 60px;
+            margin-bottom: 10px;   /* Add space between logo and name */
+        }
+        
+        /* Ensure image fills the circle */
+        .dash-aside-navbar .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dash-aside-navbar .user-name-data {
+            margin-top: 0;         /* Remove default top margin if any */
+        }
+
+        .dash-aside-navbar .user-name {
+            font-size: 16px;       /* Adjust font size as needed */
+            font-weight: 500;
+            color: #333;          /* Adjust text color if needed */
+        }
+        
+        /* Ensure placeholder fits */
+         #company-logo-preview {
+             width: 100%; 
+             height: 100%; 
+             object-fit: cover;
+         }
+    </style>
 </head>
 
 <body>
@@ -98,16 +139,16 @@
                         <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>My Jobs</span></a></li>
-                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt=""><span>Submit Job</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39 copy.svg" alt=""><span>Submit Job</span></a></li>
                         <li id="messages-nav-item" style="position: relative;">
                             <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center active">
                                 <img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span>
                             </a>
                             <span class="notification-badge"></span>
                         </li>
-                         <li><a href="employer-dashboard-message-settings.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
-                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center "><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                         <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
+                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -208,14 +249,16 @@
 
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+        
+        <script src="../../vendor/wow/wow.min.js"></script> 
+        
         <script src="../../vendor/jquery.lazy.min.js"></script>
-
         <script src="../../vendor/jwt-decode.js"></script>
-
         <script src="../../js/theme.js"></script>
+        
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. AUTH & CONFIG ---
             const accessToken = localStorage.getItem('accessToken');
             if (!accessToken) { window.location.href = '../../login.html'; return; }
             
@@ -229,11 +272,11 @@
                 return;
             }
 
-            // --- Elements ---
+            // --- 2. ELEMENTS ---
             const conversationListContainer = document.getElementById('conversation-list-container');
             const conversationDisplayContainer = document.getElementById('conversation-display-container');
             const profileNameEl = document.getElementById('profile-dropdown');
-            const logoPreview = document.getElementById('company-logo-preview'); // For sidebar logo
+            const logoPreview = document.getElementById('company-logo-preview');
             const logoutBtn = document.getElementById('logout-btn');
             const mainMessageContainer = document.getElementById('message-container-main');
             const contextMenu = document.getElementById('context-menu');
@@ -248,82 +291,360 @@
             const sendComposeBtn = document.getElementById('send-compose-btn');
             const composeMessageContainer = document.getElementById('compose-message-container');
 
-            // --- API Endpoints ---
+            // --- 3. API ENDPOINTS ---
             const BASE_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/';
-            // const JOBS_API_URL = 'http://127.0.0.1:8000/api/v1/jobs/'; // If needed later
 
-            // --- State ---
-            let conversations = {};
+            // --- 4. STATE ---
+            let conversations = {}; // This object will hold all grouped conversations
             let companyTemplates = [];
             let companyApplicants = [];
             let companyProfileData = {};
 
-            // --- API Fetch Utility ---
+            // --- 5. UTILITY FUNCTIONS ---
             const apiFetch = async (endpoint, options = {}) => {
                 const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
-                try {
-                    const response = await fetch(`${BASE_API_URL}${endpoint}`, { ...options, headers });
-                    if (response.status === 401) { localStorage.clear(); window.location.href = '../../login.html'; throw new Error('Unauthorized');}
-                    return response;
-                } catch(error) { /* ... error handling ... */ throw error; }
+                // try/catch block is removed for brevity, but you have it in your original
+                const response = await fetch(`${BASE_API_URL}${endpoint}`, { ...options, headers });
+                if (response.status === 401) { localStorage.clear(); window.location.href = '../../login.html'; throw new Error('Unauthorized');}
+                return response;
             };
 
-            // --- Show Message Utility ---
             const showMessage = (message, isError = false, container = mainMessageContainer) => {
                  container.textContent = message;
-                 container.className = `alert ${isError ? 'alert-danger' : 'alert-success'} ${container === modalMessageContainer ? 'mb-3' : 'mt-3'}`; // Adjust margin based on container
+                 // This fixes your 'modalMessageContainer is not defined' error
+                 container.className = `alert ${isError ? 'alert-danger' : 'alert-success'} ${container === composeMessageContainer ? 'mb-3' : 'mt-3'}`;
                  container.style.display = 'block';
                  setTimeout(() => { container.style.display = 'none'; }, 4000);
             };
 
-            // --- Conversation Logic ---
+            // --- 6. CORE MESSAGING LOGIC ---
+
+            /**
+             * Creates a unique ID for a conversation based on participants and subject.
+             */
             const getConversationId = (msg) => {
-                const participantIds = [msg.sender, msg.recipient].sort();
-                const baseSubject = msg.subject.replace(/^(Re: )+/i, '').trim();
+                // Ensure sender and recipient are numbers for consistent sorting
+                const participantIds = [parseInt(msg.sender), parseInt(msg.recipient)].sort((a, b) => a - b);
+                // Normalize subject: remove 'Re: ' prefixes and trim
+                const baseSubject = msg.subject.replace(/^(Re: |re: )+/i, '').trim();
                 return `${participantIds[0]}-${participantIds[1]}-${baseSubject}`;
             };
 
-            const checkUnreadMessages = async () => { /* ... Keep existing logic ... */ };
+            /**
+             * Fetches all messages, groups them, and optionally displays one.
+             * @param {string|null} conversationToDisplay - The ID of the conversation to open after fetching.
+             */
+            const fetchMessages = async (conversationToDisplay = null) => {
+                try {
+                    const response = await apiFetch('messages/'); // Your MessageListAPIView
+                    if (!response.ok) throw new Error('Could not load messages.');
+                    
+                    const messages = await response.json();
+                    
+                    conversations = {}; // Reset conversations object
 
-            const displayConversation = async (conversationId) => { /* ... Keep existing logic ... */ };
-            const renderConversationList = (activeConversationId) => { /* ... Keep existing logic ... */ };
-            const deleteConversation = (conversationId) => { /* ... Keep existing logic ... */ };
-            const fetchMessages = async (conversationToDisplay) => { /* ... Keep existing logic ... */ };
+                    // Group messages into conversations
+                    messages.forEach(msg => {
+                        const convId = getConversationId(msg);
+                        if (!conversations[convId]) {
+                            const otherUser = msg.sender === currentUser.user_id ? msg.recipient_username : msg.sender_username;
+                            const otherUserId = msg.sender === currentUser.user_id ? msg.recipient : msg.sender;
+                            const baseSubject = msg.subject.replace(/^(Re: |re: )+/i, '').trim();
+                            
+                            conversations[convId] = {
+                                id: convId,
+                                otherUser: otherUser,
+                                otherUserId: otherUserId,
+                                subject: baseSubject,
+                                messages: [],
+                                lastMessageTime: null,
+                                unread: false
+                            };
+                        }
+                        conversations[convId].messages.push(msg);
+                    });
+
+                    // Sort messages within each conversation and find last message time/unread
+                    Object.values(conversations).forEach(conv => {
+                        conv.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
+                        const lastMessage = conv.messages[conv.messages.length - 1];
+                        conv.lastMessageTime = lastMessage.sent_at;
+                        conv.unread = conv.messages.some(m => !m.is_read && m.recipient === currentUser.user_id);
+                    });
+
+                    // Render the sidebar
+                    renderConversationList(conversationToDisplay); 
+                    
+                    // If a specific conversation was requested (e.g., after sending a new message), display it.
+                    if (conversationToDisplay && conversations[conversationToDisplay]) {
+                        await displayConversation(conversationToDisplay);
+                    }
+
+                } catch (error) {
+                    console.error('Error fetching messages:', error);
+                    conversationListContainer.innerHTML = '<div class="p-3 text-danger">Error loading messages.</div>';
+                }
+            };
+
+            /**
+             * Renders the left-hand sidebar with all conversations.
+             * @param {string|null} activeConversationId - The ID of the currently selected conversation.
+             */
+            const renderConversationList = (activeConversationId = null) => {
+                conversationListContainer.innerHTML = ''; // Clear list
+                
+                const sortedConversations = Object.values(conversations).sort((a, b) => {
+                    return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+                });
+
+                if (sortedConversations.length === 0) {
+                    conversationListContainer.innerHTML = '<div class="p-3 text-center text-muted">No conversations.</div>';
+                    return;
+                }
+
+                sortedConversations.forEach(conv => {
+                    const lastMessage = conv.messages[conv.messages.length - 1];
+                    const isActive = conv.id === activeConversationId;
+                    const isUnread = conv.unread;
+
+                    const item = document.createElement('div');
+                    item.className = `email-list-item d-flex ${isActive ? 'selected' : ''} ${isUnread ? 'fw-bold' : ''}`;
+                    item.dataset.conversationId = conv.id;
+                    item.style.cursor = 'pointer';
+
+                    item.innerHTML = `
+                        <div class="logo-initial d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; border-radius: 50%; background-color: #f0f5ff; font-weight: 500; color: #4866a6; flex-shrink: 0;">
+                            ${conv.otherUser.charAt(0).toUpperCase()}
+                        </div>
+                        <div class="email-info flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <span class="sender-name truncate">${conv.otherUser}</span>
+                                <span class="send-time flex-shrink-0" style="font-size: 12px;">${new Date(conv.lastMessageTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>
+                            </div>
+                            <div class="subject-line truncate">${conv.subject}</div>
+                            <div class="email-preview truncate" style="font-size: 13px; opacity: 0.8;">
+                                ${lastMessage.body}
+                            </div>
+                        </div>
+                        ${isUnread ? '<div class="notification-dot" style="width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; margin-left: 10px; align-self: center; flex-shrink: 0;"></div>' : ''}
+                    `;
+                    
+                    item.addEventListener('click', () => {
+                        displayConversation(conv.id);
+                        renderConversationList(conv.id); // Re-render to highlight this item
+                    });
+
+                    item.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        contextMenu.style.top = `${e.pageY}px`;
+                        contextMenu.style.left = `${e.pageX}px`;
+                        contextMenu.style.display = 'block';
+                        contextMenu.dataset.conversationId = conv.id;
+                    });
+
+                    conversationListContainer.appendChild(item);
+                });
+            };
+
+            /**
+             * Renders the main chat window for a specific conversation.
+             * @param {string} conversationId - The ID of the conversation to display.
+             */
+            const displayConversation = async (conversationId) => {
+                const conv = conversations[conversationId];
+                if (!conv) {
+                    conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Could not find conversation.</div>';
+                    return;
+                }
+
+                const headerHtml = `
+                    <div class="email-header-info p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div>
+                            <div class="subject-line fw-500">${conv.subject}</div>
+                            <div class="address-line" style="font-size: 14px;">To: ${conv.otherUser}</div>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" id="delete-conv-btn-main" data-conversation-id="${conv.id}" title="Delete Conversation">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                `;
+
+                let bodyHtml = '<div class="email-body flex-grow-1" style="overflow-y: auto;">';
+                let lastDate = null;
+
+                conv.messages.forEach(msg => {
+                    const msgDate = new Date(msg.sent_at).toDateString();
+                    if (msgDate !== lastDate) {
+                        bodyHtml += `<div class="date-separator">${msgDate}</div>`;
+                        lastDate = msgDate;
+                    }
+                    const isSent = msg.sender === currentUser.user_id;
+                    const authorName = isSent ? "You" : conv.otherUser;
+                    const bubbleClass = isSent ? 'sent' : 'received';
+                    
+                    bodyHtml += `
+                        <div class="message-bubble ${bubbleClass}">
+                            <div class="message-author">${authorName}</div>
+                            <p class="message-text">${msg.body}</p>
+                            <div class="message-time">${new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</div>
+                        </div>
+                    `;
+                });
+                bodyHtml += '</div>';
+
+                const replyFormHtml = `
+                    <div class="reply-form-container p-3">
+                        <form id="reply-form" class="d-flex align-items-center">
+                            <textarea id="reply-body" class="form-control" rows="1" placeholder="Type your reply..."></textarea>
+                            <button type="submit" class="ms-2" title="Send">
+                                <i class="bi bi-send-fill"></i>
+                            </button>
+                        </form>
+                    </div>
+                `;
+
+                conversationDisplayContainer.innerHTML = headerHtml + bodyHtml + replyFormHtml;
+
+                const emailBody = conversationDisplayContainer.querySelector('.email-body');
+                emailBody.scrollTop = emailBody.scrollHeight;
+
+                // Add Listeners for Reply and Delete
+                document.getElementById('reply-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const replyBodyEl = document.getElementById('reply-body');
+                    const body = replyBodyEl.value;
+                    if (!body.trim()) return;
+
+                    const replyData = {
+                        recipient: conv.otherUserId,
+                        subject: `Re: ${conv.subject}`,
+                        body: body
+                    };
+
+                    try {
+                        const response = await apiFetch('messages/send/', {
+                            method: 'POST',
+                            body: JSON.stringify(replyData)
+                        });
+                        if (!response.ok) throw new Error('Failed to send reply.');
+                        await fetchMessages(conversationId); // Re-fetch and re-display this convo
+                    } catch (error) {
+                        replyBodyEl.value = `Error: ${error.message}`;
+                        replyBodyEl.classList.add('is-invalid');
+                    }
+                });
+
+                document.getElementById('delete-conv-btn-main').addEventListener('click', () => {
+                    deleteConversation(conversationId);
+                });
+                
+                // Mark messages as read
+                if (conv.unread) {
+                    try {
+                        await apiFetch('messages/mark-as-read/', {
+                            method: 'POST',
+                            body: JSON.stringify({ sender_id: conv.otherUserId })
+                        });
+                        conv.unread = false;
+                        conv.messages.forEach(m => {
+                            if (m.recipient === currentUser.user_id) m.is_read = true;
+                        });
+                        renderConversationList(conversationId);
+                        checkUnreadMessages();
+                    } catch (error) {
+                        console.error("Failed to mark messages as read:", error);
+                    }
+                }
+            };
+
+            const deleteConversation = async (conversationId) => {
+                const conv = conversations[conversationId];
+                if (!conv) return;
+
+                const confirmed = await Swal.fire({
+                    title: 'Are you sure?',
+                    text: `This will delete the conversation about "${conv.subject}" with ${conv.otherUser}. This cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Yes, delete it!'
+                });
+
+                if (confirmed.isConfirmed) {
+                    try {
+                        const response = await apiFetch('messages/delete-conversation/', {
+                            method: 'DELETE',
+                            body: JSON.stringify({
+                                other_user_id: conv.otherUserId,
+                                subject: conv.subject
+                            })
+                        });
+                        if (!response.ok) throw new Error('Failed to delete.');
+                        
+                        showMessage('Conversation deleted.');
+                        conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Conversation deleted.</div>';
+                        delete conversations[conversationId];
+                        renderConversationList();
+                        
+                    } catch (error) {
+                        showMessage('Error deleting conversation.', true);
+                    }
+                }
+            };
+
+            const checkUnreadMessages = async () => {
+                try {
+                    const response = await apiFetch('messages/unread-count/');
+                    if (!response.ok) return;
+                    const data = await response.json();
+                    const badge = document.querySelector('#messages-nav-item .notification-badge');
+                    if (data.unread_count > 0) {
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                } catch (error) {
+                    console.warn("Could not check unread messages:", error);
+                }
+            };
 
 
-            // --- NEW: Fetch Company Profile ---
+            // --- 7. PROFILE & TEMPLATE FETCHING ---
+            
              const fetchCompanyProfile = async () => {
                  try {
                      const response = await apiFetch('profile/company/');
                      if (!response.ok) throw new Error('Failed fetch');
                      companyProfileData = await response.json();
-                     // Update sidebar
                      profileNameEl.textContent = companyProfileData.name || 'Employer';
                      const logoUrl = companyProfileData.logo || '../../images/placeholder.jpeg';
                      if(logoPreview) logoPreview.src = logoUrl;
                      localStorage.setItem('companyLogo', logoUrl);
                  } catch (error) {
                       console.error('Error fetching company profile:', error);
-                      profileNameEl.textContent = 'Employer'; // Fallback
+                      profileNameEl.textContent = 'Employer';
                  }
              };
-             // Use saved logo immediately
              const savedLogo = localStorage.getItem('companyLogo');
              if (savedLogo && logoPreview) logoPreview.src = savedLogo;
 
-            // --- NEW: Fetch Applicants ---
             const fetchApplicantsForCompose = async () => {
                 composeRecipientSelect.innerHTML = '<option value="">Loading applicants...</option>';
                 try {
-                    const response = await apiFetch('company-applicants/'); // Use new endpoint
+                    const response = await apiFetch('company-applicants/');
                     if (!response.ok) throw new Error('Failed to fetch applicants');
                     companyApplicants = await response.json();
 
                     composeRecipientSelect.innerHTML = '<option value="">Select Applicant...</option>';
+                    // This uses the logic from our previous fix
                     companyApplicants.forEach(app => {
-                         // API returns Applicant objects, need user ID from nested user object
-                        const userId = app.user.id;
-                        const name = app.full_name || app.username || `User ${userId}`;
+                        if (!app) return;
+                        const userId = app.user_id || (app.user && app.user.id);
+                        if (!userId) {
+                            console.warn("Skipping applicant with no User ID:", app);
+                            return;
+                        }
+                        const name = app.full_name || (app.user && app.user.full_name) || app.username || (app.user && app.user.username) || `User ${userId}`;
                         composeRecipientSelect.innerHTML += `<option value="${userId}">${name}</option>`;
                     });
                 } catch (error) {
@@ -332,11 +653,10 @@
                 }
             };
 
-            // --- NEW: Fetch Templates ---
             const fetchTemplatesForCompose = async () => {
                 composeTemplateSelect.innerHTML = '<option value="">Loading templates...</option>';
                 try {
-                    const response = await apiFetch('company-message-templates/'); // Use new endpoint
+                    const response = await apiFetch('company-message-templates/');
                     if (!response.ok) throw new Error('Failed fetch');
                     companyTemplates = await response.json();
 
@@ -350,7 +670,8 @@
                 }
             };
 
-            // --- NEW: Handle Template Selection ---
+            // --- 8. EVENT LISTENERS ---
+            
             composeTemplateSelect.addEventListener('change', (e) => {
                 const templateId = e.target.value;
                 if (!templateId) {
@@ -365,16 +686,14 @@
                 }
             });
 
-            // --- NEW: Handle Compose Modal Opening ---
              composeModalEl.addEventListener('show.bs.modal', () => {
                 composeForm.reset();
                 composeMessageContainer.style.display = 'none';
-                // Fetch fresh lists when modal opens
                 fetchApplicantsForCompose();
                 fetchTemplatesForCompose();
              });
 
-             // --- NEW: Handle Sending Composed Message ---
+             // --- MODIFIED: This now calls fetchMessages with the new ID ---
              sendComposeBtn.addEventListener('click', async () => {
                  if (!composeForm.checkValidity()) {
                      composeForm.reportValidity();
@@ -389,15 +708,13 @@
                  let subject = composeSubjectInput.value;
                  let body = composeBodyTextarea.value;
 
-                 // Attempt placeholder replacement
-                 const selectedApplicant = companyApplicants.find(a => a.user.id == recipientId);
-                 // Fallback name if applicant somehow not found (shouldn't happen if selected)
-                 const applicantName = selectedApplicant ? (selectedApplicant.full_name || selectedApplicant.username) : 'Applicant';
+                 // Placeholder replacement
+                 const selectedApplicant = companyApplicants.find(a => (a.user_id || (a.user && a.user.id)) == recipientId);
+                 const applicantName = selectedApplicant ? (selectedApplicant.full_name || (selectedApplicant.user && selectedApplicant.user.username)) : 'Applicant';
                  const companyName = companyProfileData.name || 'Our Company';
 
                  subject = subject.replace(/{applicant_name}/g, applicantName)
                                   .replace(/{company_name}/g, companyName);
-                                  // Add {job_title} replacement if relevant context available
                  body = body.replace(/{applicant_name}/g, applicantName)
                             .replace(/{company_name}/g, companyName);
 
@@ -408,7 +725,7 @@
                  };
 
                  try {
-                     const response = await apiFetch('messages/send/', { // Use the company's send endpoint
+                     const response = await apiFetch('messages/send/', {
                          method: 'POST',
                          body: JSON.stringify(data)
                      });
@@ -416,12 +733,25 @@
                          const errorData = await response.json();
                          throw new Error(errorData.detail || `Failed to send (${response.status})`);
                      }
-                     showMessage('Message sent successfully!', false); // Show on main page
+                     
+                     // --- THIS IS THE FIX ---
+                     showMessage('Message sent successfully!', false);
                      composeModal.hide();
-                     fetchMessages(); // Refresh conversation list
+
+                     // 1. Create the conversation ID of the message we just sent
+                     const fakeMessage = {
+                         sender: currentUser.user_id,
+                         recipient: parseInt(recipientId),
+                         subject: composeSubjectInput.value // Use the *original* subject
+                     };
+                     const newConversationId = getConversationId(fakeMessage);
+
+                     // 2. Re-fetch all messages and automatically display the one we just sent to
+                     await fetchMessages(newConversationId); 
+                     // --- END OF FIX ---
 
                  } catch (error) {
-                     showMessage(error.message, true, composeMessageContainer); // Show error in modal
+                     showMessage(error.message, true, composeMessageContainer);
                  } finally {
                      sendComposeBtn.disabled = false;
                      sendComposeBtn.textContent = 'Send Message';
@@ -429,18 +759,28 @@
              });
 
 
-            // --- Existing Event Listeners ---
+            // --- Other Event Listeners ---
             window.addEventListener('click', () => { contextMenu.style.display = 'none'; });
-            contextMenuDeleteBtn.addEventListener('click', () => { /* ... existing ... */ });
-            logoutBtn.addEventListener('click', (e) => { /* ... existing ... */ });
-
-            // --- Initial Load ---
-            // Fetch company profile first for placeholders, then messages
-            fetchCompanyProfile().then(() => {
-                fetchMessages();
-                checkUnreadMessages();
+            
+            contextMenuDeleteBtn.addEventListener('click', () => {
+                const conversationId = contextMenu.dataset.conversationId;
+                if (conversationId) {
+                    deleteConversation(conversationId);
+                }
+                contextMenu.style.display = 'none';
+            });
+            
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = '../../index.html';
             });
 
+            // --- 9. INITIAL LOAD ---
+            fetchCompanyProfile().then(() => {
+                fetchMessages(); // Fetch all messages on initial load
+                checkUnreadMessages();
+            });
         });
         </script>
     </div>
