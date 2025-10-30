@@ -4,24 +4,72 @@
 <head>
     <meta charset="UTF-8">
     <title>CuroJobs - Messages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* Read-Only Message Bubbles */
-        .email-body { display: flex; flex-direction: column; padding: 20px; gap: 15px; }
-        .message-bubble { max-width: 75%; width: fit-content; padding: 10px 15px; border-radius: 18px; }
-        .message-author { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
-        .message-text { white-space: pre-wrap; word-wrap: break-word; font-size: 15px; margin: 0; }
-        .message-time { font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: right; }
+        /* --- FORMAL EMAIL/LETTER VIEW & DELETE BUTTON STYLES --- */
+        .email-body { 
+            display: flex; 
+            flex-direction: column; 
+            padding: 20px 40px; /* Wider padding for letter look */
+            gap: 25px; 
+        }
+
+        .message-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align icon to the top of the message */
+            padding: 15px 0;
+            border-bottom: 1px dashed #eee;
+        }
+        .message-block:last-child { 
+            border-bottom: none; 
+        }
+
+        .message-author { 
+            font-weight: 700; 
+            color: #000; 
+            margin-bottom: 3px; 
+            font-size: 16px; 
+        }
+        .message-text { 
+            white-space: pre-wrap; 
+            word-wrap: break-word; 
+            font-size: 15px; 
+            margin-top: 5px; 
+            line-height: 1.6; 
+        }
+        .message-time { 
+            font-size: 12px; 
+            opacity: 0.8; 
+            margin-top: 5px; 
+            color: #555; 
+        }
         
-        .message-bubble.received { background-color: #f1f0f0; color: #333; border-bottom-left-radius: 4px; align-self: flex-start; }
-        .message-bubble.received .message-author { color: #555; }
-        
-        /* Styling for the filter buttons from Jobi template */
-        .message_filter { /* gap: 10px; */ }
+        .delete-message-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+        .delete-message-btn:hover {
+            opacity: 1;
+        }
+        .delete-message-btn img {
+            width: 20px; /* Adjust size as needed */
+            height: 20px;
+            vertical-align: middle;
+        }
+                
+        /* Filter Buttons */
         .message_filter .filter_btn {
             font-size: 14px;
             font-weight: 500;
@@ -46,80 +94,62 @@
         }
 
         /* Other styles */
-        .date-separator { text-align: center; color: #999; font-size: 12px; padding: 15px 0; }
         .email-list-item.selected { background-color: #f0f5f3; border-left: 3px solid #244034; }
         .email-list-item.unread .sender-name,
         .email-list-item.unread .mail-sub {
             font-weight: 600;
             color: #000;
         }
-        .notification-badge { position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
+        .notification-badge { position: absolute; top: 10px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
     
         /* Pagination Styles */
-        .message-pagination { padding: 10px 0; }
-        .message-pagination button { 
-            background: none; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            padding: 2px 8px; 
-            width: 30px; 
-            height: 30px; 
-        }
         .message-pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
-        .message-pagination span { font-size: 14px; color: #555; margin: 0 10px; }
 
         /* Read/Unread Dots */
-        .email-short-preview {
-            padding-left: 15px; 
-        }
+        .email-short-preview { padding-left: 15px; }
         .email-short-preview::before {
-            content: '';
-            position: absolute;
-            top: 18px; 
-            left: 0; 
-            width: 8px;
-            height: 8px;
-            background-color: transparent; 
-            border-radius: 50%;
-            transition: background-color 0.3s ease;
+            content: ''; position: absolute; top: 18px; left: 0; 
+            width: 8px; height: 8px; background-color: transparent; 
+            border-radius: 50%; transition: background-color 0.3s ease;
         }
-        .email-list-item.unread .email-short-preview::before {
-            background-color: #3BDA84; /* GREEN */
-        }
-        .email-list-item:not(.unread) .email-short-preview::before {
-             background-color: #FF4545; /* RED */
-        }
+        .email-list-item.unread .email-short-preview::before { background-color: #3BDA84; }
+        .email-list-item:not(.unread) .email-short-preview::before { background-color: #FF4545; }
 
         /* Search Form (from style.css) */
-        .search-form {
-            position: relative;
+        .search-form input { width: 100%; height: 45px; border: 1px solid #e8e8e8; border-radius: 5px; padding: 0 45px 0 15px; font-size: 14px; }
+        .search-form button { position: absolute; right: 0; top: 0; width: 50px; height: 100%; border: none; background: transparent; border-radius: 0 5px 5px 0; }
+        
+        /* Sender Avatar */
+        .email-list-item .sender-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background-color: #f0f5ff; color: #4866a6;
+            font-weight: 500; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 12px; flex-shrink: 0;
         }
-        .search-form input {
-            width: 100%;
-            height: 45px;
-            border: 1px solid #e8e8e8;
-            border-radius: 5px;
-            padding: 0 45px 0 15px;
-            font-size: 14px;
-        }
-        .search-form button {
-            position: absolute;
-            right: 0;
-            top: 0;
-            width: 50px;
-            height: 100%;
-            border: none;
-            background: transparent;
-            border-radius: 0 5px 5px 0;
-        }
-        .search-form button img {
-            width: 18px;
-        }
+        .email-list-item .sender-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+
     </style>
 </head>
 
 <body>
     <div class="main-page-wrapper">
+         <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
+                 <div class="txt-loading">
+                     <span data-text-preloader="C" class="letters-loading">C</span>
+                     <span data-text-preloader="U" class="letters-loading">U</span>
+                     <span data-text-preloader="R" class="letters-loading">R</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="J" class="letters-loading">J</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="B" class="letters-loading">B</span>
+                     <span data-text-preloader="S" class="letters-loading">S</span>
+                 </div>
+            </div>
+       </div>
+
         <aside class="dash-aside-navbar">
             <div class="position-relative">
                 <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a></div>
@@ -134,12 +164,21 @@
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
+                        <li><a href="../../job-list-v1.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_03.svg" alt=""><span>Find Jobs</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="candidate-dashboard-saved-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_6.svg" alt=""><span>Saved Jobs</span></a></li>
                         <li><a href="candidate-dashboard-job-alert.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_5.svg" alt=""><span>Job Alerts</span></a></li>
-                        <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span></a></li>
+                        <li>
+                        <a id="messages-nav-item"
+                            href="candidate-dashboard-message.html"
+                            class="d-flex w-100 align-items-center active" style="position: relative;">
+                            <img src="../../images/icon/icon_4_active.svg" alt="">
+                            <span>Messages</span>
+                            <span class="notification-badge"></span> </a>
+                        </li>
+
                         <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -147,7 +186,11 @@
 
         <div class="dashboard-body">
             <div class="position-relative">
-                <header class="dashboard-header"></header>
+                <header class="dashboard-header">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
+                    </div>
+                </header>
                 
                 <div id="message-container-main" class="alert mt-3" style="display: none;"></div>
                 
@@ -166,7 +209,6 @@
                     </div>
                 </div>
 
-
                 <div class="bg-white card-box border-20 p0"> 
                     <div class="message-wrapper">
                         <div class="row gx-0">
@@ -176,15 +218,15 @@
                                         <div class="page-title fw-500">Inbox</div>
                                         
                                         <form action="#" class="search-form mt-20 mb-20" id="message-search-form">
-											<input type="text" id="message-search-input" placeholder="Search contacts or subject...">
-											<button type="submit"><img src="../../images/icon/icon_10.svg" alt="" class="m-auto"></button>
-										</form>
+                                            <input type="text" id="message-search-input" placeholder="Search contacts or subject...">
+                                            <button type="submit"><img src="../../images/icon/icon_10.svg" alt="" class="m-auto"></button>
+                                        </form>
                                         
                                         <div class="message_filter d-flex align-items-center justify-content-between flex-wrap my-20" id="module_btns">
-											<button class="filter_btn active" data-filter="all">All</button>
-											<button class="filter_btn" data-filter="unread"><span style="background:#3BDA84;"></span>Unread</button>
-											<button class="filter_btn" data-filter="read"><span style="background:#FF4545;"></span>Read</button>
-										</div>
+                                            <button class="filter_btn active" data-filter="all">All</button>
+                                            <button class="filter_btn" data-filter="unread"><span style="background:#3BDA84;"></span>Unread</button>
+                                            <button class="filter_btn" data-filter="read"><span style="background:#FF4545;"></span>Read</button>
+                                        </div>
                                     </div>
                                     
                                     <div id="conversation-list-container" class="email-read-panel">
@@ -205,9 +247,12 @@
         
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script> <script src="../../vendor/jquery.lazy.min.js"></script> <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script> <script src="../../vendor/jwt-decode.js"></script>
         <script src="../../js/theme.js"></script>
+        
         <script>
+            let currentConversation = null; // Global variable to track the currently selected conversation
+            
             document.addEventListener('DOMContentLoaded', () => {
                 const accessToken = localStorage.getItem('accessToken');
                 if (!accessToken) { window.location.href = '../../login.html'; return; }
@@ -227,8 +272,9 @@
                 let allMessages = []; 
                 let currentFilter = 'all'; 
                 let currentPage = 1;
-                let currentSearch = ''; // NEW: Search state
+                let currentSearch = '';
                 const MESSAGES_PER_PAGE = 25;
+                const API_ROOT = 'http://127.0.0.1:8000/api/v1/'; // Defined API Root
 
                 // --- Element Selectors ---
                 const conversationListContainer = document.getElementById('conversation-list-container');
@@ -240,15 +286,16 @@
                 const paginationText = document.getElementById('pagination-text');
                 const prevPageBtn = document.getElementById('prev-page-btn');
                 const nextPageBtn = document.getElementById('next-page-btn');
-                const searchForm = document.getElementById('message-search-form'); // NEW
-                const searchInput = document.getElementById('message-search-input'); // NEW
-                
-                const baseApiURL = 'http://127.0.0.1:8000/api/v1/accounts/';
+                const searchForm = document.getElementById('message-search-form');
+                const searchInput = document.getElementById('message-search-input');
 
                 // --- API & Utility Functions ---
                 const apiFetch = async (endpoint, options = {}) => {
                     const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
-                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
+                    // Explicitly construct URL: API_ROOT + accounts/ + endpoint
+                    const url = `${API_ROOT}accounts/${endpoint}`; 
+
+                    const response = await fetch(url, { ...options, headers });
                     if (response.status === 401) {
                         localStorage.clear();
                         window.location.href = '../../login.html';
@@ -257,7 +304,7 @@
                 };
 
                 const showMessage = (message, isError = false) => {
-                    mainMessageContainer.textContent = message;
+                    mainMessageContainer.innerHTML = message;
                     mainMessageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
                     mainMessageContainer.style.display = 'block';
                     setTimeout(() => { mainMessageContainer.style.display = 'none'; }, 3000);
@@ -288,6 +335,9 @@
                     const conversation = conversations[conversationId];
                     if (!conversation) return;
 
+                    // Update global state tracking
+                    currentConversation = conversation; 
+
                     if (conversation.isUnread) {
                         try {
                             await apiFetch('messages/mark-as-read/', {
@@ -302,26 +352,36 @@
                     
                     const { otherUserName, messages } = conversation;
                     let messagesHtml = '';
-                    let lastDate = null;
                     
                     messages.forEach(msg => {
                         const msgDate = new Date(msg.sent_at).toLocaleDateString();
-                        if (lastDate !== msgDate) {
-                            messagesHtml += `<div class="date-separator">--- ${new Date(msg.sent_at).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'})} ---</div>`;
-                            lastDate = msgDate;
-                        }
-                        
                         const time = new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                        const authorName = (msg.sender === currentUser.user_id) ? 'You (via reply)' : otherUserName;
                         
+                        // Author name display
+                        const authorName = (msg.sender === currentUser.user_id) ? 'You (Sent)' : otherUserName;
+                        
+                        // Add the delete button ONLY if the message was sent by the current user
+                        const deleteButtonHtml = (msg.sender === currentUser.user_id) 
+                            ? `<button class="delete-message-btn" data-message-id="${msg.id}" title="Delete Message">
+                                    <img src="../../images/icons/icon_35 copy.svg" alt="Delete">
+                            </button>`
+                            : '';
+
                         messagesHtml += `
-                            <div class="message-bubble received">
-                                <div class="message-author">${authorName}</div>
-                                <p class="message-text">${msg.body.replace(/\n/g, '<br>')}</p>
-                                <div class="message-time">${time}</div>
+                            <div class="message-block">
+                                <div class="message-content">
+                                    <div class="message-author">From: ${authorName}</div>
+                                    <div class="message-time">Sent: ${msgDate} at ${time}</div>
+                                    <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                                    <p class="message-text">${msg.body.replace(/\n/g, '<br>')}</p>
+                                </div>
+                                <div class="message-actions ms-2">
+                                    ${deleteButtonHtml}
+                                </div>
                             </div>`;
                     });
 
+                    // Read-only display (no reply form)
                     conversationDisplayContainer.innerHTML = `
                         <div class="email-header divider d-flex justify-content-between ps-4 pe-4">
                             <div class="sender-info d-flex align-items-center">
@@ -329,16 +389,126 @@
                                     <div class="sender-name fw-500">${otherUserName}</div>
                                 </div>
                             </div>
-                        </div>
+                            
+                            <button id="delete-conversation-btn" 
+                                    class="btn-sm btn-danger d-flex align-items-center" 
+                                    data-user-id="${conversation.otherUserId}"
+                                    style="padding: 5px 10px; font-size: 14px; margin: 10px 0;">
+                                <i class="bi bi-trash me-1"></i> Delete Conversation
+                            </button>
+                            </div>
                         <div class="email-body flex-grow-1" style="overflow-y: auto;">
                             ${messagesHtml}
                         </div>
                     `;
                     
+                    // Attach listeners dynamically
+                    document.getElementById('delete-conversation-btn')
+                        .addEventListener('click', handleDeleteConversation);
+                    
+                    document.querySelectorAll('.delete-message-btn').forEach(btn => 
+                        btn.addEventListener('click', handleDeleteSingleMessage)
+                    );
+
                     const emailBody = conversationDisplayContainer.querySelector('.email-body');
                     emailBody.scrollTop = emailBody.scrollHeight;
                 };
                 
+                const handleDeleteSingleMessage = async (e) => {
+                    const messageId = e.currentTarget.dataset.messageId;
+                    if (!messageId) return;
+
+                    const confirmed = await Swal.fire({
+                        title: 'Delete Message?',
+                        text: "This will remove this message for you. This action cannot be undone.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, Delete It!',
+                        reverseButtons: true
+                    });
+
+                    if (confirmed.isConfirmed) {
+                        try {
+                            // Frontend call to the single message delete endpoint: messages/<id>/
+                            const response = await apiFetch(`messages/${messageId}/`, { 
+                                method: 'DELETE'
+                            });
+
+                            if (response.status === 204) {
+                                showMessage('Message deleted successfully.', false);
+                                // After deletion, reload the entire inbox to update the message list
+                                fetchMessages(); 
+                                // Since fetchMessages will eventually call renderConversationList, 
+                                // which automatically selects the first message, we don't need to manually update the display.
+
+                            } else {
+                                throw new Error('Failed to delete message.');
+                            }
+                        } catch (error) {
+                            showMessage(error.message || 'An unknown error occurred during message deletion.', true);
+                            console.error(error);
+                        }
+                    }
+                };
+
+                const handleDeleteConversation = async (e) => {
+                    const otherUserId = e.currentTarget.dataset.userId;
+                    if (!otherUserId) return;
+
+                    // CRUCIAL: Get the base subject for the currently displayed conversation
+                    // We rely on the global 'currentConversation' state being correctly set 
+                    // when the conversation was initially loaded via displayConversation(conversationId).
+                    const baseSubject = currentConversation ? currentConversation.baseSubject : null;
+                    
+                    if (!baseSubject) {
+                        // This should ideally never happen if the conversation list is functional
+                        showMessage("Error: Cannot delete. Conversation subject is missing.", true);
+                        return;
+                    }
+
+                    const confirmed = await Swal.fire({
+                        title: 'Delete Conversation?',
+                        text: "This will permanently remove all messages in this selected thread for you. This action cannot be undone.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        cancelButtonColor: '#3085d6',
+                        confirmButtonText: 'Yes, Delete It!',
+                        reverseButtons: true
+                    });
+
+                    if (confirmed.isConfirmed) {
+                        try {
+                            // Frontend call to the conversation delete endpoint: messages/conversation/{user_id}/
+                            const response = await apiFetch(`messages/conversation/${otherUserId}/`, { 
+                                method: 'DELETE',
+                                // **This object is essential for selective deletion on the backend**
+                                body: JSON.stringify({ subject: baseSubject }) 
+                            });
+
+                            if (response.status === 204) {
+                                showMessage('Conversation thread deleted successfully.', false);
+                                
+                                // Reset the global state and reload the inbox list
+                                currentConversation = null; 
+                                conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Conversation deleted. Select another one.</div>';
+                                fetchMessages(); // Re-fetch and re-render the list
+                            } else if (response.status === 404) {
+                                showMessage('Error: Thread not found or already deleted.', true);
+                            } else {
+                                // Attempt to parse error details if available, otherwise use generic message
+                                const errorResult = await response.json().catch(() => ({}));
+                                const errorMsg = errorResult.error || 'Failed to delete conversation.';
+                                throw new Error(errorMsg);
+                            }
+                        } catch (error) {
+                            showMessage(`Error: ${error.message}` || 'An unknown server error occurred.', true);
+                            console.error('Deletion error:', error);
+                        }
+                    }
+                };
                 const renderConversationList = () => {
                     conversationListContainer.innerHTML = '';
 
@@ -350,7 +520,7 @@
                         filteredConversations = filteredConversations.filter(c => !c.isUnread);
                     }
 
-                    // 2. NEW: Filter by Search
+                    // 2. Filter by Search
                     if (currentSearch) {
                         filteredConversations = filteredConversations.filter(conv => 
                             (conv.otherUserName && conv.otherUserName.toLowerCase().includes(currentSearch)) ||
@@ -382,7 +552,7 @@
                         return;
                     }
 
-                    const currentSelectedId = document.querySelector('.email-list-item.selected')?.dataset.conversationId;
+                    const currentSelectedId = currentConversation ? currentConversation.id : null;
 
                     paginatedConversations.forEach((conv) => {
                         const convItem = document.createElement('div');
@@ -396,14 +566,28 @@
                         convItem.dataset.conversationId = conv.id;
                         const sentDate = new Date(conv.lastMessage.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                         
+                        // --- Avatar Logic ---
+                        let avatarHtml = '';
+                        const logoUrl = conv.lastMessage.sender_logo_url; 
+                        const senderInitial = conv.otherUserName.charAt(0).toUpperCase();
+
+                        if (logoUrl) {
+                            avatarHtml = `<div class="sender-avatar"><img src="${logoUrl}" alt="${conv.otherUserName}"></div>`;
+                        } else {
+                            avatarHtml = `<div class="sender-avatar">${senderInitial}</div>`;
+                        }
+                        // --- END: Avatar Logic ---
+                        
                         convItem.innerHTML = `
-                            <div class="email-short-preview position-relative">
-                                <div class="d-flex align-items-center justify-content-between">
-                                    <div class="sender-name fw-500">${conv.otherUserName}</div>
-                                    <div class="date">${sentDate}</div>
+                            <div class="email-short-preview position-relative d-flex align-items-center">
+                                ${avatarHtml}
+                                <div class="flex-grow-1" style="min-width: 0;"> <div class="d-flex align-items-center justify-content-between">
+                                        <div class="sender-name fw-500">${conv.otherUserName}</div>
+                                        <div class="date">${sentDate}</div>
+                                    </div>
+                                    <div class="mail-sub text-truncate">${conv.lastMessage.subject}</div>
+                                    <div class="mail-text text-truncate">${conv.lastMessage.body}</div>
                                 </div>
-                                <div class="mail-sub">${conv.lastMessage.subject}</div>
-                                <div class="mail-text">${conv.lastMessage.body.substring(0, 40)}...</div>
                             </div>`;
                         
                         convItem.addEventListener('click', () => {
@@ -462,12 +646,18 @@
                         
                         renderConversationList();
                         
-                        const firstConv = document.querySelector('.email-list-item');
-                        if (firstConv) {
-                            firstConv.click();
+                        // Attempt to re-select the current conversation or select the first one
+                        if (currentConversation && conversations[currentConversation.id]) {
+                            displayConversation(currentConversation.id);
                         } else {
-                            conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Your inbox is empty.</div>';
+                             const firstConv = document.querySelector('.email-list-item');
+                            if (firstConv) {
+                                firstConv.click();
+                            } else {
+                                conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Your inbox is empty.</div>';
+                            }
                         }
+                       
                     } catch (error) {
                         console.error(error);
                         conversationListContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load messages.</p>';
@@ -494,24 +684,16 @@
                 };
                 
                 // --- Event Listeners ---
-
-                // NEW: Search Listener
-                searchForm.addEventListener('submit', (e) => e.preventDefault()); // Prevent page reload on Enter
+                searchForm.addEventListener('submit', (e) => e.preventDefault());
                 searchInput.addEventListener('input', () => {
                     currentSearch = searchInput.value.toLowerCase();
                     currentPage = 1;
                     renderConversationList();
-                    
                     const firstConv = document.querySelector('.email-list-item');
-                    if (firstConv) {
-                        firstConv.click();
-                    } else {
-                        // Clear the display
-                        conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match your search.</div>';
-                    }
+                    if (firstConv) { firstConv.click(); } 
+                    else { conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match your search.</div>'; }
                 });
 
-                // Filter Buttons
                 document.querySelectorAll('.filter_btn').forEach(btn => {
                     btn.addEventListener('click', () => {
                         document.querySelector('.filter_btn.active').classList.remove('active');
@@ -519,29 +701,20 @@
                         currentFilter = btn.dataset.filter;
                         currentPage = 1;
                         renderConversationList();
-                        
                         const firstConv = document.querySelector('.email-list-item');
-                        if (firstConv) {
-                            firstConv.click();
-                        } else {
-                            conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match this filter.</div>';
-                        }
+                        if (firstConv) { firstConv.click(); } 
+                        else { conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">No messages match this filter.</div>'; }
                     });
                 });
 
-                // Pagination Buttons
                 prevPageBtn.addEventListener('click', () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        renderConversationList();
-                    }
+                    if (currentPage > 1) { currentPage--; renderConversationList(); }
                 });
 
                 nextPageBtn.addEventListener('click', () => {
                     const totalFiltered = Object.values(conversations).filter(c => 
-                        currentFilter === 'all' || 
-                        (currentFilter === 'read' && !c.isUnread) ||
-                        (currentFilter === 'unread' && c.isUnread)
+                        (currentFilter === 'all' || (currentFilter === 'read' && !c.isUnread) || (currentFilter === 'unread' && c.isUnread)) &&
+                        (!currentSearch || (c.otherUserName && c.otherUserName.toLowerCase().includes(currentSearch)) || (c.baseSubject && c.baseSubject.toLowerCase().includes(currentSearch)))
                     ).length;
                     
                     if (currentPage * MESSAGES_PER_PAGE < totalFiltered) {
@@ -564,5 +737,4 @@
         </script>
     </div>
 </body>
-
 </html>

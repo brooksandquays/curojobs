@@ -1,225 +1,369 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>CuroJobs - Employer Dashboard</title>
-    <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
-    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
-    <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
-    <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
-    
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>CuroJobs - Employer Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
+  <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
+  <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+  <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+      /* --- Sidebar User Data Alignment --- */
+      .dash-aside-navbar .user-data {
+          display: flex;         
+          flex-direction: column; 
+          align-items: center;   
+          text-align: center;    
+          margin-bottom: 20px;   
+          padding-top: 15px;      
+      }
+
+      .dash-aside-navbar .user-avatar {
+          width: 60px;          
+          height: 60px;
+          margin-bottom: 10px;   
+          overflow: hidden;       
+          border-radius: 50%;     
+      }
+      
+      /* Ensure image fills the circle */
+      .dash-aside-navbar .user-avatar img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover; 
+      }
+
+      .dash-aside-navbar .user-name-data {
+          margin-top: 0;         
+      }
+
+      .dash-aside-navbar .user-name {
+          font-size: 16px;       
+          font-weight: 500;
+          color: #333;          
+      }
+      /* --- END SIDEBAR CSS --- */
+      .job-item-list .job-title h6 a {
+          text-decoration: none;
+          color: #333;
+          transition: color 0.3s ease;
+      }
+      .job-item-list .job-title h6 a:hover {
+          color: #244034;
+      }
+      .job-item-list .meta {
+          color: #777;
+      }
+      .job-item-list .job-status span {
+          padding: 3px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+      }
+      .job-item-list .job-status .text-success {
+          background-color: rgba(40, 167, 69, 0.1);
+      }
+       .job-item-list .job-status .text-muted {
+          background-color: rgba(108, 117, 125, 0.1);
+      }
+  </style>
+   
 </head>
 
 <body>
-    <div class="main-page-wrapper">
-        <aside class="dash-aside-navbar">
-            <div class="position-relative">
-                <div class="logo text-md-center d-flex align-items-center justify-content-center">
-                    <a href="../../index.html">
-                        <img src="../../images/logo/logo_01.png" alt="" class="curo">
-                    </a>
-                </div>
-                <div class="user-data">
-                    <div class="user-avatar online position-relative rounded-circle"><img src="../../images/avatar_01.jpg" alt="" class="lazy-img"></div>
-                    <div class="user-name-data">
-                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
-                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
-                            <li><a class="dropdown-item d-flex align-items-center" href="employer-dashboard-profile.html"><img src="../../images/icon/icon_23.svg" alt="" class="lazy-img me-2"><span>Profile</span></a></li>
-                        </ul>
-                    </div>
-                </div>
-                <nav class="dasboard-main-nav">
-                    <ul class="style-none">
-                        <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_1_active.svg" alt="" class="lazy-img"><span>Dashboard</span></a></li>
-                        <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt="" class="lazy-img"><span>My Profile</span></a></li>
-                        <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt="" class="lazy-img"><span>My Jobs</span></a></li>
-                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt="" class="lazy-img"><span>Submit Job</span></a></li>
-                        <li><a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt="" class="lazy-img"><span>Messages</span></a></li>
-                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt="" class="lazy-img"><span>Logout</span></a></li>
-                    </ul>
-                </nav>
-            </div>
-        </aside>
+<div class="main-page-wrapper">
+  <aside class="dash-aside-navbar">
+    <div class="position-relative">
+      <div class="logo text-md-center d-flex align-items-center justify-content-between">
+        <a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a>
+         <button class="close-btn d-block d-md-none"><i class="bi bi-x-lg"></i></button> 
+      </div>
+      
+      <div class="user-data"> 
+          <div class="user-avatar online position-relative rounded-circle">
+              <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="Company Logo" class="lazy-img"> 
+          </div>
+          <div class="user-name-data">
+              <div class="user-name" id="profile-dropdown">Loading...</div> 
+          </div>
+      </div>
 
-        <div class="dashboard-body">
-            <div class="position-relative">
-                <header class="dashboard-header">
-                    <div class="d-flex align-items-center justify-content-end">
-                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
-                        <div><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div>
-                    </div>
-                </header>
-
-                <h2 class="main-title">Dashboard</h2>
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="dash-card-one bg-white border-30 position-relative mb-15">
-                            <div class="d-sm-flex align-items-center justify-content-between">
-                                <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1"><img src="../../images/icon/icon_12.svg" alt="" class="lazy-img"></div>
-                                <div class="order-sm-0">
-                                    <div class="value fw-500" id="posted-jobs-count">0</div>
-                                    <span>Posted Jobs</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row d-flex pt-50 lg-pt-10">
-                    <div class="col-xl-7 col-lg-6 d-flex flex-column">
-                        <div class="user-activity-chart bg-white border-20 mt-30 h-100">
-                            <h4 class="dash-title-two">Job Views (Last 7 Days)</h4>
-                            <div class="chart-container" style="position: relative; height:250px; width:100%">
-                                <canvas id="jobViewsChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-5 col-lg-6 d-flex">
-                        <div class="recent-job-tab bg-white border-20 mt-30 w-100">
-                            <h4 class="dash-title-two">My Posted Jobs</h4>
-                            <div id="posted-jobs-container" class="wrapper">
-                                </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <script src="../../vendor/jwt-decode.js"></script>
-        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-        
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const accessToken = localStorage.getItem('accessToken');
-                if (!accessToken) { window.location.href = '../../login.html'; return; }
-                try {
-                    const decodedToken = jwt_decode(accessToken);
-                    if (decodedToken.user_type !== 'company') { window.location.href = '../../index.html'; return; }
-                } catch (e) {
-                    localStorage.clear();
-                    window.location.href = '../../login.html';
-                    return;
-                }
-
-                const profileNameEl = document.getElementById('profile-dropdown');
-                const postedJobsContainer = document.getElementById('posted-jobs-container');
-                const postedJobsCountEl = document.getElementById('posted-jobs-count');
-                const logoutBtn = document.getElementById('logout-btn');
-                const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
-
-                const apiFetch = async (endpoint, options = {}) => {
-                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
-                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
-                    if(response.status === 401) { localStorage.clear(); window.location.href = '../../login.html'; }
-                    return response;
-                };
-
-                const fetchProfile = async () => {
-                    try {
-                        const response = await apiFetch('accounts/profile/company/');
-                        if (!response.ok) throw new Error('Failed to fetch profile');
-                        const profile = await response.json();
-                        profileNameEl.textContent = profile.name || 'Employer';
-                    } catch (error) {
-                        console.error('Error fetching profile:', error);
-                        profileNameEl.textContent = 'Employer';
-                    }
-                };
-                
-                // RESTORED: This function now uses your original item list design
-                const fetchPostedJobs = async () => {
-                    postedJobsContainer.innerHTML = '<p class="text-center mt-3">Loading your jobs...</p>';
-                    try {
-                        const response = await apiFetch('jobs/my/');
-                        if (!response.ok) throw new Error('Failed to fetch jobs');
-                        
-                        const jobs = await response.json();
-                        postedJobsCountEl.textContent = jobs.length;
-                        postedJobsContainer.innerHTML = '';
-                        
-                        if (jobs.length === 0) {
-                            postedJobsContainer.innerHTML = '<div class="text-center mt-4"><p>You have not posted any jobs yet.</p><a href="employer-dashboard-submit-job.html" class="btn-nine">Post a Job</a></div>';
-                            return;
-                        }
-                        
-                        jobs.slice(0, 5).forEach(job => { // Display up to 5 jobs
-                            const jobItem = document.createElement('div');
-                            jobItem.className = 'job-item-list d-flex align-items-center';
-                            jobItem.innerHTML = `
-                                <div class="job-title flex-grow-1">
-                                    <h6 class="mb-5"><a href="employer-dashboard-applicants.html?jobId=${job.id}">${job.title}</a></h6>
-                                    <div class="meta"><span>${job.job_type || 'N/A'}</span> . <span>${job.location || 'N/A'}</span></div>
-                                </div>
-                                <div class="job-action">
-                                    <button class="action-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><span></span></button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="employer-dashboard-applicants.html?jobId=${job.id}">View Applicants</a></li>
-                                        <li><a class="dropdown-item" href="employer-dashboard-submit-job.html?edit=true&jobId=${job.id}">Edit</a></li>
-                                        <li><a class="dropdown-item delete-job-btn" data-job-id="${job.id}" href="#">Delete</a></li>
-                                    </ul>
-                                </div>
-                            `;
-                            postedJobsContainer.appendChild(jobItem);
-                        });
-                    } catch (error) {
-                        console.error('Error fetching jobs:', error);
-                        postedJobsContainer.innerHTML = '<p class="text-center text-danger mt-3">Could not load your jobs. Please try again.</p>';
-                    }
-                };
-
-                const fetchAndRenderChart = async () => {
-                    try {
-                        const response = await apiFetch('jobs/views-chart/');
-                        if (!response.ok) throw new Error('Failed to fetch chart data');
-                        const chartData = await response.json();
-
-                        const ctx = document.getElementById('jobViewsChart').getContext('2d');
-                        new Chart(ctx, {
-                            type: 'line',
-                            data: {
-                                labels: chartData.labels,
-                                datasets: [{
-                                    label: 'Job Views',
-                                    data: chartData.data,
-                                    backgroundColor: 'rgba(36, 64, 52, 0.1)',
-                                    borderColor: '#244034',
-                                    borderWidth: 2,
-                                    tension: 0.3,
-                                    pointBackgroundColor: '#244034',
-                                    pointRadius: 5,
-                                    fill: true,
-                                }]
-                            },
-                            options: {
-                                maintainAspectRatio: false,
-                                plugins: { legend: { display: false } },
-                                scales: { y: { beginAtZero: true } }
-                            }
-                        });
-                    } catch (error) {
-                        console.error("Error fetching chart data:", error);
-                        document.querySelector('.user-activity-chart').innerHTML = '<p class="text-center text-danger p-5">Could not load chart data.</p>';
-                    }
-                };
-
-                // Note: The delete button logic is not included here as it requires a modal
-                // that was in your employer-dashboard-jobs.html file, not this one.
-                // You can add it back if needed.
-
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    localStorage.clear();
-                    window.location.href = '../../index.html';
-                });
-                
-                // --- Initial Page Load ---
-                fetchProfile();
-                fetchPostedJobs();
-                fetchAndRenderChart();
-            });
-        </script>
+      <nav class="dasboard-main-nav">
+        <ul class="style-none">
+          <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_1_active.svg" alt=""><span>Dashboard</span></a></li>
+          <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
+          <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>My Jobs</span></a></li>
+          <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39 copy.svg" alt=""><span>Submit Job</span></a></li>
+           <li id="messages-nav-item" style="position: relative;">
+               <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center">
+                   <img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span>
+               </a>
+               <span class="notification-badge" style="position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none;"></span>
+           </li>
+          <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
+          <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
+          <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+        </ul>
+      </nav>
     </div>
+  </aside>
+
+  <div class="dashboard-body">
+    <div class="position-relative">
+      <header class="dashboard-header">
+        <div class="d-flex align-items-center justify-content-end">
+          <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
+          <div><a href="employer-dashboard-submit-job.html" class="job-post-btn tran3s">Post a Job</a></div>
+        </div>
+      </header>
+
+      <h2 class="main-title">Dashboard</h2>
+
+      <div class="row">
+        <div class="col-lg-4 col-6">
+          <div class="dash-card-one bg-white border-30 position-relative mb-15">
+            <div class="d-sm-flex align-items-center justify-content-between">
+              <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1">
+                <img src="../../images/icon/icon_12.svg" alt="" class="lazy-img">
+              </div>
+              <div class="order-sm-0">
+                <div class="value fw-500" id="posted-jobs-count">0</div>
+                <span>Posted Jobs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-6">
+          <div class="dash-card-one bg-white border-30 position-relative mb-15">
+            <div class="d-sm-flex align-items-center justify-content-between">
+              <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1">
+                <img src="../../images/icon/icon_13.svg" alt="" class="lazy-img">
+              </div>
+              <div class="order-sm-0">
+                <div class="value fw-500" id="active-jobs-count">0</div>
+                <span>Active Jobs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-4 col-6">
+          <div class="dash-card-one bg-white border-30 position-relative mb-15">
+            <div class="d-sm-flex align-items-center justify-content-between">
+              <div class="icon rounded-circle d-flex align-items-center justify-content-center order-sm-1">
+                <img src="../../images/icon/icon_14.svg" alt="" class="lazy-img">
+              </div>
+              <div class="order-sm-0">
+                <div class="value fw-500" id="closed-jobs-count">0</div>
+                <span>Closed / Expired Jobs</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row pt-40">
+        <div class="col-lg-12">
+          <div class="recent-job-tab bg-white border-20 mt-30 w-100">
+            <h4 class="dash-title-two">Recent Posted Jobs</h4>
+            <div id="posted-jobs-container" class="wrapper p-3 text-center">Loading jobs...</div>
+             <div class="text-end mt-10 pe-3 pb-2"> 
+                 <a href="employer-dashboard-jobs.html" class="fw-500">View All Jobs</a>
+             </div>
+          </div>
+        </div>
+      </div>
+      
+       <!-- <div class="row pt-40">
+           <div class="col-lg-6 d-flex">
+               <div class="recent-job-tab bg-white border-20 mt-30 w-100">
+                   <h4 class="dash-title-two">Activity Feed (Placeholder)</h4>
+                   <div class="wrapper p-3 text-center text-muted">Future widget area.</div>
+               </div>
+           </div>
+           <div class="col-lg-6 d-flex">
+                <div class="recent-job-tab bg-white border-20 mt-30 w-100">
+                   <h4 class="dash-title-two">Quick Stats (Placeholder)</h4>
+                   <div class="wrapper p-3 text-center text-muted">Future widget area.</div>
+               </div>
+           </div>
+       </div> -->
+       
+    </div>
+  </div>
+
+        <script src="../../vendor/jquery.min.js"></script>
+        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
+        <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
+        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../js/theme.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) { window.location.href='../../login.html'; return; }
+
+    let currentUser;
+    try {
+        currentUser = jwt_decode(token);
+        if (!currentUser || currentUser.user_type !== 'company') {
+            localStorage.clear(); 
+            window.location.href = '../../login.html';
+            return;
+        }
+    } catch (e) {
+        localStorage.clear();
+        window.location.href = '../../login.html';
+        return;
+    }
+
+    // --- Elements ---
+    const logoPreview = document.getElementById('company-logo-preview'); // Sidebar Logo
+    const profileNameEl = document.getElementById('profile-dropdown'); // Sidebar Name
+    const logoutBtn = document.getElementById('logout-btn');
+    const postedJobsContainer = document.getElementById('posted-jobs-container');
+    const postedJobsCountEl = document.getElementById('posted-jobs-count');
+    const activeJobsCountEl = document.getElementById('active-jobs-count');
+    const closedJobsCountEl = document.getElementById('closed-jobs-count');
+
+    // --- API Base URL ---
+    const API_BASE_URL = 'http://127.0.0.1:8000/api/v1/';
+
+    // --- API Fetch Utility ---
+    const apiFetch = async (endpoint, options = {}) => {
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+        options.method = options.method || 'GET'; 
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+            if (response.status === 401) { 
+                localStorage.clear(); 
+                window.location.href='../../login.html'; 
+                throw new Error('Unauthorized'); 
+            }
+            if (!response.ok) {
+                 const errorText = await response.text(); 
+                 throw new Error(`API Error (${response.status}): ${errorText}`);
+            }
+            if (response.status === 204) return null; 
+            return await response.json(); 
+        } catch(error) {
+            console.error(`API Fetch Error for ${endpoint}:`, error);
+             if (error.message === 'Unauthorized') throw error; 
+             throw error; 
+        }
+    };
+
+    // --- Load Sidebar Profile Info ---
+    const loadSidebarProfile = async () => {
+        // 1. Update Logo Immediately from localStorage (Fixes logo on all pages)
+        const savedLogo = localStorage.getItem('companyLogo');
+        if (logoPreview && savedLogo) {
+            logoPreview.src = savedLogo;
+        } else if (logoPreview) {
+            logoPreview.src = '../../images/placeholder.jpeg'; 
+        }
+
+        // 2. Fetch Profile Name 
+        try {
+            const profile = await apiFetch('accounts/profile/company/');
+            if (profile && profileNameEl) {
+                profileNameEl.textContent = profile.name || 'Employer';
+                // Note: The logo update is handled better by loadProfileData on the profile page.
+                // We keep it simple here and trust localStorage.
+            } else if (profileNameEl) {
+                 profileNameEl.textContent = 'Employer'; 
+            }
+        } catch (error) {
+             console.error("Could not fetch sidebar profile name.");
+             if (profileNameEl) profileNameEl.textContent = 'Employer'; 
+        }
+    };
+
+
+    // --- Load Dashboard Data (Jobs) ---
+    const loadDashboardData = async () => {
+        try {
+          const jobs = await apiFetch('jobs/my/'); 
+          
+          if (!Array.isArray(jobs)) {
+             throw new Error("Invalid response format for jobs."); 
+          }
+
+          if (jobs.length === 0) {
+            postedJobsContainer.innerHTML = '<p class="text-center mt-3 text-muted">No jobs posted yet.</p>';
+            postedJobsCountEl.textContent = 0;
+            activeJobsCountEl.textContent = 0;
+            closedJobsCountEl.textContent = 0;
+            return;
+          }
+
+          const postedCount = jobs.length;
+          const activeCount = jobs.filter(j => j.status === 'active' || (j.is_active !== undefined ? j.is_active : true)).length; 
+          const closedCount = postedCount - activeCount;
+
+          postedJobsCountEl.textContent = postedCount;
+          activeJobsCountEl.textContent = activeCount;
+          closedJobsCountEl.textContent = closedCount;
+
+          postedJobsContainer.innerHTML = ''; 
+          
+          const recentJobs = jobs.sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+          
+          recentJobs.forEach(j => {
+            const title = j.title || 'Untitled Job';
+            const jobType = j.job_type || 'N/A';
+            const location = j.location || `${j.city || ''}${j.city && j.state ? ', ' : ''}${j.state || ''}` || 'N/A'; 
+            const isActive = j.status === 'active' || (j.is_active !== undefined ? j.is_active : true);
+            const statusClass = isActive ? 'text-success' : 'text-muted';
+            const statusText = isActive ? 'Active' : (j.status || 'Closed');
+            
+            // --- THIS IS THE CHANGE ---
+            const previewLink = `../../job-details.html?id=${j.id}`; 
+            // --- END CHANGE ---
+            
+            postedJobsContainer.insertAdjacentHTML('beforeend', `
+              <div class="job-item-list d-flex align-items-center border-bottom py-3 px-3">
+                <div class="job-title flex-grow-1 text-start pe-3">
+                  
+                  <h6 class="mb-1"><a href="${previewLink}" target="_blank">${title}</a></h6>
+                  <div class="meta small text-muted">
+                    <span>${jobType}</span> · <span>${location}</span>
+                  </div>
+                </div>
+                 <div class="job-status text-end" style="min-width: 80px;"> 
+                    <span class="fw-500 ${statusClass}">${statusText}</span>
+                 </div>
+              </div>
+            `);
+          });
+
+        } catch (error) {
+           console.error("Failed to load dashboard jobs:", error);
+           postedJobsContainer.innerHTML = `<p class="text-danger mt-3 p-3">Failed to load recent jobs. Please refresh the page.</p>`;
+           postedJobsCountEl.textContent = '-';
+           activeJobsCountEl.textContent = '-';
+           closedJobsCountEl.textContent = '-';
+        }
+    };
+
+    // --- Logout ---
+    if(logoutBtn) {
+        logoutBtn.addEventListener('click', e => {
+          e.preventDefault();
+          localStorage.clear();
+          window.location.href='../../index.html';
+        });
+    }
+
+    // --- Initial Load ---
+    loadSidebarProfile(); 
+    loadDashboardData(); 
+
+  });
+  </script>
+</div>
 </body>
 </html>

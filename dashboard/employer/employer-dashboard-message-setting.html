@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CuroJobs - Message Settings</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Consistent button styles */
+        .action-btns .btn { font-size: 14px; padding: 5px 10px;}
+        .table th, .table td { vertical-align: middle; }
+    </style>
+            <style>
+        /* --- Sidebar User Data Alignment --- */
+        .dash-aside-navbar .user-data {
+            display: flex;         /* Use flexbox for alignment */
+            flex-direction: column; /* Stack items vertically */
+            align-items: center;   /* Center items horizontally */
+            text-align: center;    /* Center the text within the name container */
+            margin-bottom: 20px;   /* Add some space below the name */
+            padding-top: 15px;      /* Add some top padding */
+        }
+
+        .dash-aside-navbar .user-avatar {
+            width: 60px;          /* Set a specific size for the logo container */
+            height: 60px;
+            margin-bottom: 10px;   /* Add space between logo and name */
+        }
+        
+        /* Ensure image fills the circle */
+        .dash-aside-navbar .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dash-aside-navbar .user-name-data {
+            margin-top: 0;         /* Remove default top margin if any */
+        }
+
+        .dash-aside-navbar .user-name {
+            font-size: 16px;       /* Adjust font size as needed */
+            font-weight: 500;
+            color: #333;          /* Adjust text color if needed */
+        }
+        
+        /* Ensure placeholder fits */
+         #company-logo-preview {
+             width: 100%; 
+             height: 100%; 
+             object-fit: cover;
+         }
+    </style>
+</head>
+
+<body>
+    <div class="main-page-wrapper">
+        <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
+                 <div class="txt-loading">
+                     <span data-text-preloader="C" class="letters-loading">C</span>
+                     <span data-text-preloader="U" class="letters-loading">U</span>
+                     <span data-text-preloader="R" class="letters-loading">R</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="J" class="letters-loading">J</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="B" class="letters-loading">B</span>
+                     <span data-text-preloader="S" class="letters-loading">S</span>
+                 </div>
+            </div>
+       </div>
+
+        <aside class="dash-aside-navbar">
+            <div class="position-relative">
+                <div class="logo text-md-center d-flex align-items-center justify-content-between">
+                    <a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a>
+                    <button class="close-btn d-block d-md-none"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="user-data">
+                    <div class="user-avatar online position-relative rounded-circle">
+                         <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="" class="lazy-img">
+                    </div>
+                    <div class="user-name-data">
+                        <div class="user-name" id="profile-dropdown">Loading...</div>
+                    </div>
+                </div>
+                <nav class="dasboard-main-nav">
+                    <ul class="style-none">
+                        <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
+                        <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
+                        <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>My Jobs</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39 copy.svg" alt=""><span>Submit Job</span></a></li>
+                        <li><a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span></a></li>
+                        <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_7_active.svg" alt=""><span>Msg Settings</span></a></li>
+                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <div class="dashboard-body">
+            <div class="position-relative">
+                <header class="dashboard-header">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
+                    </div>
+                </header>
+                <h2 class="main-title">Message Settings</h2>
+                <p class="mb-40 lg-mb-30">Create and manage custom message templates for different stages of the application process.</p>
+                <div id="message-container" class="alert" style="display: none;"></div>
+
+                <div class="d-flex justify-content-end mb-3">
+                    <button class="dash-btn-two tran3s" data-bs-toggle="modal" data-bs-target="#templateModal" id="add-template-btn">
+                        <i class="bi bi-plus"></i> Add New Template
+                    </button>
+                </div>
+
+                <div class="bg-white card-box border-20">
+                    <h4 class="dash-title-three">My Templates</h4>
+                    <div class="table-responsive">
+                        <table class="table message-template-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Subject</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="template-table-body">
+                                <tr><td colspan="4" class="text-center p-5">Loading templates...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="templateModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="templateModalLabel">Add New Template</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="modal-message-container" class="alert" style="display: none;"></div>
+                        <form id="template-form">
+                            <input type="hidden" id="template-id" name="templateId"> <div class="row">
+                                <div class="col-md-6">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="template-name">Template Name*</label>
+                                        <input type="text" id="template-name" name="name" required placeholder="e.g., Initial Rejection">
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="template-type">Template Type*</label>
+                                        <select id="template-type" name="template_type" class="form-select" required>
+                                            <option value="Acknowledgement">Acknowledgement (Auto)</option>
+                                            <option value="Shortlisted">Shortlisted Stage</option>
+                                            <option value="Interview">Interview Stage</option>
+                                            <option value="Rejection">Rejection</option>
+                                            <option value="Offer">Offer Letter</option>
+                                            <option value="Other" selected>Other (Manual Use)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="template-subject">Subject*</label>
+                                        <input type="text" id="template-subject" name="subject" required placeholder="e.g., Update on your application for {job_title}">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="template-body">Body*</label>
+                                        <textarea id="template-body" name="body" class="form-control" rows="8" required placeholder="Use placeholders: {applicant_name}, {job_title}, {company_name}"></textarea>
+                                        <div class="form-text small">Placeholders will be replaced automatically when sending.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="dash-cancel-btn tran3s" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="dash-btn-two tran3s" id="save-template-btn">Save Template</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <button class="scroll-top">
+        <i class="bi bi-arrow-up-short"></i>
+    </button>
+
+        <script src="../../vendor/jquery.min.js"></script>
+        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
+        <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
+        <script src="../../vendor/jwt-decode.js"></script>
+        <script src="../../js/theme.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) { window.location.href = '../../login.html'; return; }
+            let currentUser;
+            try {
+                currentUser = jwt_decode(accessToken);
+                if (currentUser.user_type !== 'company') { window.location.href = '../../login.html'; return; }
+            } catch (e) { localStorage.clear(); window.location.href = '../../login.html'; return; }
+
+            // --- Elements ---
+            const profileNameEl = document.getElementById('profile-dropdown');
+            const logoPreview = document.getElementById('company-logo-preview');
+            const logoutBtn = document.getElementById('logout-btn');
+            const messageContainer = document.getElementById('message-container');
+            const templateTableBody = document.getElementById('template-table-body');
+            const addTemplateBtn = document.getElementById('add-template-btn');
+            const templateModalEl = document.getElementById('templateModal');
+            const templateModal = new bootstrap.Modal(templateModalEl);
+            const templateModalLabel = document.getElementById('templateModalLabel');
+            const templateForm = document.getElementById('template-form');
+            const saveTemplateBtn = document.getElementById('save-template-btn');
+            const modalMessageContainer = document.getElementById('modal-message-container');
+            const templateIdInput = document.getElementById('template-id');
+            
+            // This will store the profile data for other uses if needed
+            let companyProfileData = {}; 
+
+            // --- API Endpoints ---
+            const BASE_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/';
+            const TEMPLATES_API_URL = `${BASE_API_URL}company-message-templates/`;
+
+            // --- Helper Functions ---
+            const apiFetch = async (endpoint, options = {}) => {
+                 const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                 try {
+                     // NOTE: We now use the BASE_API_URL in the fetch call, so the endpoint here should be relative.
+                     const response = await fetch(`${BASE_API_URL}${endpoint}`, { ...options, headers });
+                     if (response.status === 401) { localStorage.clear(); window.location.href = '../../login.html'; throw new Error('Unauthorized'); }
+                     return response;
+                 } catch(error) { /* ... error handling ... */ throw error; }
+            };
+
+            const showMessage = (msg, isError = false, container = messageContainer) => {
+                 container.textContent = msg;
+                 container.className = `alert ${isError ? 'alert-danger' : 'alert-success'} mb-3`;
+                 container.style.display = 'block';
+                 setTimeout(() => { container.style.display = 'none'; }, 4000);
+            };
+
+            // --- Profile Loading for Sidebar ---
+            const fetchProfile = async () => {
+                const profileNameEl = document.getElementById('profile-dropdown');
+                
+                try {
+                    // Corrected endpoint from previous step: 'profile/company/'
+                    const response = await apiFetch('profile/company/'); 
+                    if (!response.ok) {
+                        // Throwing an error here will lead to the 'Error' text
+                        throw new Error('Failed to fetch profile'); 
+                    }
+                    const profileData = await response.json();
+                    companyProfileData = profileData; // Store the data
+                    
+                    // Use 'name' from the profile data, or default to 'Employer'
+                    const companyName = profileData.name || profileData.company_name; // Use 'name' or 'company_name'
+                    
+                    if (companyName) {
+                        profileNameEl.textContent = companyName; // Display the actual name
+                    } else {
+                        // If companyName is null/empty, we default to 'Employer' instead of N/A
+                        profileNameEl.textContent = 'Employer'; 
+                    }
+                    
+                    // Update the logo preview, matching your message dashboard logic
+                    const logoUrl = profileData.logo || '../../images/placeholder.jpeg';
+                    if(logoPreview) logoPreview.src = logoUrl;
+                    localStorage.setItem('companyLogo', logoUrl);
+
+                } catch (error) {
+                    console.error('Error fetching company profile:', error);
+                    // On failure, default to a generic name
+                    profileNameEl.textContent = 'Employer'; 
+                }
+            };
+            
+            // Check localStorage for logo before API call
+            const savedLogo = localStorage.getItem('companyLogo');
+            if (savedLogo && logoPreview) logoPreview.src = savedLogo;
+
+
+            // --- Template CRUD ---
+
+            const renderTemplates = (templates) => {
+                // ... (rest of renderTemplates is unchanged)
+                templateTableBody.innerHTML = '';
+                if (!templates || templates.length === 0) {
+                    templateTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-4">You have not created any message templates yet.</td></tr>';
+                    return;
+                }
+
+                templates.forEach(template => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${template.name}</td>
+                        <td>${template.template_type}</td>
+                        <td>${template.subject}</td>
+                        <td>
+                            <div class="action-btns d-flex">
+                                <button class="btn btn-sm btn-outline-secondary me-2 edit-btn" data-id="${template.id}" title="Edit Template"><i class="bi bi-pencil-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${template.id}" title="Delete Template"><i class="bi bi-trash3"></i></button>
+                            </div>
+                        </td>
+                    `;
+                    templateTableBody.appendChild(row);
+                });
+
+                // Attach event listeners for edit/delete
+                document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', handleEditClick));
+                document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', handleDeleteClick));
+            };
+
+            const fetchTemplates = async () => {
+                // ... (rest of fetchTemplates is unchanged)
+                templateTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-5">Loading templates...</td></tr>';
+                try {
+                    const response = await apiFetch('company-message-templates/');
+                    if (!response.ok) throw new Error('Could not fetch templates');
+                    const templates = await response.json();
+                    renderTemplates(templates);
+                } catch (error) {
+                    templateTableBody.innerHTML = `<tr><td colspan="4" class="text-center text-danger p-4">Error loading templates: ${error.message}</td></tr>`;
+                }
+            };
+
+            const openTemplateModal = (template = null) => {
+                // ... (rest of template functions are unchanged)
+                templateForm.reset(); // Clear previous data
+                modalMessageContainer.style.display = 'none'; // Hide old messages
+                if (template) {
+                    // Edit mode
+                    templateModalLabel.textContent = 'Edit Template';
+                    templateIdInput.value = template.id;
+                    document.getElementById('template-name').value = template.name;
+                    document.getElementById('template-type').value = template.template_type;
+                    document.getElementById('template-subject').value = template.subject;
+                    document.getElementById('template-body').value = template.body;
+                } else {
+                    // Add mode
+                    templateModalLabel.textContent = 'Add New Template';
+                    templateIdInput.value = ''; // Clear ID
+                }
+                templateModal.show();
+            };
+
+            const handleEditClick = async (event) => {
+                const templateId = event.currentTarget.dataset.id;
+                try {
+                     const response = await apiFetch(`company-message-templates/${templateId}/`);
+                     if(!response.ok) throw new Error('Could not fetch template details');
+                     const templateData = await response.json();
+                     openTemplateModal(templateData);
+                } catch(error) {
+                    showMessage(`Error fetching template: ${error.message}`, true);
+                }
+            };
+
+            const handleDeleteClick = async (event) => {
+                 const templateId = event.currentTarget.dataset.id;
+                 const templateName = event.currentTarget.closest('tr').querySelector('td:first-child').textContent; // Get name for confirmation
+
+                 const result = await Swal.fire({
+                    title: 'Delete Template?',
+                    text: `Are you sure you want to delete the template "${templateName}"? This cannot be undone.`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!'
+                 });
+
+                 if (result.isConfirmed) {
+                    try {
+                        const response = await apiFetch(`company-message-templates/${templateId}/`, { method: 'DELETE' });
+                        if (response.status !== 204) throw new Error(`Failed to delete template (${response.status})`);
+                        showMessage('Template deleted successfully.', false);
+                        fetchTemplates(); // Refresh list
+                    } catch (error) {
+                        showMessage(`Error deleting template: ${error.message}`, true);
+                    }
+                 }
+            };
+
+            const handleSaveTemplate = async () => {
+                if (!templateForm.checkValidity()) {
+                    templateForm.reportValidity();
+                    showMessage('Please fill in all required fields.', true, modalMessageContainer);
+                    return;
+                }
+
+                saveTemplateBtn.disabled = true;
+                saveTemplateBtn.textContent = 'Saving...';
+
+                const formData = new FormData(templateForm);
+                const data = Object.fromEntries(formData.entries());
+                const templateId = data.templateId; // Get ID from hidden input
+                delete data.templateId; // Remove ID from data payload
+
+                const method = templateId ? 'PUT' : 'POST'; // PUT for update, POST for create
+                const url = templateId ? `company-message-templates/${templateId}/` : 'company-message-templates/';
+
+                try {
+                    const response = await apiFetch(url, {
+                        method: method,
+                        body: JSON.stringify(data)
+                    });
+
+                    if (!response.ok) {
+                        const result = await response.json();
+                        let errorMsg = `Error saving template:<br>`;
+                        for (const key in result) {
+                             if(Array.isArray(result[key])) errorMsg += `&bull; ${key}: ${result[key].join(', ')}<br>`;
+                             else errorMsg += `&bull; ${key}: ${result[key]}<br>`;
+                         }
+                        throw new Error(errorMsg);
+                    }
+
+                    showMessage(`Template ${templateId ? 'updated' : 'added'} successfully!`, false); // Show message on main page
+                    templateModal.hide();
+                    fetchTemplates(); // Refresh the list
+
+                } catch (error) {
+                    showMessage(error.message, true, modalMessageContainer); // Show error in modal
+                } finally {
+                    saveTemplateBtn.disabled = false;
+                    saveTemplateBtn.textContent = 'Save Template';
+                }
+            };
+
+            // --- Event Listeners ---
+            addTemplateBtn.addEventListener('click', () => openTemplateModal());
+            saveTemplateBtn.addEventListener('click', handleSaveTemplate);
+
+            logoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                localStorage.clear();
+                window.location.href = '../../index.html';
+            });
+
+            // --- Initial Load ---
+            fetchProfile();
+            fetchTemplates();
+
+        });
+    </script>
+</body>
+</html>

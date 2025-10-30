@@ -18,6 +18,8 @@
     <link rel="stylesheet" type="text/css" href="css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="css/responsive.css" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
@@ -72,8 +74,7 @@
                 </div>
             </div>
         </header>
-
-
+        
         <div class="inner-banner-one position-relative">
             <div class="container">
                 <div class="position-relative">
@@ -166,9 +167,9 @@
                                     <a class="filter-title fw-500 text-dark" data-bs-toggle="collapse" href="#collapseSalary" role="button" aria-expanded="true">Salary Range (Annual)</a>
                                     <div class="collapse show" id="collapseSalary">
                                         <ul class="style-none filter-input">
-                                            <li><input type="radio" name="salary_range" value="0-50k"><label>$0 - $50,000</label></li>
-                                            <li><input type="radio" name="salary_range" value="50-100k"><label>$50,000 - $100,000</label></li>
-                                            <li><input type="radio" name="salary_range" value="100k+"><label>$100,000 +</label></li>
+                                            <li><input type="checkbox" name="salary_range" value="0-50k"><label>$0 - $50,000</label></li>
+                                            <li><input type="checkbox" name="salary_range" value="50-100k"><label>$50,000 - $100,000</label></li>
+                                            <li><input type="checkbox" name="salary_range" value="100k+"><label>$100,000 +</label></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -346,7 +347,7 @@
         <script src="js/theme.js"></script>
 
         <script>
-            // Hardcoded US States list (based on previous discussion)
+            // Hardcoded US States list
             const US_STATES = [
                 { name: 'Alabama', abbr: 'AL' }, { name: 'Alaska', abbr: 'AK' }, { name: 'Arizona', abbr: 'AZ' },
                 { name: 'Arkansas', abbr: 'AR' }, { name: 'California', abbr: 'CA' }, { name: 'Colorado', abbr: 'CO' },
@@ -369,7 +370,7 @@
 
             // --- API Endpoints ---
             const JOBS_API_URL = 'http://127.0.0.1:8000/api/v1/jobs/';
-            const LOCATION_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/locations/cities/'; // Your Django location endpoint
+            const LOCATION_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/locations/cities/';
 
             document.addEventListener('DOMContentLoaded', () => {
                 const authLinksContainer = document.getElementById('auth-links');
@@ -383,9 +384,31 @@
                 const filterCitySelect = document.getElementById('filter-city');
                 
                 let allJobs = []; // Cache for all jobs
+                let savedJobIds = new Set(); // NEW: Cache for user's saved job IDs
+
+                // --- NEW: API Fetch Wrapper ---
+                // This function handles adding the token if it exists
+                const apiFetch = async (endpoint, options = {}) => {
+                    const accessToken = localStorage.getItem('accessToken');
+                    const headers = { 'Content-Type': 'application/json', ...options.headers };
+                    
+                    if (accessToken) {
+                        headers['Authorization'] = `Bearer ${accessToken}`;
+                    }
+
+                    const response = await fetch(endpoint, { ...options, headers });
+
+                    if (response.status === 401 && accessToken) {
+                        // Token exists but is invalid/expired
+                        localStorage.clear();
+                        window.location.href = `login.html?next=${window.location.pathname}${window.location.search}`;
+                    }
+                    return response;
+                };
 
                 // --- UTILITY: Authentication ---
                 const setupAuthLinks = () => {
+                    // (This function is unchanged)
                     const accessToken = localStorage.getItem('accessToken');
                     if (!authLinksContainer) return;
 
@@ -414,26 +437,24 @@
                 
                 // --- UTILITY: Location Logic ---
                 const populateStates = () => {
+                    // (This function is unchanged)
                     US_STATES.forEach(state => {
                         const option = document.createElement('option');
                         option.value = state.abbr;
                         option.textContent = state.name;
                         filterStateSelect.appendChild(option);
                     });
-                    // Re-initialize nice-select after populating
                     $(filterStateSelect).niceSelect('update');
                 };
 
                 const fetchCities = async (stateCode) => {
+                    // (This function is unchanged)
                     if (!stateCode) return;
-                    
                     filterCitySelect.innerHTML = '<option value="">Loading Cities...</option>';
                     $(filterCitySelect).niceSelect('update');
-
                     try {
                         const response = await fetch(`${LOCATION_API_URL}?state_code=${stateCode}`);
                         const data = await response.json();
-                        
                         filterCitySelect.innerHTML = '<option value="">Select City</option>';
                         data.forEach(city => {
                             const option = document.createElement('option');
@@ -442,18 +463,18 @@
                             filterCitySelect.appendChild(option);
                         });
                         filterCitySelect.disabled = false;
-
                     } catch (error) {
                         filterCitySelect.innerHTML = '<option value="">Error Loading Cities</option>';
                         filterCitySelect.disabled = true;
                         console.error('Error fetching cities:', error);
                     } finally {
                         $(filterCitySelect).niceSelect('update');
-                        filterAndSortJobs(); // Trigger filter after city list is ready
+                        filterAndSortJobs();
                     }
                 };
 
                 filterStateSelect.addEventListener('change', (e) => {
+                    // (This function is unchanged)
                     const stateCode = e.target.value;
                     if (stateCode) {
                         fetchCities(stateCode);
@@ -461,9 +482,66 @@
                         filterCitySelect.innerHTML = '<option value="">Select City</option>';
                         filterCitySelect.disabled = true;
                         $(filterCitySelect).niceSelect('update');
-                        filterAndSortJobs(); // Trigger filter if state is cleared
+                        filterAndSortJobs();
                     }
                 });
+
+                // --- NEW: HANDLER for Save Job Button ---
+                const handleSaveJob = async (e) => {
+                    const button = e.currentTarget;
+                    const jobId = button.dataset.jobId;
+                    if (!jobId) return;
+
+                    // 1. Check for login *before* making API call
+                    const accessToken = localStorage.getItem('accessToken');
+                    if (!accessToken) {
+                        Swal.fire({
+                            title: 'Please Login',
+                            text: 'You must be logged in to save a job.',
+                            icon: 'info',
+                            showCancelButton: true,
+                            confirmButtonText: 'Login',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                // Redirect to login, and tell it to come back here
+                                window.location.href = `login.html?next=${window.location.pathname}${window.location.search}`;
+                            }
+                        });
+                        return; // Stop
+                    }
+
+                    // 2. User is logged in, attempt to save
+                    try {
+                        // This calls your 'save toggle' endpoint
+                        const response = await apiFetch(`${JOBS_API_URL}${jobId}/save/`, {
+                            method: 'POST',
+                            body: JSON.stringify({ action: 'save' }) // Send 'save' action
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            // Handle "already saved" gracefully
+                            if (errorData.detail === 'Job is already saved.') {
+                                Swal.fire('Already Saved', 'This job is already in your saved list.', 'info');
+                                button.classList.add('saved');
+                                button.innerHTML = '<i class="bi bi-bookmark-fill"></i>';
+                                button.disabled = true;
+                            } else {
+                                throw new Error(errorData.detail || 'Failed to save job.');
+                            }
+                        } else {
+                            // Success
+                            Swal.fire('Job Saved!', 'You can find this job in your dashboard.', 'success');
+                            button.classList.add('saved');
+                            button.innerHTML = '<i class="bi bi-bookmark-fill"></i>'; // Change icon to 'filled'
+                            button.disabled = true; 
+                            savedJobIds.add(parseInt(jobId)); // Add to our local set
+                        }
+                    } catch (error) {
+                        console.error('Save Job Error:', error);
+                        Swal.fire('Error', 'An unexpected error occurred.', 'error');
+                    }
+                };
 
                 // --- RENDERING & FILTERING ---
                 const renderJobs = (jobs) => {
@@ -473,18 +551,38 @@
                         jobGridContainer.innerHTML = '';
                         return;
                     }
-                    jobListContainer.innerHTML = jobs.map(getJobListHtml).join('');
-                    jobGridContainer.innerHTML = jobs.map(getJobGridHtml).join('');
+                    
+                    // MODIFIED: Pass the savedJobIds set to the render functions
+                    jobListContainer.innerHTML = jobs.map(job => getJobListHtml(job, savedJobIds)).join('');
+                    jobGridContainer.innerHTML = jobs.map(job => getJobGridHtml(job, savedJobIds)).join('');
+
+                    // --- NEW: Attach listeners to all new save buttons ---
+                    document.querySelectorAll('.save-job-btn').forEach(btn => {
+                        btn.addEventListener('click', handleSaveJob);
+                    });
                 };
 
+                // --- MODIFIED: getJobListHtml (to add save button) ---
                 const getJobListHtml = (job) => {
-                    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
+                    const logoUrl = job.company_logo || 'images/placeholder.jpeg'; // Adjust placeholder path if needed
+
+                    // --- NEW: Check if job is saved --- (Keep this part)
+                    const isSaved = savedJobIds.has(job.id);
+                    const savedClass = isSaved ? 'saved' : '';
+                    const savedDisabled = isSaved ? 'disabled' : '';
+                    const savedIcon = isSaved ? 'bi-bookmark-fill' : 'bi-bookmark';
+                    // ---
+
                     return `
                         <div class="job-list-one style-two position-relative border-style mb-20">
                             <div class="row justify-content-between align-items-center">
                                 <div class="col-md-5">
                                     <div class="job-title d-flex align-items-center">
-                                        <a href="job-details.html?id=${job.id}" class="logo"><div class="logo-initial">${companyInitial}</div></a>
+                                        
+                                        <a href="job-details.html?id=${job.id}" class="logo"> 
+                                            <img src="${logoUrl}" alt="${job.company_name || 'Company'} logo">
+                                        </a> 
+                                        
                                         <div class="split-box1 ms-3">
                                             <div class="job-duration fw-500">${job.job_type || 'N/A'}</div>
                                             <a href="job-details.html?id=${job.id}" class="title fw-500 tran3s">${job.title}</a>
@@ -492,36 +590,59 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-6">
-                                    <div class="job-location"><i class="bi bi-geo-alt"></i> ${job.location || 'N/A'}</div>
+                                    <div class="job-location"><i class="bi bi-geo-alt"></i> ${job.location || job.city || job.state || 'N/A'}</div> 
                                     <div class="job-salary"><span class="fw-500 text-dark">${job.salary || 'Competitive'}</span></div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
                                     <div class="btn-group d-flex align-items-center justify-content-sm-end xs-mt-20">
-                                        <a href="job-details.html?id=${job.id}" class="apply-btn text-center tran3s">APPLY</a>
+                                        <button class="save-job-btn tran3s ${savedClass}" title="Save Job" data-job-id="${job.id}" ${savedDisabled}>
+                                            <i class="bi ${savedIcon}"></i>
+                                        </button>
+                                        <a href="job-details.html?id=${job.id}" class="apply-btn text-center tran3s ms-2">APPLY</a>
                                     </div>
                                 </div>
                             </div>
                         </div>`;
                 };
 
+                // --- MODIFIED: getJobGridHtml (to add save button) ---
                 const getJobGridHtml = (job) => {
-                    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
+                    const logoUrl = job.company_logo || 'images/placeholder.jpeg'; // Adjust placeholder path if needed
+
+                    // --- NEW: Check if job is saved --- (Keep this part)
+                    const isSaved = savedJobIds.has(job.id);
+                    const savedClass = isSaved ? 'saved' : '';
+                    const savedDisabled = isSaved ? 'disabled' : '';
+                    const savedIcon = isSaved ? 'bi-bookmark-fill' : 'bi-bookmark';
+                    // ---
+
                     return `
                         <div class="col-sm-6 mb-30">
                             <div class="job-list-two style-two position-relative">
-                                <a href="job-details.html?id=${job.id}" class="logo"><div class="logo-initial">${companyInitial}</div></a>
+                            
+                                <a href="job-details.html?id=${job.id}" class="logo">
+                                    <img src="${logoUrl}" alt="${job.company_name || 'Company'} logo">
+                                </a>
+                                
                                 <div class="job-duration fw-500">${job.job_type || 'N/A'}</div>
                                 <a href="job-details.html?id=${job.id}" class="title fw-500 tran3s">${job.title}</a>
                                 <div class="job-salary"><span class="fw-500 text-dark">${job.salary || 'Competitive'}</span></div>
                                 <div class="d-flex align-items-center justify-content-between mt-auto">
-                                    <div class="job-location"><a href="#"><i class="bi bi-geo-alt"></i> ${job.location || 'N/A'}</a></div>
-                                    <a href="job-details.html?id=${job.id}" class="apply-btn text-center tran3s">APPLY</a>
+                                    <div class="job-location"><a href="#"><i class="bi bi-geo-alt"></i> ${job.location || job.city || job.state || 'N/A'}</a></div>
+                                    
+                                    <div class="d-flex align-items-center">
+                                        <button class="save-job-btn tran3s ${savedClass}" title="Save Job" data-job-id="${job.id}" ${savedDisabled}>
+                                            <i class="bi ${savedIcon}"></i>
+                                        </button>
+                                        <a href="job-details.html?id=${job.id}" class="apply-btn text-center tran3s ms-2">APPLY</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>`;
                 };
 
                 const filterAndSortJobs = () => {
+                    // (This function is unchanged, but now renderJobs() has the logic it needs)
                     const keyword = document.getElementById('filter-keyword').value.toLowerCase();
                     const selectedState = filterStateSelect.value;
                     const selectedCity = filterCitySelect.value;
@@ -531,61 +652,52 @@
                     const checkedJobTypes = Array.from(document.querySelectorAll('input[name="job_type"]:checked')).map(cb => cb.value);
                     const checkedContractTypes = Array.from(document.querySelectorAll('input[name="contract_type"]:checked')).map(cb => cb.value);
                     const checkedWorkModes = Array.from(document.querySelectorAll('input[name="work_mode"]:checked')).map(cb => cb.value);
-                    const sortBy = sortBySelect.value;
                     
                     let jobsToDisplay = allJobs.filter(job => {
                         const jobLocation = job.location ? job.location.toLowerCase() : '';
                         const jobType = job.job_type || '';
                         
-                        // 1. Keyword Match (Title, Description, Company)
                         const keywordMatch = !keyword || (job.title && job.title.toLowerCase().includes(keyword)) || (job.description && job.description.toLowerCase().includes(keyword)) || (job.company_name && job.company_name.toLowerCase().includes(keyword));
-
-                        // 2. Location Match (State & City)
                         let locationMatch = true;
-                        if (selectedState && !jobLocation.includes(selectedState.toLowerCase())) {
-                            locationMatch = false;
-                        }
-                        if (selectedCity && !jobLocation.includes(selectedCity.toLowerCase())) {
-                            locationMatch = false;
-                        }
+                        if (selectedState && !jobLocation.includes(selectedState.toLowerCase())) { locationMatch = false; }
+                        if (selectedCity && !jobLocation.includes(selectedCity.toLowerCase())) { locationMatch = false; }
                         
-                        // 3. Salary Range Match (Requires backend change to return min/max salary for full functionality)
                         let salaryMatch = true;
                         if (selectedSalary && job.salary) {
-                            const salaryValue = parseInt(job.salary.replace(/[$,kK+ ]/g, '')); // Basic normalization
-                            if (selectedSalary === '0-50k' && (salaryValue < 0 || salaryValue > 50000)) { salaryMatch = false; }
-                            if (selectedSalary === '50-100k' && (salaryValue < 50000 || salaryValue > 100000)) { salaryMatch = false; }
-                            if (selectedSalary === '100k+' && salaryValue < 100000) { salaryMatch = false; }
+                            // Basic normalization, assuming salary is a string like "$50k" or "Competitive"
+                            const salaryValue = parseInt(String(job.salary).replace(/[$,kK+ ]/g, ''));
+                            if (!isNaN(salaryValue)) { // Only filter if it's a number
+                                if (selectedSalary === '0-50k' && (salaryValue < 0 || salaryValue > 50000)) { salaryMatch = false; }
+                                if (selectedSalary === '50-100k' && (salaryValue < 50000 || salaryValue > 100000)) { salaryMatch = false; }
+                                if (selectedSalary === '100k+' && salaryValue < 100000) { salaryMatch = false; }
+                            }
                         }
-                        // NOTE: This basic salary filter is weak because your API returns `salary` as a string (e.g., "Competitive"). Full filtering requires structured salary data (min_salary, max_salary).
                         
-                        // 4. Job Type Match (Full-time/Part-time/Weekends)
-                        const jobTypeMatch = checkedJobTypes.length === 0 || checkedJobTypes.some(type => jobType.toLowerCase().includes(type.toLowerCase()));
-
-                        // 5. Other fields (Category, Language, Contract Type, Work Mode)
-                        // Note: These fields (category, language, contract_type, work_mode) require your Django API to return them in the job object for accurate filtering.
+                        const jobTypeMatch = checkedJobTypes.length === 0 || (job.job_type && checkedJobTypes.some(type => job.job_type.toLowerCase().includes(type.toLowerCase())));
                         
-                        const categoryMatch = checkedCategories.length === 0 || checkedCategories.includes(job.category); // Assuming job.category exists
-                        const languageMatch = checkedLanguages.length === 0 || checkedLanguages.includes(job.language); // Assuming job.language exists
-                        const contractMatch = checkedContractTypes.length === 0 || checkedContractTypes.includes(job.contract_type); // Assuming job.contract_type exists
-                        const workModeMatch = checkedWorkModes.length === 0 || checkedWorkModes.includes(job.work_mode); // Assuming job.work_mode exists
+                        // These filters depend on you adding these fields to your Job model and serializer
+                        const categoryMatch = checkedCategories.length === 0 || (job.category && checkedCategories.includes(job.category));
+                        const languageMatch = checkedLanguages.length === 0 || (job.language && checkedLanguages.includes(job.language));
+                        const contractMatch = checkedContractTypes.length === 0 || (job.contract_type && checkedContractTypes.includes(job.contract_type));
+                        const workModeMatch = checkedWorkModes.length === 0 || (job.work_mode && checkedWorkModes.includes(job.work_mode));
 
                         return keywordMatch && locationMatch && salaryMatch && jobTypeMatch && categoryMatch && languageMatch && contractMatch && workModeMatch;
                     });
                     
+                    const sortBy = sortBySelect.value;
                     jobsToDisplay.sort((a, b) => {
                         if (sortBy === 'oldest') return new Date(a.created_at) - new Date(b.created_at);
-                        return new Date(b.created_at) - new Date(a.created_at);
+                        return new Date(b.created_at) - new Date(a.created_at); // latest
                     });
 
                     renderJobs(jobsToDisplay);
                 };
 
+                // --- MODIFIED: init() ---
                 const init = async () => {
                     setupAuthLinks();
                     populateStates(); // Initialize states dropdown
                     
-                    // --- Banner Search Form Handler ---
                     const bannerSearchForm = document.getElementById('job-page-search-form');
                     if (bannerSearchForm) {
                         bannerSearchForm.addEventListener('submit', (e) => {
@@ -595,36 +707,55 @@
                             filterAndSortJobs();
                         });
                     }
+
+                    // --- NEW: Fetch saved job IDs if logged in ---
+                    const accessToken = localStorage.getItem('accessToken');
+                    if (accessToken) {
+                        try {
+                            // This must match the API endpoint from your candidate-dashboard-saved-jobs.html
+                            // It returns a list of {id, saved_at, job: {id, title, ...}}
+                            const savedJobsResponse = await apiFetch(`${JOBS_API_URL}saved/`); 
+                            if (savedJobsResponse.ok) {
+                                const savedJobs = await savedJobsResponse.json();
+                                // 'item.job.id' is based on your saved-jobs script's data structure
+                                savedJobIds = new Set(savedJobs.map(item => item.job.id));
+                            }
+                        } catch (e) {
+                            console.warn("Could not fetch user's saved jobs list.", e);
+                        }
+                    }
+                    // --- END OF NEW BLOCK ---
                     
                     try {
-                        const response = await fetch(JOBS_API_URL);
+                        // This is the public API call to get ALL jobs
+                        const response = await fetch(JOBS_API_URL); // No token needed here
                         if (!response.ok) throw new Error('Network response was not ok');
                         
-                        // Fetch the job data and store it globally
                         allJobs = await response.json();
                         
-                        // Handle initial search from URL parameters
                         const urlParams = new URLSearchParams(window.location.search);
+
+                        // --- THIS IS THE CORRECTED LINE ---
                         const initialKeyword = urlParams.get('title') || urlParams.get('search');
+                        // --- END OF FIX ---
+
                         if (initialKeyword) {
                             document.getElementById('filter-keyword').value = initialKeyword;
                         }
 
-                        filterAndSortJobs();
+                        filterAndSortJobs(); // This will now use the savedJobIds
                     } catch (error) {
                         console.error("Could not fetch jobs:", error);
                         totalJobFoundEl.textContent = "Could not load jobs.";
                         jobListContainer.innerHTML = `<div class="text-center p-5 text-danger"><h4>Error loading jobs from the server.</h4></div>`;
                     }
                     
-                    // --- Attach Event Listeners to all filter inputs ---
                     filterForm.addEventListener('change', filterAndSortJobs);
-                    filterForm.addEventListener('input', filterAndSortJobs); // For keyword input changes
+                    filterForm.addEventListener('input', filterAndSortJobs);
                     $(sortBySelect).on('change', filterAndSortJobs);
                     
                     resetBtn.addEventListener('click', () => {
                         filterForm.reset();
-                        // Manually reset nice-selects
                         $(filterStateSelect).val('').niceSelect('update');
                         filterCitySelect.innerHTML = '<option value="">Select City</option>';
                         filterCitySelect.disabled = true;
@@ -645,6 +776,57 @@
                 font-size: 24px; font-weight: 500; color: #4866a6;
             }
             .job-list-two .logo-initial { width: 60px; height: 60px; }
+
+            /* --- NEW CSS FOR LOGO IMAGE --- */
+            .job-title .logo img,
+            .job-list-two .logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain; /* Use 'contain' for logos to avoid cropping */
+                border-radius: 8px; /* Match the original style */
+            }
+
+            /* Adjust the logo link container */
+            .job-title .logo,
+            .job-list-two .logo {
+                display: block; /* Ensure the link behaves like a block */
+                background-color: #fff; /* Optional: Set a background for contain images */
+                border: 1px solid #eee; /* Optional: Add a light border */
+                overflow: hidden; /* Ensure image stays within rounded corners */
+            }
+            /* --- END OF NEW CSS --- */
+
+            /* --- NEW CSS FOR SAVE BUTTON --- */
+            .save-job-btn {
+                font-size: 18px;
+                background: #fff; /* Start white */
+                border: 1px solid #e8e8e8;
+                border-radius: 8px;
+                width: 40px;
+                height: 40px;
+                color: #505050;
+                transition: all 0.3s ease;
+            }
+            .save-job-btn:hover {
+                background: #f0f5ff; /* CuroJobs blue-tint */
+                color: #4866a6;     /* CuroJobs primary blue */
+                border-color: #a9b9d8; /* A lighter blue border */
+            }
+            /* Style for when the button is clicked or loaded as saved */
+            .save-job-btn.saved {
+                background: #f0f5ff;
+                color: #4866a6;
+                border-color: #a9b9d8;
+            }
+            .save-job-btn:disabled,
+            .save-job-btn.saved:disabled {
+                 opacity: 0.8; /* Show it's saved but disabled */
+                 cursor: not-allowed;
+            }
+            .save-job-btn .bi-bookmark-fill {
+                color: #4866a6; /* Ensure fill icon is blue */
+            }
+            /* --- END OF NEW CSS --- */
         </style>
     </div>
 </body>

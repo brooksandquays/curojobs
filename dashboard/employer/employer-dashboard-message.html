@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>CuroJobs - Messages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
     <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
     <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
@@ -11,50 +13,92 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
-        /* REFINED: Chat Bubble Alignment & Styling */
-        .email-body { display: flex; flex-direction: column; padding: 20px; gap: 15px; }
-        .message-bubble { max-width: 75%; width: fit-content; padding: 10px 15px; border-radius: 18px; }
-        .message-author { font-size: 13px; font-weight: 500; margin-bottom: 5px; }
-        .message-text { white-space: pre-wrap; word-wrap: break-word; font-size: 15px; margin: 0; }
-        .message-time { font-size: 11px; opacity: 0.7; margin-top: 5px; text-align: right; }
-        
-        .message-bubble.sent { background-color: #244034; color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
-        .message-bubble.sent .message-author { color: #bde0cf; }
+        /* --- Sidebar & Layout (Adapted from Jobi Template) --- */
+        .message-wrapper { /* Ensure wrapper uses full height potentially needed */ }
+        .message-sidebar { border-right: 1px solid #dee2e6; height: calc(100vh - 120px); /* Adjust height based on header/footer */ display: flex; flex-direction: column; }
+        .open-email-container { height: calc(100vh - 120px); display: flex; flex-direction: column; background-color: #fff; } /* Added bg */
+        .email-read-panel { overflow-y: auto; flex-grow: 1; } /* Allow sidebar list to scroll */
+        .email-list-item { cursor: pointer; padding: 15px 1.5rem; border-bottom: 1px solid #f0f0f0; transition: background-color 0.2s ease; }
+        .email-list-item:hover { background-color: #f8f9fa; }
+        .email-list-item.selected { background-color: #f0f5f3; border-left: 3px solid #244034; }
+        .email-list-item .sender-name { font-weight: 500; color: #000; display: block; margin-bottom: 2px; }
+        .email-list-item .date { font-size: 12px; color: #6c757d; }
+        .email-list-item .mail-sub { font-size: 14px; color: #333; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .email-list-item .mail-text { font-size: 13px; color: #6c757d; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 95%; } /* Ensure preview is short */
+        .email-list-item.unread .sender-name, .email-list-item.unread .mail-sub { font-weight: bold; color: #000; }
+        .new-message-compose { /* Style for compose button from template */
+            height: 40px; width: 40px; background: #E4F1EC; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 25px; color: #244034; transition: all 0.3s ease; border: none;
+        }
+        .new-message-compose:hover { background: #244034; color: #fff; }
 
-        .message-bubble.received { background-color: #f1f0f0; color: #333; border-bottom-left-radius: 4px; align-self: flex-start; }
-        .message-bubble.received .message-author { color: #555; }
-        
-        /* REFINED: Reply Form & Send Button */
-        .reply-form-container { border-top: 1px solid #dee2e6; background-color: #f8f9fa; }
-        #reply-form textarea { border-radius: 20px; resize: none; overflow-y: hidden; max-height: 120px; }
-        #reply-form button { background-color: #244034; color: white; border-radius: 50%; width: 40px; height: 40px; border: none; flex-shrink: 0; }
+        /* --- STACKED EMAIL THREAD STYLES --- */
+        .email-body { display: flex; flex-direction: column; padding: 0; gap: 0; flex-grow: 1; overflow-y: auto; }
+        .email-thread-item { display: flex; align-items: flex-start; padding: 20px 25px; border-bottom: 1px solid #e9ecef; }
+        .email-thread-item:last-child { border-bottom: none; }
+        .message-avatar { width: 40px; height: 40px; flex-shrink: 0; margin-right: 15px; }
+        .message-avatar img { width:100%; height:100%; object-fit:cover; border-radius: 50%; }
+        .message-avatar.initial-circle { border-radius: 50%; background-color: #f0f5ff; font-weight: 500; color: #4866a6; display: flex; align-items: center; justify-content: center; font-size: 1.2em; }
+        .message-content { flex-grow: 1; }
+        .email-thread-header { font-size: 14px; color: #555; margin-bottom: 8px; }
+        .email-thread-header .sender-name { font-size: 15px; font-weight: 500; color: #000; }
+        .email-thread-header .sent-date { float: right; font-size: 12px; color: #666; }
+        .email-thread-body { font-size: 15px; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: #333; }
 
-        /* NEW: Custom Right-Click Context Menu */
+        /* --- REPLY ACTION BUTTONS --- */
+        .reply-form-container { border-top: 1px solid #dee2e6; background-color: #f8f9fa; padding: 15px 25px; }
+        .reply-form-container .btn { font-size: 0.9rem; padding: 0.5rem 1rem; }
+
+        /* --- Context Menu Styles (Unchanged) --- */
         .context-menu { position: absolute; display: none; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 6px 0; z-index: 1000; min-width: 160px; }
         .context-menu-item { display: flex; align-items: center; padding: 8px 15px; cursor: pointer; font-size: 14px; }
         .context-menu-item:hover { background-color: #f5f5f5; }
         .context-menu-item.delete { color: #dc3545; }
         .context-menu-item i { margin-right: 10px; }
 
-        /* Other styles */
-        .date-separator { text-align: center; color: #999; font-size: 12px; padding: 15px 0; }
-        .email-list-item.selected { background-color: #f0f5f3; border-left: 3px solid #244034; }
+        /* --- Other Styles --- */
         .notification-badge { position: absolute; top: 15px; right: 25px; height: 10px; width: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid white; display: none; }
+        /* Modal select fix */
+        .modal .form-select { display: block; width: 100%; padding: .375rem 2.25rem .375rem .75rem; -moz-padding-start: calc(0.75rem - 3px); font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529; background-color: #fff; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right .75rem center; background-size: 16px 12px; border: 1px solid #ced4da; border-radius: .375rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; appearance: none; }
+        /* Sidebar Fix */
+        .dash-aside-navbar .user-data { display: flex; flex-direction: column; align-items: center; text-align: center; margin-bottom: 20px; padding-top: 15px; }
+        .dash-aside-navbar .user-avatar { width: 60px; height: 60px; margin-bottom: 10px; overflow: hidden; border-radius: 50%; }
+        .dash-aside-navbar .user-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .dash-aside-navbar .user-name-data { margin-top: 0; }
+        .dash-aside-navbar .user-name { font-size: 16px; font-weight: 500; color: #333; }
+        #company-logo-preview { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 
 <body>
     <div class="main-page-wrapper">
+         <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
+                 <div class="txt-loading">
+                     <span data-text-preloader="C" class="letters-loading">C</span>
+                     <span data-text-preloader="U" class="letters-loading">U</span>
+                     <span data-text-preloader="R" class="letters-loading">R</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="J" class="letters-loading">J</span>
+                     <span data-text-preloader="O" class="letters-loading">O</span>
+                     <span data-text-preloader="B" class="letters-loading">B</span>
+                     <span data-text-preloader="S" class="letters-loading">S</span>
+                 </div>
+            </div>
+       </div>
+
         <aside class="dash-aside-navbar">
             <div class="position-relative">
-                <div class="logo text-md-center"><a href="../../index.html"><img src="../../images/logo/logo_01.png" alt="" class="curo"></a></div>
+                <div class="logo text-md-center d-flex align-items-center justify-content-between">
+                    <a href="../../index.html"><img src="../../images/logo/logo_02.png" alt="" class="curo"></a>
+                    <button class="close-btn d-block d-md-none"><i class="bi bi-x-lg"></i></button>
+                </div>
                 <div class="user-data">
-                    <div class="user-avatar online position-relative rounded-circle"><img src="../../images/avatar_01.jpg" alt="" class="lazy-img"></div>
+                    <div class="user-avatar online position-relative rounded-circle">
+                         <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="" class="lazy-img">
+                    </div>
                     <div class="user-name-data">
-                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
-                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
-                            <li><a class="dropdown-item" href="employer-dashboard-profile.html">Profile</a></li>
-                        </ul>
+                        <div class="user-name" id="profile-dropdown">Loading...</div>
                     </div>
                 </div>
                 <nav class="dasboard-main-nav">
@@ -62,15 +106,16 @@
                         <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_3.svg" alt=""><span>My Jobs</span></a></li>
-                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt=""><span>Submit Job</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39 copy.svg" alt=""><span>Submit Job</span></a></li>
                         <li id="messages-nav-item" style="position: relative;">
                             <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center active">
                                 <img src="../../images/icon/icon_4_active.svg" alt=""><span>Messages</span>
                             </a>
                             <span class="notification-badge"></span>
                         </li>
-                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center logout-btn"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
+                         <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
+                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
+                        <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
             </div>
@@ -78,28 +123,54 @@
 
         <div class="dashboard-body">
             <div class="position-relative">
-                <header class="dashboard-header"><h2 class="main-title m0">Messages</h2></header>
-                <div id="message-container-main" class="alert mt-3" style="display: none;"></div>
-                <div class="bg-white card-box border-20 p0 mt-30">
+                <header class="dashboard-header">
+                    <div class="d-flex align-items-center justify-content-end">
+                       <button class="dash-mobile-nav-toggler d-block d-md-none me-auto"><span></span></button>
+                       </div>
+                </header>
+
+                 <div class="row gx-0 align-items-center mb-40">
+                    <div class="col-lg-4">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h2 class="main-title m0">Messages</h2>
+                            <button class="new-message-compose rounded-circle" id="compose-btn" data-bs-toggle="modal" data-bs-target="#composeModal" title="Compose New Message">+</button>
+                        </div>
+                    </div>
+                    <div class="col-lg-8">
+                        <div class="message-pagination ps-lg-4 ps-xxl-5 d-flex align-items-center justify-content-end md-mt-20">
+                           <div class="d-flex align-items-center" id="pagination-controls" style="display: none;">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="message-container-main" class="alert" style="display: none;"></div>
+
+                <div class="bg-white card-box border-20 p0">
                     <div class="message-wrapper">
                         <div class="row gx-0">
                             <div class="col-lg-4">
                                 <div class="message-sidebar pt-20">
-                                    <div class="ps-3 pe-3 ps-xxl-4 pe-xxl-4"><div class="page-title fw-500">Inbox</div></div>
-                                    <div id="conversation-list-container" class="email-read-panel"></div>
+                                    <div class="ps-3 pe-3 ps-xxl-4 pe-xxl-4">
+                                        <form action="#" class="search-form mb-20">
+											<input type="text" placeholder="Search contacts">
+											<button><img src="../../images/icon/icon_10.svg" alt="" class="lazy-img m-auto"></button>
+										</form>
+                                    </div>
+                                    <div id="conversation-list-container" class="email-read-panel">
+                                         </div>
                                 </div>
                             </div>
                             <div class="col-lg-8">
-                                <div id="conversation-display-container" class="open-email-container d-flex flex-column" style="height: 75vh;">
+                                <div id="conversation-display-container" class="open-email-container">
                                     <div class="text-center p-5 m-auto">Select a conversation to view.</div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </div> </div>
         </div>
-        
+
         <div id="context-menu" class="context-menu">
             <div id="context-menu-delete" class="context-menu-item delete">
                 <i class="bi bi-trash3"></i>
@@ -107,252 +178,376 @@
             </div>
         </div>
 
+        <div class="modal fade" id="composeModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Compose New Message</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="compose-message-container" class="alert" style="display: none;"></div>
+                        <form id="compose-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="compose-recipient">To (Applicant)*</label>
+                                        <select id="compose-recipient" name="recipient" class="form-select" required>
+                                            <option value="">Loading applicants...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="compose-template">Use Template (Optional)</label>
+                                        <select id="compose-template" class="form-select">
+                                            <option value="">Select a template...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="compose-subject">Subject*</label>
+                                        <input type="text" id="compose-subject" name="subject" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                     <div class="dash-input-wrapper mb-25">
+                                        <label for="compose-body">Body*</label>
+                                        <textarea id="compose-body" name="body" class="form-control" rows="8" required></textarea>
+                                        <div class="form-text small">Placeholders {applicant_name} and {company_name} will be replaced if found.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="dash-cancel-btn tran3s" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="dash-btn-two tran3s" id="send-compose-btn">Send Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="templateSelectModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Select and Send Template</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="template-select-message-container" class="alert" style="display: none;"></div>
+
+                        <div class="dash-input-wrapper mb-25">
+                            <label for="template-select-dropdown">Choose Template*</label>
+                            <select id="template-select-dropdown" class="form-select" required>
+                                <option value="">Loading templates...</option>
+                            </select>
+                        </div>
+
+                        <div id="template-preview-area" class="mt-3 p-3 border rounded bg-light" style="display: none;">
+                            <h6>Preview:</h6>
+                            <p><strong>Subject:</strong> <span id="preview-subject"></span></p>
+                            <hr>
+                            <div id="preview-body" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto;"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="dash-cancel-btn tran3s" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="dash-btn-two tran3s" id="send-template-btn" disabled>Send Template Message</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="scroll-top">
+            <i class="bi bi-arrow-up-short"></i>
+        </button>
+
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
         <script src="../../js/theme.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const accessToken = localStorage.getItem('accessToken');
-                if (!accessToken) { window.location.href = '../../login.html'; return; }
-                
-                let currentUser;
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. AUTH & CONFIG ---
+            const accessToken = localStorage.getItem('accessToken');
+            if (!accessToken) { window.location.href = '../../login.html'; return; }
+            let currentUser;
+            try { currentUser = jwt_decode(accessToken); if (currentUser.user_type !== 'company') { window.location.href = '../../index.html'; return; } }
+            catch (e) { localStorage.clear(); window.location.href = '../../login.html'; return; }
+
+            // --- 2. ELEMENTS ---
+            const conversationListContainer = document.getElementById('conversation-list-container');
+            const conversationDisplayContainer = document.getElementById('conversation-display-container');
+            const profileNameEl = document.getElementById('profile-dropdown');
+            const logoPreview = document.getElementById('company-logo-preview');
+            const logoutBtn = document.getElementById('logout-btn');
+            const mainMessageContainer = document.getElementById('message-container-main');
+            const contextMenu = document.getElementById('context-menu');
+            const contextMenuDeleteBtn = document.getElementById('context-menu-delete');
+            // Compose Modal Elements
+            const composeModalEl = document.getElementById('composeModal');
+            const composeModal = new bootstrap.Modal(composeModalEl);
+            const composeForm = document.getElementById('compose-form');
+            const composeRecipientSelect = document.getElementById('compose-recipient');
+            const composeTemplateSelect = document.getElementById('compose-template');
+            const composeSubjectInput = document.getElementById('compose-subject');
+            const composeBodyTextarea = document.getElementById('compose-body');
+            const sendComposeBtn = document.getElementById('send-compose-btn');
+            const composeMessageContainer = document.getElementById('compose-message-container');
+            // Template Select Modal Elements
+            const templateSelectModalEl = document.getElementById('templateSelectModal');
+            const templateSelectModal = new bootstrap.Modal(templateSelectModalEl);
+            const templateSelectDropdown = document.getElementById('template-select-dropdown');
+            const templatePreviewArea = document.getElementById('template-preview-area');
+            const previewSubject = document.getElementById('preview-subject');
+            const previewBody = document.getElementById('preview-body');
+            const sendTemplateBtn = document.getElementById('send-template-btn'); // Corrected variable name
+            const templateSelectMsgContainer = document.getElementById('template-select-message-container');
+
+
+            // --- 3. API ENDPOINTS ---
+            const BASE_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/';
+
+            // --- 4. STATE ---
+            let conversations = {};
+            let companyTemplates = [];
+            let companyApplicants = [];
+            let companyProfileData = {};
+            // State for template modal
+            let currentTemplateRecipientId = null;
+            let currentTemplateRecipientName = null;
+            let currentTemplateJobTitle = null;
+            // Pagination State
+            let currentPage = 1;
+            const itemsPerPage = 10; // Conversations per page
+
+            // --- 5. UTILITY FUNCTIONS ---
+            const apiFetch = async (endpoint, options = {}) => {
+                 const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                 const response = await fetch(`${BASE_API_URL}${endpoint}`, { ...options, headers });
+                 if (response.status === 401) { localStorage.clear(); window.location.href = '../../login.html'; throw new Error('Unauthorized');}
+                 return response;
+            };
+            const showMessage = (message, isError = false, container = mainMessageContainer) => {
+                 const targetContainer = container === templateSelectMsgContainer ? templateSelectMsgContainer : (container === composeMessageContainer ? composeMessageContainer : mainMessageContainer);
+                 targetContainer.textContent = message;
+                 targetContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'} ${targetContainer !== mainMessageContainer ? 'mb-3' : 'mt-3'}`;
+                 targetContainer.style.display = 'block';
+                 setTimeout(() => { targetContainer.style.display = 'none'; }, 4000);
+            };
+
+            // --- 6. CORE MESSAGING LOGIC ---
+            const getConversationId = (msg) => {
+                 const participantIds = [parseInt(msg.sender), parseInt(msg.recipient)].sort((a, b) => a - b);
+                 const baseSubject = msg.subject.replace(/^(Re: |re: )+/i, '').trim();
+                 return `${participantIds[0]}-${participantIds[1]}-${baseSubject}`;
+            };
+            const fetchMessages = async (conversationToDisplay = null) => {
                 try {
-                    currentUser = jwt_decode(accessToken);
-                    if (currentUser.user_type !== 'company') { window.location.href = '../../index.html'; return; }
-                } catch (e) {
-                    localStorage.clear();
-                    window.location.href = '../../login.html';
-                    return;
-                }
-
-                const conversationListContainer = document.getElementById('conversation-list-container');
-                const conversationDisplayContainer = document.getElementById('conversation-display-container');
-                const profileNameEl = document.getElementById('profile-dropdown');
-                const logoutBtn = document.getElementById('logout-btn');
-                const mainMessageContainer = document.getElementById('message-container-main');
-                const contextMenu = document.getElementById('context-menu');
-                const contextMenuDeleteBtn = document.getElementById('context-menu-delete');
-                const baseApiURL = 'http://127.0.0.1:8000/api/v1/accounts/';
-                
-                let conversations = {};
-
-                const apiFetch = async (endpoint, options = {}) => {
-                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
-                    const response = await fetch(`${baseApiURL}${endpoint}`, { ...options, headers });
-                    if (response.status === 401) {
-                        localStorage.clear();
-                        window.location.href = '../../login.html';
+                    const response = await apiFetch('messages/');
+                    if (!response.ok) throw new Error('Could not load messages.');
+                    const messages = await response.json(); conversations = {};
+                    messages.forEach(msg => { const convId = getConversationId(msg); if (!conversations[convId]) { const otherUser = msg.sender === currentUser.user_id ? msg.recipient_username : msg.sender_username; const otherUserId = msg.sender === currentUser.user_id ? msg.recipient : msg.sender; const baseSubject = msg.subject.replace(/^(Re: |re: )+/i, '').trim(); conversations[convId] = { id: convId, otherUser: otherUser, otherUserId: otherUserId, subject: baseSubject, messages: [], lastMessageTime: null, unread: false }; } conversations[convId].messages.push(msg); });
+                    Object.values(conversations).forEach(conv => { conv.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at)); const lastMessage = conv.messages[conv.messages.length - 1]; conv.lastMessageTime = lastMessage.sent_at; conv.unread = conv.messages.some(m => !m.is_read && m.recipient === currentUser.user_id); });
+                    renderConversationList(conversationToDisplay, 1); // Render first page
+                    if (conversationToDisplay && conversations[conversationToDisplay]) {
+                        await displayConversation(conversationToDisplay);
                     }
-                    return response;
-                };
+                } catch (error) { console.error('Error fetching messages:', error); conversationListContainer.innerHTML = '<div class="p-3 text-danger">Error loading messages.</div>'; }
+            };
 
-                const showMessage = (message, isError = false) => {
-                    mainMessageContainer.textContent = message;
-                    mainMessageContainer.className = `alert ${isError ? 'alert-danger' : 'alert-success'}`;
-                    mainMessageContainer.style.display = 'block';
-                    setTimeout(() => { mainMessageContainer.style.display = 'none'; }, 3000);
-                };
-                
-                const getConversationId = (msg) => {
-                    const participantIds = [msg.sender, msg.recipient].sort();
-                    const baseSubject = msg.subject.replace(/^(Re: )+/i, '').trim();
-                    return `${participantIds[0]}-${participantIds[1]}-${baseSubject}`;
-                };
+            const renderConversationList = (activeConversationId = null, page = 1) => {
+                currentPage = page;
+                conversationListContainer.innerHTML = '';
+                const sortedConversations = Object.values(conversations).sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
+                const totalItems = sortedConversations.length;
+                const totalPages = Math.ceil(totalItems / itemsPerPage);
+                const startIndex = (currentPage - 1) * itemsPerPage;
+                const endIndex = startIndex + itemsPerPage;
+                const paginatedConversations = sortedConversations.slice(startIndex, endIndex);
 
-                const checkUnreadMessages = async () => {
-                    try {
-                        const response = await apiFetch('messages/unread-count/');
-                        if (!response.ok) return;
-                        const data = await response.json();
-                        const badge = document.querySelector('#messages-nav-item .notification-badge');
-                        if (badge && data.unread_count > 0) { badge.style.display = 'block'; } else if (badge) { badge.style.display = 'none'; }
-                    } catch (error) { console.error("Could not check for unread messages.", error); }
-                };
+                if (paginatedConversations.length === 0 && totalItems === 0) { conversationListContainer.innerHTML = '<div class="p-3 text-center text-muted">No conversations yet.</div>'; renderPaginationControls(totalPages); return; }
+                else if (paginatedConversations.length === 0 && totalItems > 0) { conversationListContainer.innerHTML = '<div class="p-3 text-center text-muted">No conversations on this page.</div>'; renderPaginationControls(totalPages); return; }
 
-                const displayNewMessageForm = (recipientId, recipientName) => {
-                    conversationDisplayContainer.innerHTML = `<div class="email-header divider d-flex justify-content-between ps-4 pe-4"><div class="sender-info d-flex align-items-center"><div class="ps-3"><div class="sender-name fw-500">To: ${recipientName}</div></div></div></div><div class="email-footer ps-4 pe-4 pt-40"><form id="new-message-form"><input type="hidden" name="recipient" value="${recipientId}"><div class="mb-3"><label for="subject" class="form-label">Subject</label><input type="text" class="form-control" name="subject" required></div><div class="mb-3"><label for="body" class="form-label">Message</label><textarea class="form-control" name="body" required rows="5"></textarea></div><button type="submit" class="btn-ten tran3s mt-20">Send Message</button></form></div>`;
-                    document.getElementById('new-message-form').addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const formData = new FormData(e.target);
-                        const data = Object.fromEntries(formData.entries());
-                        if (!data.body.trim() || !data.subject.trim()) return;
-                        try {
-                            const response = await apiFetch('messages/send/', { method: 'POST', body: JSON.stringify(data) });
-                            if (!response.ok) throw new Error('Failed to send message.');
-                            showMessage('Message sent successfully!');
-                            history.pushState(null, '', window.location.pathname);
-                            await fetchMessages();
-                        } catch (error) { showMessage('Failed to send message.', true); }
-                    });
-                };
-
-                const deleteConversation = (conversationId) => {
-                    const conversation = conversations[conversationId];
-                    if (!conversation) return;
-                    Swal.fire({
-                        title: 'Are you sure?', text: "This will delete the entire conversation. This action cannot be undone!", icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', cancelButtonColor: '#3085d6', confirmButtonText: 'Yes, delete it!'
-                    }).then(async (result) => {
-                        if (result.isConfirmed) {
-                            try {
-                                const response = await apiFetch('messages/delete-thread/', {
-                                    method: 'DELETE',
-                                    body: JSON.stringify({ other_user_id: conversation.otherUserId, subject: conversation.baseSubject })
-                                });
-                                if (!response.ok) throw new Error('Failed to delete conversation.');
-                                Swal.fire('Deleted!', 'The conversation has been removed.', 'success');
-                                conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Select a conversation to view.</div>';
-                                await fetchMessages();
-                            } catch (error) { Swal.fire('Error!', 'Could not delete the conversation.', 'error'); }
-                        }
-                    });
-                };
-                
-                const displayConversation = async (conversationId) => {
-                    const conversation = conversations[conversationId];
-                    if (!conversation) return;
-                    try {
-                        await apiFetch('messages/mark-as-read/', { method: 'POST', body: JSON.stringify({ sender_id: conversation.otherUserId }) });
-                        checkUnreadMessages(); 
-                    } catch (error) { console.error("Could not mark messages as read.", error); }
-                    
-                    const { otherUserName, messages } = conversation;
-                    let messagesHtml = '';
-                    let lastDate = null;
-                    messages.forEach(msg => {
-                        const msgDate = new Date(msg.sent_at).toLocaleDateString();
-                        if (lastDate !== msgDate) { messagesHtml += `<div class="date-separator">--- ${new Date(msg.sent_at).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'})} ---</div>`; lastDate = msgDate; }
-                        const isSentByMe = msg.sender === currentUser.user_id;
-                        const time = new Date(msg.sent_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-                        const authorName = isSentByMe ? 'You' : otherUserName;
-                        messagesHtml += `<div class="message-bubble ${isSentByMe ? 'sent' : 'received'}"><div class="message-author">${authorName}</div><p class="message-text">${msg.body.replace(/\n/g, '<br>')}</p><div class="message-time">${time}</div></div>`;
-                    });
-                    conversationDisplayContainer.innerHTML = `<div class="email-header divider d-flex justify-content-between ps-4 pe-4"><div class="sender-info d-flex align-items-center"><div class="ps-3"><div class="sender-name fw-500">${otherUserName}</div></div></div></div><div class="email-body flex-grow-1" style="overflow-y: auto;">${messagesHtml}</div><div class="reply-form-container p-3"><form id="reply-form" class="d-flex w-100 align-items-end gap-2"><textarea class="form-control" name="body" placeholder="Type a message..." required rows="1"></textarea><button type="submit" class="tran3s d-flex align-items-center justify-content-center" title="Send Message"><i class="bi bi-send-fill"></i></button></form></div>`;
-                    
-                    const emailBody = conversationDisplayContainer.querySelector('.email-body');
-                    emailBody.scrollTop = emailBody.scrollHeight;
-                    const replyForm = document.getElementById('reply-form');
-                    const replyTextarea = replyForm.querySelector('textarea');
-                    replyTextarea.addEventListener('input', () => { replyTextarea.style.height = 'auto'; replyTextarea.style.height = `${replyTextarea.scrollHeight}px`; });
-                    replyTextarea.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); replyForm.querySelector('button').click(); } });
-                    replyForm.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const body = replyTextarea.value;
-                        if (!body.trim()) return;
-                        const subject = `Re: ${conversation.baseSubject}`;
-                        try {
-                            const response = await apiFetch('messages/send/', { method: 'POST', body: JSON.stringify({ recipient: conversation.otherUserId, subject: subject, body: body }) });
-                            if (!response.ok) throw new Error('Failed to send reply.');
-                            fetchMessages(conversationId);
-                        } catch (error) { showMessage('Failed to send reply.', true); }
-                    });
-                };
-                
-                const renderConversationList = (activeConversationId) => {
-                    conversationListContainer.innerHTML = '';
-                    const sortedConversations = Object.values(conversations).sort((a, b) => new Date(b.lastMessage.sent_at) - new Date(a.lastMessage.sent_at));
-                    if (sortedConversations.length === 0) { conversationListContainer.innerHTML = '<p class="text-center p-3">You have no messages.</p>'; return; }
-                    sortedConversations.forEach((conv) => {
-                        const convItem = document.createElement('div');
-                        convItem.className = 'email-list-item ps-3 pe-3 ps-xxl-4 pe-xxl-4';
-                        if (conv.id === activeConversationId) { convItem.classList.add('selected'); }
-                        convItem.dataset.conversationId = conv.id;
-                        const sentDate = new Date(conv.lastMessage.sent_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                        convItem.innerHTML = `<div class="email-short-preview position-relative"><div class="d-flex align-items-center justify-content-between"><div class="sender-name fw-500">${conv.otherUserName}</div><div class="date">${sentDate}</div></div><div class="mail-sub">${conv.lastMessage.subject}</div><div class="mail-text">${conv.lastMessage.body.substring(0, 40)}...</div></div>`;
-                        convItem.addEventListener('click', () => {
-                            document.querySelectorAll('.email-list-item.selected').forEach(el => el.classList.remove('selected'));
-                            convItem.classList.add('selected');
-                            displayConversation(conv.id);
-                        });
-                        convItem.addEventListener('contextmenu', (e) => {
-                            e.preventDefault();
-                            contextMenu.style.top = `${e.pageY}px`; contextMenu.style.left = `${e.pageX}px`;
-                            contextMenu.style.display = 'block'; contextMenu.dataset.conversationId = conv.id;
-                        });
-                        conversationListContainer.appendChild(convItem);
-                    });
-                };
-
-                const fetchMessages = async (conversationToDisplay) => {
-                    try {
-                        const response = await apiFetch('messages/');
-                        if (!response.ok) throw new Error('Failed to fetch messages');
-                        const allMessages = await response.json();
-                        
-                        conversations = {};
-                        const tempConversations = {};
-                        allMessages.forEach(msg => {
-                            if (msg.sender === msg.recipient) return;
-                            const conversationId = getConversationId(msg);
-                            if (!tempConversations[conversationId]) { tempConversations[conversationId] = { messages: [] }; }
-                            tempConversations[conversationId].messages.push(msg);
-                        });
-
-                        for (const id in tempConversations) {
-                            const tempConv = tempConversations[id];
-                            let otherUserId = null; let otherUserName = 'Unknown User';
-                            const firstMessageFromOther = tempConv.messages.find(m => m.sender !== currentUser.user_id);
-                            if (firstMessageFromOther) {
-                                otherUserId = firstMessageFromOther.sender; otherUserName = firstMessageFromOther.sender_username;
-                            } else {
-                                const firstMessageSent = tempConv.messages[0];
-                                if(firstMessageSent){ otherUserId = firstMessageSent.recipient; otherUserName = firstMessageSent.recipient_username; } 
-                                else { continue; }
-                            }
-                            if (!otherUserId) { console.error("Could not determine other user.", tempConv); continue; }
-                            const baseSubject = getConversationId(tempConv.messages[0]).split('-').slice(2).join('-');
-                            tempConv.messages.sort((a, b) => new Date(a.sent_at) - new Date(b.sent_at));
-                            const lastMessage = tempConv.messages[tempConv.messages.length - 1];
-                            conversations[id] = { id, otherUserId, otherUserName, baseSubject, messages: tempConv.messages, lastMessage };
-                        }
-                        
-                        const sortedConversations = Object.values(conversations).sort((a, b) => new Date(b.lastMessage.sent_at) - new Date(a.lastMessage.sent_at));
-                        const params = new URLSearchParams(window.location.search);
-                        const recipientId = params.get('recipientId');
-
-                        if (conversationToDisplay && conversations[conversationToDisplay]) {
-                            renderConversationList(conversationToDisplay);
-                        } else if (recipientId) {
-                            const recipientName = decodeURIComponent(params.get('recipientName'));
-                            displayNewMessageForm(recipientId, recipientName);
-                            renderConversationList();
-                        } else if (sortedConversations.length > 0) {
-                            const firstConvId = sortedConversations[0].id;
-                            renderConversationList(firstConvId);
-                            displayConversation(firstConvId);
-                        } else {
-                            renderConversationList();
-                            conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Your inbox is empty.</div>';
-                        }
-                    } catch (error) {
-                        console.error(error);
-                        conversationListContainer.innerHTML = '<p class="text-center text-danger p-3">Could not load messages.</p>';
-                    }
-                };
-                
-                const fetchProfile = async () => {
-                    try {
-                        const response = await apiFetch('profile/company/');
-                        if (!response.ok) throw new Error('Failed to fetch profile');
-                        const profile = await response.json();
-                        profileNameEl.textContent = profile.name || 'Employer';
-                    } catch (error) { console.error(error); }
-                };
-                
-                window.addEventListener('click', () => { contextMenu.style.display = 'none'; });
-                contextMenuDeleteBtn.addEventListener('click', () => {
-                    const conversationId = contextMenu.dataset.conversationId;
-                    if (conversationId) { deleteConversation(conversationId); }
+                paginatedConversations.forEach(conv => {
+                    const lastMessage = conv.messages[conv.messages.length - 1]; const isActive = conv.id === activeConversationId; const isUnread = conv.unread;
+                    const simpleDate = new Date(conv.lastMessageTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); const item = document.createElement('div');
+                    item.className = `email-list-item ps-3 pe-3 ps-xxl-4 pe-xxl-4 ${isActive ? 'selected' : ''} ${isUnread ? 'unread' : ''}`; item.dataset.conversationId = conv.id;
+                    item.innerHTML = `<div class="email-short-preview position-relative"><div class="d-flex align-items-center justify-content-between"><div class="sender-name">${conv.otherUser}</div><div class="date">${simpleDate}</div></div><div class="mail-sub">${conv.subject}</div><div class="mail-text">${lastMessage.body}</div></div>`;
+                    item.addEventListener('click', () => { displayConversation(conv.id); renderConversationList(conv.id, currentPage); });
+                    item.addEventListener('contextmenu', (e) => { e.preventDefault(); contextMenu.style.top = `${e.pageY}px`; contextMenu.style.left = `${e.pageX}px`; contextMenu.style.display = 'block'; contextMenu.dataset.conversationId = conv.id; });
+                    conversationListContainer.appendChild(item);
                 });
-                logoutBtn.addEventListener('click', (e) => {
-                    e.preventDefault(); localStorage.clear(); window.location.href = '../../index.html';
-                });
+                renderPaginationControls(totalPages);
+            };
 
-                fetchProfile();
-                fetchMessages();
-                checkUnreadMessages();
+            const renderPaginationControls = (totalPages) => {
+                const paginationContainer = document.getElementById('pagination-controls');
+                if (!paginationContainer) return;
+                paginationContainer.innerHTML = ''; paginationContainer.style.display = totalPages > 1 ? 'flex' : 'none';
+                if (totalPages <= 1) return;
+                const totalItems = Object.keys(conversations).length; const startItem = (currentPage - 1) * itemsPerPage + 1; const endItem = Math.min(startItem + itemsPerPage - 1, totalItems);
+                const prevButton = document.createElement('button'); prevButton.innerHTML = '<i class="bi bi-chevron-left"></i>'; prevButton.className = 'btn btn-sm btn-outline-secondary me-2'; prevButton.disabled = currentPage === 1;
+                prevButton.addEventListener('click', () => { if (currentPage > 1) { renderConversationList(null, currentPage - 1); } });
+                const pageInfo = document.createElement('span'); pageInfo.className = 'me-2'; pageInfo.textContent = `${startItem}-${endItem} of ${totalItems}`;
+                const nextButton = document.createElement('button'); nextButton.innerHTML = '<i class="bi bi-chevron-right"></i>'; nextButton.className = 'btn btn-sm btn-outline-secondary'; nextButton.disabled = currentPage === totalPages;
+                nextButton.addEventListener('click', () => { if (currentPage < totalPages) { renderConversationList(null, currentPage + 1); } });
+                paginationContainer.appendChild(prevButton); paginationContainer.appendChild(pageInfo); paginationContainer.appendChild(nextButton);
+            };
+
+            const displayConversation = async (conversationId) => {
+                const conv = conversations[conversationId];
+                if (!conv) { conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Could not find conversation.</div>'; return; }
+                const headerHtml = `<div class="email-header-info p-3 border-bottom d-flex justify-content-between align-items-center"><div><div class="subject-line fw-500">${conv.subject}</div><div class="address-line" style="font-size: 14px;">Conversation with: ${conv.otherUser}</div></div><div><button class="btn btn-sm btn-outline-danger" id="delete-conv-btn-main" data-conversation-id="${conv.id}" title="Delete Conversation"><i class="bi bi-trash"></i></button><a href="#reply-action-container" class="btn btn-sm btn-one ms-2"><i class="bi bi-reply-fill"></i> Reply</a></div></div>`;
+                let bodyHtml = '<div class="email-body flex-grow-1">'; const companyLogoUrl = companyProfileData.logo || '../../images/placeholder.jpeg';
+                conv.messages.forEach(msg => { const isSentByEmployer = msg.sender === currentUser.user_id; const authorName = isSentByEmployer ? "You" : conv.otherUser; const formattedDate = new Date(msg.sent_at).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }); let avatarHtml = ''; if (isSentByEmployer) { avatarHtml = `<div class="message-avatar me-3"><img src="${companyLogoUrl}" alt="Your logo"></div>`; } else { const applicantInitial = conv.otherUser.charAt(0).toUpperCase(); avatarHtml = `<div class="message-avatar initial-circle me-3">${applicantInitial}</div>`; } bodyHtml += `<div class="email-thread-item"> ${avatarHtml} <div class="message-content flex-grow-1"><div class="email-thread-header"><span class="sent-date">${formattedDate}</span><span class="sender-name">${authorName}</span></div><div class="email-thread-body">${msg.body.replace(/\n/g, '<br>')}</div></div></div>`; }); bodyHtml += '</div>';
+                const replyActionsHtml = `<div class="reply-form-container p-3 d-flex justify-content-end align-items-center" id="reply-action-container"><button id="send-manual-btn" class="btn btn-outline-secondary me-2"><i class="bi bi-pencil-square me-1"></i> Send Manual Message</button><button id="use-template-btn" class="btn btn-one"><i class="bi bi-file-earmark-text me-1"></i> Use Template</button></div>`;
+                conversationDisplayContainer.innerHTML = headerHtml + bodyHtml + replyActionsHtml;
+                const emailBody = conversationDisplayContainer.querySelector('.email-body'); if(emailBody) emailBody.scrollTop = emailBody.scrollHeight;
+                const sendManualBtn = document.getElementById('send-manual-btn'); const useTemplateBtn = document.getElementById('use-template-btn');
+                if (sendManualBtn) { sendManualBtn.addEventListener('click', () => { composeForm.reset(); composeMessageContainer.style.display = 'none'; populateApplicantDropdown(composeRecipientSelect, conv.otherUserId); composeSubjectInput.value = `Re: ${conv.subject}`; populateTemplateDropdown(composeTemplateSelect); composeBodyTextarea.value = ''; composeModal.show(); }); }
+                if (useTemplateBtn) { useTemplateBtn.addEventListener('click', () => { openTemplateSelectModal(conv.otherUserId, conv.otherUser, conv.subject); }); }
+                const deleteBtnMain = document.getElementById('delete-conv-btn-main'); if(deleteBtnMain) deleteBtnMain.addEventListener('click', () => { deleteConversation(conversationId); });
+                if (conv.unread) { try { await apiFetch('messages/mark-as-read/', { method: 'POST', body: JSON.stringify({ sender_id: conv.otherUserId }) }); conv.unread = false; conv.messages.forEach(m => { if (m.recipient === currentUser.user_id) m.is_read = true; }); renderConversationList(conversationId, currentPage); checkUnreadMessages(); } catch (error) { console.error("Failed to mark messages as read:", error); } } // Pass currentPage
+            };
+
+            const deleteConversation = async (conversationId) => {
+                 const conv = conversations[conversationId]; 
+                 if (!conv) return; 
+
+                 // CRUCIAL: Get the base subject for selective deletion
+                 const baseSubject = conv.subject.replace(/^(Re: |re: )+/i, '').trim();
+
+                 const confirmed = await Swal.fire({ 
+                     title: 'Are you sure?', 
+                     text: `This will delete the thread "${conv.subject}" with ${conv.otherUser} (Applicant).`, 
+                     icon: 'warning', 
+                     showCancelButton: true, 
+                     confirmButtonColor: '#d33', 
+                     confirmButtonText: 'Yes, delete it!' 
+                 }); 
+
+                 if (confirmed.isConfirmed) { 
+                     try { 
+                         // 🛑 CORRECTED CALL: Use the modern, URL-based endpoint (messages/conversation/<id>/)
+                         const response = await apiFetch(`messages/conversation/${conv.otherUserId}/`, { 
+                             method: 'DELETE', 
+                             // Pass the subject in the body for thread selection
+                             body: JSON.stringify({ subject: baseSubject }) 
+                         }); 
+
+                         if (response.status === 204) { 
+                             showMessage('Conversation thread deleted successfully.'); 
+                             conversationDisplayContainer.innerHTML = '<div class="text-center p-5 m-auto">Conversation deleted.</div>'; 
+                             delete conversations[conversationId]; 
+                             renderConversationList(null, 1); 
+                         } else { 
+                             // Use the error logic from the applicant's file for consistency
+                             const errorResult = await response.json().catch(() => ({}));
+                             const errorMsg = errorResult.error || `Failed to delete (${response.status} ${response.statusText})`;
+                             throw new Error(errorMsg);
+                         }
+                     } catch (error) { 
+                         showMessage(`Error deleting conversation: ${error.message}`, true); 
+                     } 
+                 }
+            };
+            const checkUnreadMessages = async () => {
+                 try { const response = await apiFetch('messages/unread-count/'); if (!response.ok) return; const data = await response.json(); const badge = document.querySelector('#messages-nav-item .notification-badge'); if (badge) badge.style.display = data.unread_count > 0 ? 'block' : 'none'; } catch (error) { console.warn("Could not check unread messages:", error); }
+            };
+
+            // --- 7. PROFILE & TEMPLATE/APPLICANT FETCHING ---
+             const fetchCompanyProfile = async () => {
+                  try { const response = await apiFetch('profile/company/'); if (!response.ok) throw new Error('Failed fetch'); companyProfileData = await response.json(); profileNameEl.textContent = companyProfileData.name || 'Employer'; const logoUrl = companyProfileData.logo || '../../images/placeholder.jpeg'; if(logoPreview) logoPreview.src = logoUrl; localStorage.setItem('companyLogo', logoUrl); } catch (error) { console.error('Error fetching company profile:', error); profileNameEl.textContent = 'Employer'; if(logoPreview) logoPreview.src = '../../images/placeholder.jpeg'; }
+             };
+             const savedLogo = localStorage.getItem('companyLogo'); if (savedLogo && logoPreview) logoPreview.src = savedLogo; else if(logoPreview) logoPreview.src = '../../images/placeholder.jpeg';
+
+            const fetchCompanyTemplates = async () => {
+                 try { const response = await apiFetch('company-message-templates/'); if (!response.ok) throw new Error('Failed to fetch templates'); companyTemplates = await response.json(); } catch (error) { console.error("Error fetching company templates:", error); }
+            };
+
+            // --- 8. HELPER FUNCTIONS FOR DROPDOWNS ---
+            const populateApplicantDropdown = async (selectElement, selectedUserId = null) => {
+                 selectElement.innerHTML = '<option value="">Loading applicants...</option>'; selectElement.disabled = true;
+                 try { if(companyApplicants.length === 0) { const response = await apiFetch('company-applicants/'); if (!response.ok) throw new Error('Failed to fetch applicants'); companyApplicants = await response.json(); } selectElement.innerHTML = '<option value="">Select Applicant...</option>'; companyApplicants.forEach(app => { const userId = app.user_id || (app.user && app.user.id); if (!userId) return; const name = app.full_name || (app.user && app.user.full_name) || app.username || (app.user && app.user.username) || `User ${userId}`; const isSelected = selectedUserId && userId == selectedUserId; selectElement.innerHTML += `<option value="${userId}" ${isSelected ? 'selected' : ''}>${name}</option>`; });
+                 selectElement.disabled = (selectedUserId !== null);
+                 } catch (error) { console.error("Error populating applicants:", error); selectElement.innerHTML = '<option value="">Error loading applicants</option>'; selectElement.disabled = false; }
+            };
+            const populateTemplateDropdown = (selectElement) => {
+                 selectElement.innerHTML = '<option value="">Use a template (Optional)...</option>'; if (companyTemplates.length === 0) { selectElement.innerHTML = '<option value="">No templates found</option>'; return; } companyTemplates.forEach(tmpl => { selectElement.innerHTML += `<option value="${tmpl.id}">${tmpl.name} (${tmpl.template_type})</option>`; });
+            };
+
+
+            // --- 9. NEW TEMPLATE MODAL LOGIC ---
+            const openTemplateSelectModal = (recipientId, recipientName, conversationSubject = null) => {
+                currentTemplateRecipientId = recipientId; currentTemplateRecipientName = recipientName; currentTemplateJobTitle = conversationSubject;
+                templateSelectMsgContainer.style.display = 'none'; templatePreviewArea.style.display = 'none'; sendTemplateBtn.disabled = true;
+                populateTemplateDropdown(templateSelectDropdown); templateSelectDropdown.value = "";
+                templateSelectModal.show();
+            };
+
+            templateSelectDropdown.addEventListener('change', () => {
+                const templateId = templateSelectDropdown.value; templateSelectMsgContainer.style.display = 'none';
+                if (templateId) {
+                    const selectedTemplate = companyTemplates.find(t => t.id == templateId);
+                    if (selectedTemplate) {
+                        const applicantName = currentTemplateRecipientName || 'Applicant'; const companyName = companyProfileData.name || 'Our Company'; const jobTitle = currentTemplateJobTitle || '[Job Title]';
+                        previewSubject.textContent = selectedTemplate.subject.replace(/{applicant_name}/g, applicantName).replace(/{company_name}/g, companyName).replace(/{job_title}/g, jobTitle);
+                        previewBody.textContent = selectedTemplate.body.replace(/{applicant_name}/g, applicantName).replace(/{company_name}/g, companyName).replace(/{job_title}/g, jobTitle);
+                        templatePreviewArea.style.display = 'block'; sendTemplateBtn.disabled = false;
+                    } else { templatePreviewArea.style.display = 'none'; sendTemplateBtn.disabled = true; }
+                } else { templatePreviewArea.style.display = 'none'; sendTemplateBtn.disabled = true; }
             });
-        </script>
-    </div>
+
+            // Corrected Event Listener Binding
+            if (sendTemplateBtn) { // Check if the button exists before adding listener
+                 sendTemplateBtn.addEventListener('click', async () => {
+                     const templateId = templateSelectDropdown.value;
+                     if (!templateId || !currentTemplateRecipientId) { showMessage('Please select a template.', true, templateSelectMsgContainer); return; }
+                     const selectedTemplate = companyTemplates.find(t => t.id == templateId);
+                     if (!selectedTemplate) { showMessage('Selected template not found.', true, templateSelectMsgContainer); return; }
+                     sendTemplateBtn.disabled = true; sendTemplateBtn.textContent = 'Sending...';
+                     const applicantName = currentTemplateRecipientName || 'Applicant'; const companyName = companyProfileData.name || 'Our Company'; const jobTitle = currentTemplateJobTitle || '[Job Title]';
+                     const finalSubject = selectedTemplate.subject.replace(/{applicant_name}/g, applicantName).replace(/{company_name}/g, companyName).replace(/{job_title}/g, jobTitle);
+                     const finalBody = selectedTemplate.body.replace(/{applicant_name}/g, applicantName).replace(/{company_name}/g, companyName).replace(/{job_title}/g, jobTitle);
+                     const data = { recipient: currentTemplateRecipientId, subject: finalSubject, body: finalBody };
+                     try {
+                          const response = await apiFetch('messages/send/', { method: 'POST', body: JSON.stringify(data) });
+                          if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.detail || `Failed to send (${response.status})`); }
+                          showMessage('Template message sent successfully!', false); templateSelectModal.hide();
+                          const fakeMessage = { sender: currentUser.user_id, recipient: parseInt(currentTemplateRecipientId), subject: selectedTemplate.subject }; const newConversationId = getConversationId(fakeMessage);
+                          await fetchMessages(newConversationId); // Refresh conversation
+                      } catch (error) { showMessage(error.message, true, templateSelectMsgContainer); } finally { sendTemplateBtn.disabled = false; sendTemplateBtn.textContent = 'Send Template Message'; }
+                 });
+            } else {
+                 console.error("Could not find the 'send-template-btn' element."); // Log error if button missing
+            }
+
+            // --- 10. OTHER EVENT LISTENERS ---
+            composeTemplateSelect.addEventListener('change', (e) => { /* ... unchanged ... */
+                const templateId = e.target.value; if (!templateId) { composeSubjectInput.value = ''; composeBodyTextarea.value = ''; return; } const selectedTemplate = companyTemplates.find(t => t.id == templateId); if (selectedTemplate) { composeSubjectInput.value = selectedTemplate.subject; composeBodyTextarea.value = selectedTemplate.body; }
+            });
+             composeModalEl.addEventListener('show.bs.modal', async () => { /* ... unchanged ... */
+                 composeForm.reset(); composeMessageContainer.style.display = 'none'; await populateApplicantDropdown(composeRecipientSelect); populateTemplateDropdown(composeTemplateSelect);
+             });
+             sendComposeBtn.addEventListener('click', async () => { /* ... unchanged ... */
+                 if (!composeForm.checkValidity()) { composeForm.reportValidity(); showMessage('Please select an applicant and fill in subject/body.', true, composeMessageContainer); return; } sendComposeBtn.disabled = true; sendComposeBtn.textContent = 'Sending...'; const recipientId = composeRecipientSelect.value; let subject = composeSubjectInput.value; let body = composeBodyTextarea.value; const selectedApplicant = companyApplicants.find(a => (a.user_id || (a.user && a.user.id)) == recipientId); const applicantName = selectedApplicant ? (selectedApplicant.full_name || (selectedApplicant.user && selectedApplicant.user.username)) : 'Applicant'; const companyName = companyProfileData.name || 'Our Company'; subject = subject.replace(/{applicant_name}/g, applicantName).replace(/{company_name}/g, companyName); body = body.replace(/{applicant_name}/g, applicantName).replace(/{company_name}/g, companyName); const data = { recipient: recipientId, subject: subject, body: body }; try { const response = await apiFetch('messages/send/', { method: 'POST', body: JSON.stringify(data) }); if (!response.ok) { const errorData = await response.json(); throw new Error(errorData.detail || `Failed to send (${response.status})`); } showMessage('Message sent successfully!', false); composeModal.hide(); const fakeMessage = { sender: currentUser.user_id, recipient: parseInt(recipientId), subject: composeSubjectInput.value }; const newConversationId = getConversationId(fakeMessage); await fetchMessages(newConversationId); } catch (error) { showMessage(error.message, true, composeMessageContainer); } finally { sendComposeBtn.disabled = false; sendComposeBtn.textContent = 'Send Message'; }
+             });
+            window.addEventListener('click', () => { contextMenu.style.display = 'none'; });
+            contextMenuDeleteBtn.addEventListener('click', () => { const conversationId = contextMenu.dataset.conversationId; if (conversationId) { deleteConversation(conversationId); } contextMenu.style.display = 'none'; });
+            logoutBtn.addEventListener('click', (e) => { e.preventDefault(); localStorage.clear(); window.location.href = '../../index.html'; });
+
+            // --- 11. INITIAL LOAD ---
+            const init = async () => { await fetchCompanyProfile(); await fetchCompanyTemplates(); fetchMessages(); checkUnreadMessages(); };
+            init();
+
+        }); // End DOMContentLoaded
+    </script>
+
 </body>
 </html>

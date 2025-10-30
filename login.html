@@ -93,41 +93,122 @@
         document.addEventListener('DOMContentLoaded', () => {
             const loginForm = document.getElementById('login-form');
             const errorMessageDiv = document.getElementById('error-message');
+            const submitButton = loginForm.querySelector('button[type="submit"]'); // Get the button
 
             loginForm.addEventListener('submit', async (event) => {
                 event.preventDefault();
+                submitButton.disabled = true; // Disable button on submit
+                submitButton.textContent = 'Logging in...'; // Change button text
+                
                 const formData = new FormData(loginForm);
                 const data = Object.fromEntries(formData.entries());
-                const apiURL = 'http://127.0.0.1:8000/api/v1/accounts/token/';
+                const tokenApiURL = 'http://127.0.0.1:8000/api/v1/accounts/token/';
+                const profileApiURL = 'http://127.0.0.1:8000/api/v1/accounts/profile/'; // Base profile URL
                 errorMessageDiv.style.display = 'none';
 
                 try {
-                    const response = await fetch(apiURL, {
+                    // --- 1. Get Tokens ---
+                    const tokenResponse = await fetch(tokenApiURL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(data),
                     });
-                    const result = await response.json();
-                    if (!response.ok) {
-                        errorMessageDiv.textContent = result.detail || 'Invalid credentials.';
+                    
+                    const tokenResult = await tokenResponse.json();
+                    
+                    if (!tokenResponse.ok) {
+                        errorMessageDiv.textContent = tokenResult.detail || 'Invalid email or password.';
                         errorMessageDiv.style.display = 'block';
-                    } else {
-                        localStorage.setItem('accessToken', result.access);
-                        localStorage.setItem('refreshToken', result.refresh);
-                        const decodedToken = jwt_decode(result.access);
-                        if (decodedToken.user_type === 'applicant') {
-                            window.location.href = 'dashboard/applicant/candidate-dashboard-index.html';
-                        } else if (decodedToken.user_type === 'company') {
-                            window.location.href = 'dashboard/employer/employer-dashboard-index.html';
-                        } else {
-                            window.location.href = 'index.html';
+                        throw new Error('Login failed'); // Stop execution
+                    } 
+                    
+                    // --- 2. Save Tokens and Decode ---
+                    const accessToken = tokenResult.access;
+                    const refreshToken = tokenResult.refresh;
+                    localStorage.setItem('accessToken', accessToken);
+                    localStorage.setItem('refreshToken', refreshToken);
+                    
+                    const decodedToken = jwt_decode(accessToken);
+                    const userType = decodedToken.user_type;
+                    
+                    // --- 3. Fetch Profile (if Company) and Save Logo ---
+                    let dashboardUrl = 'index.html'; // Default redirect
+
+                    if (userType === 'applicant') {
+                        dashboardUrl = 'dashboard/applicant/candidate-dashboard-index.html';
+                        // Applicant logged in, redirect immediately
+                        window.location.href = dashboardUrl;
+                    } else if (userType === 'company') {
+                        dashboardUrl = 'dashboard/employer/employer-dashboard-index.html';
+                        try {
+                            // Fetch company profile to get the logo
+                            const profileResponse = await fetch(`${profileApiURL}company/`, {
+                                method: 'GET',
+                                headers: { 'Authorization': `Bearer ${accessToken}` }
+                            });
+                            
+                            if (profileResponse.ok) {
+                                const profileData = await profileResponse.json();
+                                const logoUrl = profileData.logo || null; // Get logo URL or null
+                                if (logoUrl) {
+                                    localStorage.setItem('companyLogo', logoUrl);
+                                    console.log('Company logo saved to localStorage.');
+                                } else {
+                                    localStorage.removeItem('companyLogo'); // Remove if no logo exists
+                                }
+                            } else {
+                                // Profile fetch failed, but login succeeded. 
+                                // Log error and proceed without logo.
+                                console.error('Failed to fetch company profile after login. Status:', profileResponse.status);
+                                localStorage.removeItem('companyLogo'); // Ensure no stale logo exists
+                            }
+                        } catch (profileError) {
+                            console.error('Error fetching company profile after login:', profileError);
+                            localStorage.removeItem('companyLogo'); // Ensure no stale logo exists
                         }
+                        // Company profile fetched (or failed gracefully), now redirect
+                        window.location.href = dashboardUrl;
+                    } else {
+                        // Unknown user type, redirect to index
+                         window.location.href = dashboardUrl;
                     }
+                    
                 } catch (error) {
-                    errorMessageDiv.textContent = 'An unexpected error occurred. Please try again.';
-                    errorMessageDiv.style.display = 'block';
+                    // Only display general error if it wasn't a login failure specifically
+                    if (error.message !== 'Login failed') {
+                        errorMessageDiv.textContent = 'An unexpected error occurred. Please try again.';
+                        errorMessageDiv.style.display = 'block';
+                    }
+                    console.error("Login process error:", error);
+                    submitButton.disabled = false; // Re-enable button on error
+                    submitButton.textContent = 'Login'; // Reset button text
                 }
             });
+
+            // --- Redirect if already logged in ---
+            const checkExistingToken = () => {
+                 const token = localStorage.getItem('accessToken');
+                 if (token) {
+                    try {
+                        const decoded = jwt_decode(token);
+                         const dashboardUrl = decoded.user_type === 'applicant' 
+                            ? 'dashboard/applicant/candidate-dashboard-index.html' 
+                            : (decoded.user_type === 'company' ? 'dashboard/employer/employer-dashboard-index.html' : null);
+                        
+                        // Check if token expiry exists and is in the future
+                        if (decoded.exp && (decoded.exp * 1000 > Date.now()) && dashboardUrl) {
+                             console.log('Already logged in, redirecting...');
+                             window.location.href = dashboardUrl;
+                        } else {
+                             // Token expired or invalid type
+                             localStorage.clear(); 
+                        }
+                    } catch(e) {
+                         localStorage.clear(); // Invalid token
+                    }
+                 }
+            };
+            checkExistingToken(); // Check on page load
         });
     </script>
 </body>

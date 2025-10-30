@@ -2,90 +2,78 @@
 <html lang="en">
 
 <head>
-	<meta charset="UTF-8">
-	<title>CuroJobs - Saved Jobs</title>
+    <meta charset="UTF-8">
+    <title>CuroJobs - Saved Jobs</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" sizes="56x56" href="../../images/fav-icon/icon.png">
-	<link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
-	<link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
-	<link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/bootstrap.min.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/style.css" media="all">
+    <link rel="stylesheet" type="text/css" href="../../css/responsive.css" media="all">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-
-	</head>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 
 <body>
-	<div class="main-page-wrapper">
-		<div id="preloader">
-			<div id="ctn-preloader" class="ctn-preloader">
-				<div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
-				<div class="txt-loading">
-					<span data-text-preloader="C" class="letters-loading">
-						C
-					</span>
-					<span data-text-preloader="U" class="letters-loading">
-						U
-					</span>
-					<span data-text-preloader="R" class="letters-loading">
-						R
-					</span>
-					<span data-text-preloader="O" class="letters-loading">
-						O
-					</span>
-                    <span data-text-preloader="J" class="letters-loading">
-						J
-					</span>
-                    <span data-text-preloader="O" class="letters-loading">
-						O
-					</span>
-                    <span data-text-preloader="B" class="letters-loading">
-						B
-					</span>
-                    <span data-text-preloader="S" class="letters-loading">
-						S
-					</span>
-				</div>
-			</div>
-		</div>
+    <div class="main-page-wrapper">
+        <div id="preloader">
+            <div id="ctn-preloader" class="ctn-preloader">
+                <div class="icon"><img src="../../images/loader.svg" alt="" class="m-auto d-block" width="60"></div>
+                <div class="txt-loading">
+                    <span data-text-preloader="C" class="letters-loading">C</span>
+                    <span data-text-preloader="U" class="letters-loading">U</span>
+                    <span data-text-preloader="R" class="letters-loading">R</span>
+                    <span data-text-preloader="O" class="letters-loading">O</span>
+                    <span data-text-preloader="J" class="letters-loading">J</span>
+                    <span data-text-preloader="O" class="letters-loading">O</span>
+                    <span data-text-preloader="B" class="letters-loading">B</span>
+                    <span data-text-preloader="S" class="letters-loading">S</span>
+                </div>
+            </div>
+        </div>
 
-		<aside class="dash-aside-navbar">
-			<div class="position-relative">
-				<div class="logo text-md-center d-md-block d-flex align-items-center justify-content-between">
-					<a href="../../index.html">
-						<img src="../../images/logo/logo_02.png" alt="" class="curo">
-					</a>
-					<button class="close-btn d-block d-md-none"><i class="bi bi-x-lg"></i></button>
-				</div>
-				<div class="user-data d-flex flex-column align-items-center">
-                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle"></div>
+        <aside class="dash-aside-navbar">
+            <div class="position-relative">
+                <div class="logo text-md-center d-md-block d-flex align-items-center justify-content-between">
+                    <a href="../../index.html">
+                        <img src="../../images/logo/logo_02.png" alt="" class="curo">
+                    </a>
+                    <button class="close-btn d-block d-md-none"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="user-data d-flex flex-column align-items-center">
+                    <div id="user-avatar-placeholder" class="user-avatar online position-relative rounded-circle" style="width: 60px; height: 60px;">
+                        </div>
                     <div class="user-name-data mt-2">
-						<button class="user-name" id="profile-dropdown">
-							Loading...
-						</button>
-					</div>
-				</div>
+                        <button class="user-name" id="profile-dropdown">
+                            Loading...
+                        </button>
+                    </div>
+                </div>
                 <nav class="dasboard-main-nav">
                     <ul class="style-none">
                         <li><a href="candidate-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
+                        <li><a href="../../job-list-v1.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_03.svg" alt=""><span>Find Jobs</span></a></li>
                         <li><a href="candidate-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="candidate-dashboard-saved-jobs.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_6_active.svg" alt=""><span>Saved Jobs</span></a></li>
-                        <li><a href="candidate-dashboard-job-alert.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_5_active.svg" alt=""><span>Job Alerts</span></a></li>
+                        <li><a href="candidate-dashboard-job-alert.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_5.svg" alt=""><span>Job Alerts</span></a></li>
                         <li><a href="candidate-dashboard-message.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span></a></li>
                         <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
-			</div>
-		</aside>
-		<div class="dashboard-body">
-			<div class="position-relative">
-				<header class="dashboard-header">
-					<div class="d-flex align-items-center justify-content-end">
-						<button class="dash-mobile-nav-toggler d-block d-md-none me-auto">
-							<span></span>
-						</button>
-					</div>
-				</header>
-				<div class="d-flex align-items-center justify-content-between mb-40 lg-mb-30">
+            </div>
+        </aside>
+
+        <div class="dashboard-body">
+            <div class="position-relative">
+                <header class="dashboard-header">
+                    <div class="d-flex align-items-center justify-content-end">
+                        <button class="dash-mobile-nav-toggler d-block d-md-none me-auto">
+                            <span></span>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="d-flex align-items-center justify-content-between mb-40 lg-mb-30">
                     <h2 class="main-title m0">Saved Jobs</h2>
                     <div class="short-filter d-flex align-items-center">
                         <div class="text-dark fw-500 me-2">Sort by:</div>
@@ -96,82 +84,90 @@
                     </div>
                 </div>
 
-				<div class="wrapper" id="saved-jobs-container">
+                <div class="wrapper" id="saved-jobs-container">
                     <div class="text-center p-5"><h4>Loading saved jobs...</h4></div>
-				</div>
+                </div>
 
                 <div class="dash-pagination d-flex justify-content-end mt-30" id="saved-jobs-pagination">
-                </div>			
-			</div>
-		</div>
-		        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+                                    </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-fullscreen modal-dialog-centered">
                 <div class="container">
                     <div class="remove-account-popup text-center modal-content">
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-						<img src="../../images/lazy.svg" data-src="images/icon/icon_22.svg" alt="" class="lazy-img m-auto">
-						<h2>Are you sure?</h2>
-						<p>Are you sure to delete your account? All data will be lost.</p>
-						<div class="button-group d-inline-flex justify-content-center align-items-center pt-15">
-							<a href="#" class="confirm-btn fw-500 tran3s me-3">Yes</a>
-							<button type="button" class="btn-close fw-500 ms-3" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
-						</div>
+                        <img src="../../images/lazy.svg" data-src="images/icon/icon_22.svg" alt="" class="lazy-img m-auto">
+                        <h2>Are you sure?</h2>
+                        <p>Are you sure to delete your account? All data will be lost.</p>
+                        <div class="button-group d-inline-flex justify-content-center align-items-center pt-15">
+                            <a href="#" class="confirm-btn fw-500 tran3s me-3">Yes</a>
+                            <button type="button" class="btn-close fw-500 ms-3" data-bs-dismiss="modal" aria-label="Close">Cancel</button>
+                        </div>
                     </div>
-                                    </div>
+                </div>
             </div>
         </div>
-		
+        
+        <button class="scroll-top">
+            <i class="bi bi-arrow-up-short"></i>
+        </button>
 
-
-		<button class="scroll-top">
-			<i class="bi bi-arrow-up-short"></i>
-		</button>
-
-
-
-
-		<script src="../../vendor/jquery.min.js"></script>
-		<script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-		<script src="../../vendor/wow/wow.min.js"></script>
-		<script src="../../vendor/jquery.lazy.min.js"></script>
-		<script src="../../vendor/jquery.counterup.min.js"></script>
-		<script src="../../vendor/jquery.waypoints.min.js"></script>
-		<script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
+        <script src="../../vendor/jquery.min.js"></script>
+        <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
+        <script src="../../vendor/jquery.counterup.min.js"></script>
+        <script src="../../vendor/jquery.waypoints.min.js"></script>
+        <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
-		<script src="../../js/theme.js"></script>
+        <script src="../../js/theme.js"></script>
         
         <script>
             document.addEventListener('DOMContentLoaded', () => {
+                // --- 1. Authentication Check ---
                 const accessToken = localStorage.getItem('accessToken');
-                if (!accessToken) { window.location.href = '../../login.html'; return; }
+                if (!accessToken) { 
+                    window.location.href = '../../login.html?next=dashboard/applicant/candidate-dashboard-saved-jobs.html'; 
+                    return; 
+                }
                 
                 let currentUser;
                 try {
                     currentUser = jwt_decode(accessToken);
-                    if (currentUser.user_type !== 'applicant') { window.location.href = '../../index.html'; return; }
+                    if (currentUser.user_type !== 'applicant') { 
+                        window.location.href = '../../index.html'; 
+                        return; 
+                    }
                 } catch (e) {
                     localStorage.clear();
                     window.location.href = '../../login.html';
                     return;
                 }
                 
-                // --- API Endpoints ---
+                // --- 2. API Endpoints ---
+                // These endpoints must match your Django urls.py
                 const BASE_API_URL = 'http://127.0.0.1:8000/api/v1/jobs/';
                 const ACCOUNTS_API_URL = 'http://127.0.0.1:8000/api/v1/accounts/';
                 
-                // --- Elements ---
+                // --- 3. Get Elements ---
                 const savedJobsContainer = document.getElementById('saved-jobs-container');
                 const profileNameEl = document.getElementById('profile-dropdown');
                 const avatarPlaceholder = document.getElementById('user-avatar-placeholder');
                 const logoutBtn = document.getElementById('logout-btn');
                 const sortSelect = document.getElementById('sort-saved-jobs');
                 
-                let savedJobsData = [];
+                let savedJobsData = []; // Local cache for all saved jobs
 
-                // --- Core API Fetch ---
+                // --- 4. Core API Fetch Wrapper ---
                 const apiFetch = async (endpoint, options = {}) => {
-                    const headers = { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` };
+                    const headers = { 
+                        'Content-Type': 'application/json', 
+                        'Authorization': `Bearer ${accessToken}` 
+                    };
                     const response = await fetch(endpoint, { ...options, headers });
+                    
                     if (response.status === 401) {
                         localStorage.clear();
                         window.location.href = '../../login.html';
@@ -179,35 +175,40 @@
                     return response;
                 };
 
-                // --- RENDERING ---
-
+                // --- 5. Rendering Logic ---
                 const renderJobs = () => {
                     // Filter: Only show jobs that the user has NOT applied to.
+                    // This assumes your API response includes an 'application_status'
                     const jobsToDisplay = savedJobsData.filter(job => !job.application_status);
                     
                     // Sort
                     const sortBy = sortSelect.value;
                     jobsToDisplay.sort((a, b) => {
-                        // Assuming saved_at exists on the job object from the SavedJobSerializer response
+                        // This assumes your API returns 'saved_at' on the main object
                         if (sortBy === 'oldest') return new Date(a.saved_at) - new Date(b.saved_at);
-                        return new Date(b.saved_at) - new Date(a.saved_at);
+                        return new Date(b.saved_at) - new Date(a.saved_at); // 'latest'
                     });
                     
                     savedJobsContainer.innerHTML = '';
                     
+                    // Empty state: All saved jobs have been applied to
                     if (jobsToDisplay.length === 0 && savedJobsData.length > 0) {
                         savedJobsContainer.innerHTML = '<div class="text-center p-5"><h4>All your saved jobs have been applied to!</h4><p>Check your dashboard for application statuses.</p></div>';
                         return;
                     }
                     
+                    // Empty state: No saved jobs at all
                     if (jobsToDisplay.length === 0) {
                          savedJobsContainer.innerHTML = '<div class="text-center p-5"><h4>You have no saved jobs.</h4><a href="../../job-list-v1.html" class="btn-one">Browse Jobs</a></div>';
                         return;
                     }
 
+                    // Render each job
                     jobsToDisplay.forEach(item => {
-                        // The savedJobsData list contains SavedJob objects, which have a nested 'job' field
+                        // Your JS expects a nested structure: { "saved_at": "...", "job": { ... } }
                         const job = item.job; 
+                        if (!job) return; // Skip if job data is missing
+                        
                         const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
                         const jobItem = document.createElement('div');
                         jobItem.className = 'job-list-one style-two position-relative mb-20';
@@ -245,16 +246,17 @@
                         savedJobsContainer.appendChild(jobItem);
                     });
                     
-                    // Re-attach listeners for dynamically created buttons
+                    // Re-attach listeners for dynamically created "remove" buttons
                     document.querySelectorAll('.remove-saved-job').forEach(btn => btn.addEventListener('click', handleRemoveJob));
                 };
 
-                // --- HANDLERS ---
+                // --- 6. Event Handlers ---
                 
                 const handleRemoveJob = async (e) => {
                     const jobId = e.currentTarget.dataset.jobId;
                     if (!jobId) return;
 
+                    // Use SweetAlert for confirmation
                     const confirmed = await Swal.fire({
                         title: 'Are you sure?',
                         text: "Do you want to remove this job from your saved list?",
@@ -267,7 +269,8 @@
 
                     if (confirmed.isConfirmed) {
                         try {
-                            // Using the new API endpoint for toggling saved status
+                            // Call the toggle endpoint with "unsave" action
+                            // This endpoint MUST be set up in your Django urls.py
                             const response = await apiFetch(`${BASE_API_URL}${jobId}/save/`, {
                                 method: 'POST', 
                                 body: JSON.stringify({ action: 'unsave' })
@@ -289,13 +292,13 @@
 
                 const fetchSavedJobs = async () => {
                     try {
+                        // Fetch the list of saved jobs
+                        // This endpoint MUST be set up in your Django urls.py
                         const response = await apiFetch(`${BASE_API_URL}saved/`); 
                         if (!response.ok) throw new Error('Failed to fetch saved jobs.');
                         
-                        // Assuming the API returns a list of SavedJob objects,
-                        // each containing a nested 'job' field and the 'saved_at' timestamp.
                         savedJobsData = await response.json();
-                        renderJobs();
+                        renderJobs(); // Render the jobs once data is fetched
 
                     } catch (error) {
                         savedJobsContainer.innerHTML = `<div class="text-center p-5 text-danger"><h4>Could not load saved jobs.</h4><p>${error.message}</p></div>`;
@@ -307,31 +310,70 @@
                         const response = await apiFetch(`${ACCOUNTS_API_URL}profile/applicant/`);
                         if (!response.ok) throw new Error('Failed to fetch profile');
                         const profile = await response.json();
+                        
                         const username = profile.full_name || profile.user.username || 'Applicant';
                         profileNameEl.textContent = username;
+                        
+                        // Create a colorful avatar initial
                         if (avatarPlaceholder) {
                             const initial = username.charAt(0).toUpperCase();
-                            let hash = 0; for (let i = 0; i < username.length; i++) { hash = username.charCodeAt(i) + ((hash << 5) - hash); }
+                            let hash = 0; 
+                            for (let i = 0; i < username.length; i++) { 
+                                hash = username.charCodeAt(i) + ((hash << 5) - hash); 
+                            }
                             const color = `hsl(${hash % 360}, 50%, 60%)`;
                             avatarPlaceholder.style.cssText = `background-color:${color}; display:flex; align-items:center; justify-content:center; color:white; font-size:24px; font-weight:500;`;
                             avatarPlaceholder.innerHTML = initial;
                         }
-                    } catch (error) { console.error(error); }
+                    } catch (error) { 
+                        console.error("Profile fetch error:", error);
+                        profileNameEl.textContent = 'Applicant';
+                    }
                 };
 
-                // --- INITIALIZATION ---
+                // --- 7. Initialization ---
+                
+                // Add listener for the sort dropdown
                 $(sortSelect).on('change', renderJobs); 
 
+                // Add listener for the logout button
                 logoutBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     localStorage.clear();
                     window.location.href = '../../index.html';
                 });
                 
+                // Initial data fetch
                 fetchProfile();
                 fetchSavedJobs();
             });
         </script>
-	</div> </body>
-
+        
+        <style>
+            /* Simple style for the logo-initial created in JS */
+            .logo-initial {
+                width: 50px; height: 50px;
+                border-radius: 8px; background-color: #f0f5ff;
+                display: flex; align-items: center; justify-content: center;
+                font-size: 24px; font-weight: 500; color: #4866a6;
+            }
+            
+            /* Style for the remove button */
+            .action-btn {
+                width: 35px;
+                height: 35px;
+                background: #f0f5ff;
+                border: none;
+                border-radius: 50%;
+                color: #4866a6;
+                font-size: 16px;
+                transition: all 0.3s ease;
+            }
+            .action-btn:hover {
+                background: #e92f2f;
+                color: #fff;
+            }
+        </style>
+    </div>
+</body>
 </html>
