@@ -175,7 +175,7 @@
         </div>
       </div>
       
-       <div class="row pt-40">
+       <!-- <div class="row pt-40">
            <div class="col-lg-6 d-flex">
                <div class="recent-job-tab bg-white border-20 mt-30 w-100">
                    <h4 class="dash-title-two">Activity Feed (Placeholder)</h4>
@@ -188,7 +188,7 @@
                    <div class="wrapper p-3 text-center text-muted">Future widget area.</div>
                </div>
            </div>
-       </div>
+       </div> -->
        
     </div>
   </div>
@@ -320,12 +320,15 @@
             const statusClass = isActive ? 'text-success' : 'text-muted';
             const statusText = isActive ? 'Active' : (j.status || 'Closed');
             
-            const applicantsLink = `employer-dashboard-applicants.html?jobId=${j.id}`; 
+            // --- THIS IS THE CHANGE ---
+            const previewLink = `../../job-details.html?id=${j.id}`; 
+            // --- END CHANGE ---
             
             postedJobsContainer.insertAdjacentHTML('beforeend', `
               <div class="job-item-list d-flex align-items-center border-bottom py-3 px-3">
                 <div class="job-title flex-grow-1 text-start pe-3">
-                  <h6 class="mb-1"><a href="${applicantsLink}">${title}</a></h6>
+                  
+                  <h6 class="mb-1"><a href="${previewLink}" target="_blank">${title}</a></h6>
                   <div class="meta small text-muted">
                     <span>${jobType}</span> · <span>${location}</span>
                   </div>

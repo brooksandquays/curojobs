@@ -322,8 +322,11 @@
 
                         // --- Action Dropdown ---
                         let actionDropdownItems = `
-                            <li><a class="dropdown-item view-applicants-btn" href="employer-dashboard-job-applicants.html?jobId=${job.id}"><i class="bi bi-people"></i> View Applicants</a></li>
+                            <li><a class="dropdown-item view-applicants-btn" href="employer-dashboard-applicants.html?jobId=${job.id}"><i class="bi bi-people"></i> View Applicants</a></li>
                             <li><a class="dropdown-item edit-job-btn" href="employer-dashboard-submit-job.html?edit=${job.id}"><i class="bi bi-pencil-square"></i> Edit Job</a></li>
+                            
+                            <li><a class="dropdown-item" href="../../job-details.html?id=${job.id}" target="_blank"><i class="bi bi-eye"></i> Public Preview</a></li>
+                            
                             <li><hr class="dropdown-divider"></li>`;
 
                         if (jobStatus !== 'closed') {

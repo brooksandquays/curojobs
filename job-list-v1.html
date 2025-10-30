@@ -167,9 +167,9 @@
                                     <a class="filter-title fw-500 text-dark" data-bs-toggle="collapse" href="#collapseSalary" role="button" aria-expanded="true">Salary Range (Annual)</a>
                                     <div class="collapse show" id="collapseSalary">
                                         <ul class="style-none filter-input">
-                                            <li><input type="radio" name="salary_range" value="0-50k"><label>$0 - $50,000</label></li>
-                                            <li><input type="radio" name="salary_range" value="50-100k"><label>$50,000 - $100,000</label></li>
-                                            <li><input type="radio" name="salary_range" value="100k+"><label>$100,000 +</label></li>
+                                            <li><input type="checkbox" name="salary_range" value="0-50k"><label>$0 - $50,000</label></li>
+                                            <li><input type="checkbox" name="salary_range" value="50-100k"><label>$50,000 - $100,000</label></li>
+                                            <li><input type="checkbox" name="salary_range" value="100k+"><label>$100,000 +</label></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -564,21 +564,25 @@
 
                 // --- MODIFIED: getJobListHtml (to add save button) ---
                 const getJobListHtml = (job) => {
-                    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
-                    
-                    // --- NEW: Check if job is saved ---
+                    const logoUrl = job.company_logo || 'images/placeholder.jpeg'; // Adjust placeholder path if needed
+
+                    // --- NEW: Check if job is saved --- (Keep this part)
                     const isSaved = savedJobIds.has(job.id);
                     const savedClass = isSaved ? 'saved' : '';
                     const savedDisabled = isSaved ? 'disabled' : '';
-                    const savedIcon = isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'; // Change icon
+                    const savedIcon = isSaved ? 'bi-bookmark-fill' : 'bi-bookmark';
                     // ---
-                    
+
                     return `
                         <div class="job-list-one style-two position-relative border-style mb-20">
                             <div class="row justify-content-between align-items-center">
                                 <div class="col-md-5">
                                     <div class="job-title d-flex align-items-center">
-                                        <a href="job-details.html?id=${job.id}" class="logo"><div class="logo-initial">${companyInitial}</div></a>
+                                        
+                                        <a href="job-details.html?id=${job.id}" class="logo"> 
+                                            <img src="${logoUrl}" alt="${job.company_name || 'Company'} logo">
+                                        </a> 
+                                        
                                         <div class="split-box1 ms-3">
                                             <div class="job-duration fw-500">${job.job_type || 'N/A'}</div>
                                             <a href="job-details.html?id=${job.id}" class="title fw-500 tran3s">${job.title}</a>
@@ -586,7 +590,7 @@
                                     </div>
                                 </div>
                                 <div class="col-md-4 col-sm-6">
-                                    <div class="job-location"><i class="bi bi-geo-alt"></i> ${job.location || 'N/A'}</div>
+                                    <div class="job-location"><i class="bi bi-geo-alt"></i> ${job.location || job.city || job.state || 'N/A'}</div> 
                                     <div class="job-salary"><span class="fw-500 text-dark">${job.salary || 'Competitive'}</span></div>
                                 </div>
                                 <div class="col-md-3 col-sm-6">
@@ -603,24 +607,28 @@
 
                 // --- MODIFIED: getJobGridHtml (to add save button) ---
                 const getJobGridHtml = (job) => {
-                    const companyInitial = job.company_name ? job.company_name.charAt(0).toUpperCase() : '?';
+                    const logoUrl = job.company_logo || 'images/placeholder.jpeg'; // Adjust placeholder path if needed
 
-                    // --- NEW: Check if job is saved ---
+                    // --- NEW: Check if job is saved --- (Keep this part)
                     const isSaved = savedJobIds.has(job.id);
                     const savedClass = isSaved ? 'saved' : '';
                     const savedDisabled = isSaved ? 'disabled' : '';
-                    const savedIcon = isSaved ? 'bi-bookmark-fill' : 'bi-bookmark'; // Change icon
+                    const savedIcon = isSaved ? 'bi-bookmark-fill' : 'bi-bookmark';
                     // ---
 
                     return `
                         <div class="col-sm-6 mb-30">
                             <div class="job-list-two style-two position-relative">
-                                <a href="job-details.html?id=${job.id}" class="logo"><div class="logo-initial">${companyInitial}</div></a>
+                            
+                                <a href="job-details.html?id=${job.id}" class="logo">
+                                    <img src="${logoUrl}" alt="${job.company_name || 'Company'} logo">
+                                </a>
+                                
                                 <div class="job-duration fw-500">${job.job_type || 'N/A'}</div>
                                 <a href="job-details.html?id=${job.id}" class="title fw-500 tran3s">${job.title}</a>
                                 <div class="job-salary"><span class="fw-500 text-dark">${job.salary || 'Competitive'}</span></div>
                                 <div class="d-flex align-items-center justify-content-between mt-auto">
-                                    <div class="job-location"><a href="#"><i class="bi bi-geo-alt"></i> ${job.location || 'N/A'}</a></div>
+                                    <div class="job-location"><a href="#"><i class="bi bi-geo-alt"></i> ${job.location || job.city || job.state || 'N/A'}</a></div>
                                     
                                     <div class="d-flex align-items-center">
                                         <button class="save-job-btn tran3s ${savedClass}" title="Save Job" data-job-id="${job.id}" ${savedDisabled}>
@@ -768,6 +776,25 @@
                 font-size: 24px; font-weight: 500; color: #4866a6;
             }
             .job-list-two .logo-initial { width: 60px; height: 60px; }
+
+            /* --- NEW CSS FOR LOGO IMAGE --- */
+            .job-title .logo img,
+            .job-list-two .logo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain; /* Use 'contain' for logos to avoid cropping */
+                border-radius: 8px; /* Match the original style */
+            }
+
+            /* Adjust the logo link container */
+            .job-title .logo,
+            .job-list-two .logo {
+                display: block; /* Ensure the link behaves like a block */
+                background-color: #fff; /* Optional: Set a background for contain images */
+                border: 1px solid #eee; /* Optional: Add a light border */
+                overflow: hidden; /* Ensure image stays within rounded corners */
+            }
+            /* --- END OF NEW CSS --- */
 
             /* --- NEW CSS FOR SAVE BUTTON --- */
             .save-job-btn {

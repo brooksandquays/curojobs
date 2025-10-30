@@ -19,6 +19,37 @@
             border: 2px solid white; 
             display: none; 
         }
+        
+        /* --- Sidebar Fix (from your other files) --- */
+        .dash-aside-navbar .user-data {
+            display: flex; flex-direction: column; align-items: center; text-align: center; 
+            margin-bottom: 20px; padding-top: 15px; 
+        }
+        .dash-aside-navbar .user-avatar {
+            width: 60px; height: 60px; margin-bottom: 10px; overflow: hidden; border-radius: 50%;
+        }
+        .dash-aside-navbar .user-avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .dash-aside-navbar .user-name-data { margin-top: 0; }
+        .dash-aside-navbar .user-name { font-size: 16px; font-weight: 500; color: #333; }
+        #company-logo-preview { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* --- Candidate Name Link Style --- */
+        .candidate-name-link {
+            font-weight: 500;
+            color: #244034;
+            text-decoration: none;
+        }
+        .candidate-name-link:hover {
+            text-decoration: underline;
+        }
+        
+        /* --- Action Button Sizing --- */
+        .action-btn-dropdown {
+            min-width: 120px;
+        }
+        
     </style>
 </head>
 
@@ -32,12 +63,11 @@
                     </a>
                 </div>
                 <div class="user-data">
-                    <div class="user-avatar online position-relative rounded-circle"><img src="../../images/avatar_01.jpg" alt="" class="lazy-img"></div>
+                    <div class="user-avatar online position-relative rounded-circle">
+                        <img id="company-logo-preview" src="../../images/placeholder.jpeg" alt="Company Logo" class="lazy-img">
+                    </div>
                     <div class="user-name-data">
-                        <button class="user-name dropdown-toggle" id="profile-dropdown" data-bs-toggle="dropdown" aria-expanded="false">Loading...</button>
-                        <ul class="dropdown-menu" aria-labelledby="profile-dropdown">
-                            <li><a class="dropdown-item d-flex align-items-center" href="employer-dashboard-profile.html"><img src="../../images/icon/icon_23.svg" alt="" class="lazy-img me-2"><span>Profile</span></a></li>
-                        </ul>
+                        <div class="user-name" id="profile-dropdown">Loading...</div>
                     </div>
                 </div>
                 <nav class="dasboard-main-nav">
@@ -45,15 +75,15 @@
                         <li><a href="employer-dashboard-index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_1.svg" alt=""><span>Dashboard</span></a></li>
                         <li><a href="employer-dashboard-profile.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_2.svg" alt=""><span>My Profile</span></a></li>
                         <li><a href="employer-dashboard-jobs.html" class="d-flex w-100 align-items-center active"><img src="../../images/icon/icon_3_active.svg" alt=""><span>My Jobs</span></a></li>
-                        <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
-                        <li class="border-top pt-10 mt-10"><a href="../../index.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_8.svg" alt=""><span>Back to Home</span></a></li>
-                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39.svg" alt=""><span>Submit Job</span></a></li>
+                        <li><a href="employer-dashboard-submit-job.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_39 copy.svg" alt=""><span>Submit Job</span></a></li>
                         <li id="messages-nav-item" style="position: relative;">
                             <a href="employer-dashboard-message.html" class="d-flex w-100 align-items-center">
                                 <img src="../../images/icon/icon_4.svg" alt=""><span>Messages</span>
                             </a>
                             <span class="notification-badge"></span>
                         </li>
+                        <li><a href="employer-dashboard-message-setting.html" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_7.svg" alt=""><span>Msg Settings</span></a></li>
+                        <li><a href="../../index.html" class="d-flex w-100 align-items-center mt-10 pt-10"><img src="../../images/icon/icon_30 copy.svg" alt=""><span>Back to Home</span></a></li>
                         <li><a href="#" id="logout-btn" class="d-flex w-100 align-items-center"><img src="../../images/icon/icon_9.svg" alt=""><span>Logout</span></a></li>
                     </ul>
                 </nav>
@@ -72,12 +102,11 @@
                                 <tr>
                                     <th scope="col">Applicant Name</th>
                                     <th scope="col">Applied Date</th>
-                                    <th scope="col">Status</th>
-                                    <th scope="col">Action</th>
+                                    <th scope="col" class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody id="applicants-container">
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -88,7 +117,13 @@
         <script src="../../vendor/jquery.min.js"></script>
         <script src="../../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../../vendor/jwt-decode.js"></script>
+        
+        <script src="../../vendor/wow/wow.min.js"></script>
+        <script src="../../vendor/jquery.lazy.min.js"></script>
+        <script src="../../vendor/nice-select/jquery.nice-select.min.js"></script>
+        
         <script src="../../js/theme.js"></script>
+        
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const accessToken = localStorage.getItem('accessToken');
@@ -108,13 +143,15 @@
                 const applicantsContainer = document.getElementById('applicants-container');
                 const jobTitlePlaceholder = document.getElementById('job-title-placeholder');
                 const profileNameEl = document.getElementById('profile-dropdown');
+                const logoPreview = document.getElementById('company-logo-preview'); // Added logo element
                 const messageContainer = document.getElementById('message-container');
                 const logoutBtn = document.getElementById('logout-btn');
                 const baseApiURL = 'http://127.0.0.1:8000/api/v1/';
 
                 if (!jobId) {
                     jobTitlePlaceholder.textContent = "an Unknown Job";
-                    applicantsContainer.innerHTML = '<tr><td colspan="4" class="text-center text-danger">Error: Job ID is missing from the URL.</td></tr>';
+                    // UPDATED: colspan is now 3
+                    applicantsContainer.innerHTML = '<tr><td colspan="3" class="text-center text-danger">Error: Job ID is missing from the URL.</td></tr>';
                     return;
                 }
 
@@ -145,23 +182,38 @@
                     } catch (error) { console.error("Could not check for unread messages.", error); }
                 };
 
+                // UPDATED: Now loads sidebar logo from localStorage and API
                 const fetchProfile = async () => {
+                    const savedLogo = localStorage.getItem('companyLogo');
+                    if (savedLogo) logoPreview.src = savedLogo;
+                    
                     try {
                         const response = await apiFetch('accounts/profile/company/');
-                        if (!response.ok) return;
+                        if (!response.ok) throw new Error('Failed to fetch profile');
                         const profile = await response.json();
                         profileNameEl.textContent = profile.name || 'Employer';
-                    } catch (error) { console.error(error); }
+                        
+                        const logoUrl = profile.logo || '../../images/placeholder.jpeg';
+                        logoPreview.src = logoUrl;
+                        localStorage.setItem('companyLogo', logoUrl);
+                        
+                    } catch (error) { 
+                        console.error(error); 
+                        if (!savedLogo) logoPreview.src = '../../images/placeholder.jpeg';
+                        profileNameEl.textContent = 'Employer';
+                    }
                 };
 
                 const fetchApplicants = async () => {
-                    applicantsContainer.innerHTML = '<tr><td colspan="4" class="text-center">Loading applicants...</td></tr>';
+                    // UPDATED: colspan is now 3
+                    applicantsContainer.innerHTML = '<tr><td colspan="3" class="text-center">Loading applicants...</td></tr>';
                     try {
                         const response = await apiFetch(`jobs/${jobId}/applicants/`);
                         if (!response.ok) throw new Error('Failed to fetch applicants.');
                         
                         const applications = await response.json();
                         
+                        // Logic to get Job Title (unchanged, but good)
                         if (applications.length > 0 && applications[0].job) {
                             jobTitlePlaceholder.textContent = `"${applications[0].job.title}"`;
                         } else {
@@ -174,46 +226,131 @@
                         
                         applicantsContainer.innerHTML = '';
                         if (applications.length === 0) {
-                            applicantsContainer.innerHTML = '<tr><td colspan="4" class="text-center">No applicants for this job yet.</td></tr>';
+                            // UPDATED: colspan is now 3
+                            applicantsContainer.innerHTML = '<tr><td colspan="3" class="text-center">No applicants for this job yet.</td></tr>';
                             return;
                         }
 
+                        // --- START OF NEW DYNAMIC BUTTON LOGIC ---
                         applications.forEach(app => {
                             const applicantRow = document.createElement('tr');
                             const appliedDate = new Date(app.applied_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
                             
+                            // 1. Define all variables
+                            const status = app.status;
+                            const appId = app.id;
+                            const applicantName = app.applicant.full_name || app.applicant.user.username;
+                            const applicantUserId = app.applicant.user.id;
+                            
+                            let buttonLabel = status.charAt(0).toUpperCase() + status.slice(1);
+                            let buttonClass = 'btn-outline-secondary'; // Default color
+                            let dropdownItems = ''; // To store the <li> elements
+
+                            // 2. Define standard links
+                            const profileLink = `employer-dashboard-applicant-profile.html?applicantId=${applicantUserId}`;
+                            const messageLink = `employer-dashboard-message.html?recipientId=${applicantUserId}&recipientName=${encodeURIComponent(applicantName)}`;
+                            
+                            const baseLinks = `
+                                <li><a class="dropdown-item" href="${profileLink}">View Profile</a></li>
+                                <li><a class="dropdown-item" href="${messageLink}">Send Message</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            `;
+
+                            // 3. Set button style and menu items based on status
+                            switch (status) {
+                                case 'applied':
+                                    buttonClass = 'btn-outline-primary';
+                                    dropdownItems = `
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="shortlisted">Shortlist</a></li>
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="interview">Invite to Interview</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${appId}" data-status="rejected">Reject</a></li>
+                                    `;
+                                    break;
+                                case 'shortlisted':
+                                    buttonClass = 'btn-outline-info';
+                                    dropdownItems = `
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="interview">Invite to Interview</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${appId}" data-status="rejected">Reject</a></li>
+                                    `;
+                                    break;
+                                case 'interview':
+                                    buttonClass = 'btn-outline-warning';
+                                    dropdownItems = `
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="selected">Mark as Selected</a></li>
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="hired">Mark as Hired</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${appId}" data-status="rejected">Reject</a></li>
+                                    `;
+                                    break;
+                                case 'selected':
+                                    buttonClass = 'btn-outline-success';
+                                    dropdownItems = `
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="hired">Mark as Hired</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${appId}" data-status="rejected">Reject</a></li>
+                                    `;
+                                    break;
+                                case 'hired':
+                                    buttonClass = 'btn-success';
+                                    dropdownItems = ''; // No more actions
+                                    break;
+                                case 'rejected':
+                                    buttonClass = 'btn-danger';
+                                    dropdownItems = `
+                                        <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${appId}" data-status="applied">Revert to Applied (Undo)</a></li>
+                                    `;
+                                    break;
+                                default:
+                                    // Fallback for any other statuses like 'progress', 'hold'
+                                    buttonLabel = status.charAt(0).toUpperCase() + status.slice(1);
+                                    buttonClass = 'btn-outline-secondary';
+                                    dropdownItems = `
+                                        <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${appId}" data-status="rejected">Reject</a></li>
+                                    `;
+                            }
+                            
+                            // 4. Build the final HTML for the row
                             applicantRow.innerHTML = `
-                                <td><div class="candidate-name fw-500">${app.applicant.full_name || app.applicant.user.username}</div></td>
-                                <td>${appliedDate}</td>
-                                <td><div class="job-status text-capitalize">${app.status}</div></td>
                                 <td>
+                                    <a href="${profileLink}" class="candidate-name-link">${applicantName}</a>
+                                </td>
+                                <td>${appliedDate}</td>
+                                <td class="text-end">
                                     <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Actions</button>
+                                        <button type="button" class="btn btn-sm ${buttonClass} dropdown-toggle action-btn-dropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                            ${buttonLabel}
+                                        </button>
                                         <ul class="dropdown-menu dropdown-menu-end">
-                                            <li><a class="dropdown-item" href="employer-dashboard-applicant-profile.html?applicantId=${app.applicant.user.id}">View Profile</a></li>
-                                            
-                                            <li><a class="dropdown-item" href="employer-dashboard-message.html?recipientId=${app.applicant.user.id}&recipientName=${encodeURIComponent(app.applicant.full_name || app.applicant.user.username)}">Send Message</a></li>
-                                            <li class="dropdown-divider"></li>
-                                            <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${app.id}" data-status="progress">Mark as In Progress</a></li>
-                                            <li><a class="dropdown-item update-status-btn" href="#" data-app-id="${app.id}" data-status="selected">Mark as Selected</a></li>
-                                            <li><a class="dropdown-item update-status-btn text-danger" href="#" data-app-id="${app.id}" data-status="rejected">Reject</a></li>
+                                            ${baseLinks}
+                                            ${dropdownItems}
                                         </ul>
                                     </div>
                                 </td>
                             `;
+                            // --- END OF NEW DYNAMIC BUTTON LOGIC ---
+                            
                             applicantsContainer.appendChild(applicantRow);
                         });
 
                     } catch (error) {
-                        applicantsContainer.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error: ${error.message}</td></tr>`;
+                        // UPDATED: colspan is now 3
+                        applicantsContainer.innerHTML = `<tr><td colspan="3" class="text-center text-danger">Error: ${error.message}</td></tr>`;
                     }
                 };
                 
+                // This function is unchanged and will work perfectly with the new buttons
                 const handleStatusUpdate = async (e) => {
                     if (!e.target.classList.contains('update-status-btn')) return;
                     e.preventDefault();
+                    
+                    const button = e.target.closest('.dropdown-toggle');
+                    if(button) button.disabled = true; // Disable button on click
+                    
                     const appId = e.target.dataset.appId;
                     const newStatus = e.target.dataset.status;
+                    
                     try {
                         const response = await apiFetch(`jobs/applications/${appId}/update-status/`, {
                             method: 'PATCH',
@@ -224,9 +361,10 @@
                             throw new Error(result.detail || 'Failed to update status.');
                         }
                         showMessage(`Application status updated successfully.`, false);
-                        fetchApplicants(); 
+                        fetchApplicants(); // Refresh the list to show the new status
                     } catch (error) {
                         showMessage(error.message, true);
+                        if(button) button.disabled = false; // Re-enable on error
                     }
                 };
 
